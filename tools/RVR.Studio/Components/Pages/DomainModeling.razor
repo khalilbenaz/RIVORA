@@ -1,0 +1,435 @@
+@page "/domain-modeling"
+@using RVR.Studio.DomainModeling
+@using System.Text.Json
+@rendermode InteractiveServer
+
+<PageTitle>RVR Studio - Domain Modeling</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Domain Modeling</h2>
+            <p class="text-muted">Visual domain model designer &mdash; define bounded contexts, entities, value objects, events, and relationships. Export to C#, Mermaid, or PlantUML.</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(_statusMessage))
+    {
+        <div class="alert @_statusCss alert-dismissible fade show" role="alert">
+            @((MarkupString)_statusMessage)
+            <button type="button" class="btn-close" @onclick="@(() => _statusMessage = "")"></button>
+        </div>
+    }
+
+    <!-- Model metadata -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Model Name</label>
+            <input type="text" class="form-control" @bind="_model.Name" placeholder="e.g. ECommerce" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold">Version</label>
+            <input type="text" class="form-control" @bind="_model.Version" />
+        </div>
+        <div class="col-md-6 d-flex align-items-end gap-2">
+            <button class="btn btn-outline-primary" @onclick="AddBoundedContext">+ Bounded Context</button>
+            <button class="btn btn-outline-secondary" @onclick="ExportJson">Export JSON</button>
+            <button class="btn btn-outline-secondary" @onclick="ExportMermaid">Mermaid</button>
+            <button class="btn btn-outline-secondary" @onclick="ExportPlantUml">PlantUML</button>
+            <button class="btn btn-success" @onclick="GenerateCSharp">Generate C#</button>
+        </div>
+    </div>
+
+    <!-- Import -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="input-group">
+                <span class="input-group-text">Import JSON</span>
+                <textarea class="form-control" rows="1" @bind="_importJson" placeholder="Paste domain model JSON here..."></textarea>
+                <button class="btn btn-outline-primary" @onclick="ImportJson">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bounded Contexts -->
+    @for (var ctxIdx = 0; ctxIdx < _model.BoundedContexts.Count; ctxIdx++)
+    {
+        var ctx = _model.BoundedContexts[ctxIdx];
+        var contextIndex = ctxIdx;
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" style="max-width:250px;" @bind="ctx.Name" placeholder="Context Name" />
+                    <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" style="max-width:400px;" @bind="ctx.Description" placeholder="Description" />
+                </div>
+                <div class="d-flex gap-1">
+                    <button class="btn btn-sm btn-outline-light" @onclick="() => AddEntity(ctx)">+ Entity</button>
+                    <button class="btn btn-sm btn-outline-info" @onclick="() => AddValueObject(ctx)">+ Value Object</button>
+                    <button class="btn btn-sm btn-outline-warning" @onclick="() => AddDomainEvent(ctx)">+ Event</button>
+                    <button class="btn btn-sm btn-outline-success" @onclick="() => AddRelationship(ctx)">+ Relationship</button>
+                    <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveBoundedContext(contextIndex)">Remove</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Entities -->
+                @if (ctx.Entities.Count > 0)
+                {
+                    <h6 class="fw-bold mt-2">Entities</h6>
+                    @for (var eIdx = 0; eIdx < ctx.Entities.Count; eIdx++)
+                    {
+                        var entity = ctx.Entities[eIdx];
+                        var entityIndex = eIdx;
+                        <div class="card mb-2 @(entity.IsAggregateRoot ? "border-primary" : "")">
+                            <div class="card-header py-1 d-flex justify-content-between align-items-center @(entity.IsAggregateRoot ? "bg-primary text-white" : "bg-light")">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="text" class="form-control form-control-sm" style="max-width:200px;" @bind="entity.Name" placeholder="Entity Name" />
+                                    <div class="form-check form-check-inline ms-2">
+                                        <input class="form-check-input" type="checkbox" @bind="entity.IsAggregateRoot" id="@($"ar_{contextIndex}_{entityIndex}")" />
+                                        <label class="form-check-label small" for="@($"ar_{contextIndex}_{entityIndex}")">Aggregate Root</label>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => AddProperty(entity.Properties)">+ Property</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => ctx.Entities.RemoveAt(entityIndex)">Remove</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                @if (entity.Properties.Count > 0)
+                                {
+                                    <table class="table table-sm table-bordered mb-1">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Name</th><th>Type</th><th>Required</th><th>Collection</th><th>Default</th><th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (var pIdx = 0; pIdx < entity.Properties.Count; pIdx++)
+                                            {
+                                                var prop = entity.Properties[pIdx];
+                                                var propIndex = pIdx;
+                                                <tr>
+                                                    <td><input type="text" class="form-control form-control-sm" @bind="prop.Name" /></td>
+                                                    <td>
+                                                        <select class="form-select form-select-sm" @bind="prop.Type">
+                                                            <option>string</option><option>int</option><option>decimal</option>
+                                                            <option>bool</option><option>DateTime</option><option>Guid</option>
+                                                            <option>double</option><option>long</option>
+                                                        </select>
+                                                    </td>
+                                                    <td class="text-center"><input type="checkbox" class="form-check-input" @bind="prop.IsRequired" /></td>
+                                                    <td class="text-center"><input type="checkbox" class="form-check-input" @bind="prop.IsCollection" /></td>
+                                                    <td><input type="text" class="form-control form-control-sm" @bind="prop.DefaultValue" placeholder="(none)" /></td>
+                                                    <td><button class="btn btn-sm btn-outline-danger" @onclick="() => entity.Properties.RemoveAt(propIndex)">X</button></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                                <div class="d-flex gap-2 mt-1">
+                                    <div class="flex-grow-1">
+                                        <label class="form-label small mb-0">Methods (comma-separated)</label>
+                                        <input type="text" class="form-control form-control-sm" value="@string.Join(", ", entity.Methods)" @onchange="e => entity.Methods = ParseCommaSeparated((string?)e.Value)" placeholder="e.g. Activate, Deactivate" />
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <label class="form-label small mb-0">Domain Events (comma-separated)</label>
+                                        <input type="text" class="form-control form-control-sm" value="@string.Join(", ", entity.DomainEvents)" @onchange="e => entity.DomainEvents = ParseCommaSeparated((string?)e.Value)" placeholder="e.g. OrderCreated, OrderShipped" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                <!-- Value Objects -->
+                @if (ctx.ValueObjects.Count > 0)
+                {
+                    <h6 class="fw-bold mt-3">Value Objects</h6>
+                    @for (var vIdx = 0; vIdx < ctx.ValueObjects.Count; vIdx++)
+                    {
+                        var vo = ctx.ValueObjects[vIdx];
+                        var voIndex = vIdx;
+                        <div class="card mb-2 border-info">
+                            <div class="card-header py-1 bg-info bg-opacity-10 d-flex justify-content-between align-items-center">
+                                <input type="text" class="form-control form-control-sm" style="max-width:200px;" @bind="vo.Name" placeholder="Value Object Name" />
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => AddProperty(vo.Properties)">+ Property</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => ctx.ValueObjects.RemoveAt(voIndex)">Remove</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                @if (vo.Properties.Count > 0)
+                                {
+                                    <table class="table table-sm table-bordered mb-0">
+                                        <thead class="table-light"><tr><th>Name</th><th>Type</th><th></th></tr></thead>
+                                        <tbody>
+                                            @for (var pIdx = 0; pIdx < vo.Properties.Count; pIdx++)
+                                            {
+                                                var prop = vo.Properties[pIdx];
+                                                var propIndex = pIdx;
+                                                <tr>
+                                                    <td><input type="text" class="form-control form-control-sm" @bind="prop.Name" /></td>
+                                                    <td>
+                                                        <select class="form-select form-select-sm" @bind="prop.Type">
+                                                            <option>string</option><option>int</option><option>decimal</option>
+                                                            <option>bool</option><option>DateTime</option><option>Guid</option>
+                                                        </select>
+                                                    </td>
+                                                    <td><button class="btn btn-sm btn-outline-danger" @onclick="() => vo.Properties.RemoveAt(propIndex)">X</button></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+
+                <!-- Domain Events -->
+                @if (ctx.DomainEvents.Count > 0)
+                {
+                    <h6 class="fw-bold mt-3">Domain Events</h6>
+                    @for (var evtIdx = 0; evtIdx < ctx.DomainEvents.Count; evtIdx++)
+                    {
+                        var evt = ctx.DomainEvents[evtIdx];
+                        var evtIndex = evtIdx;
+                        <div class="card mb-2 border-warning">
+                            <div class="card-header py-1 bg-warning bg-opacity-10 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="text" class="form-control form-control-sm" style="max-width:200px;" @bind="evt.Name" placeholder="Event Name" />
+                                    <input type="text" class="form-control form-control-sm" style="max-width:150px;" @bind="evt.TriggerEntity" placeholder="Trigger Entity" />
+                                    <input type="text" class="form-control form-control-sm" style="max-width:200px;" @bind="evt.Trigger" placeholder="Trigger (e.g. Created)" />
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => AddProperty(evt.Properties)">+ Property</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => ctx.DomainEvents.RemoveAt(evtIndex)">Remove</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                @if (evt.Properties.Count > 0)
+                                {
+                                    <table class="table table-sm table-bordered mb-0">
+                                        <thead class="table-light"><tr><th>Name</th><th>Type</th><th></th></tr></thead>
+                                        <tbody>
+                                            @for (var pIdx = 0; pIdx < evt.Properties.Count; pIdx++)
+                                            {
+                                                var prop = evt.Properties[pIdx];
+                                                var propIndex = pIdx;
+                                                <tr>
+                                                    <td><input type="text" class="form-control form-control-sm" @bind="prop.Name" /></td>
+                                                    <td>
+                                                        <select class="form-select form-select-sm" @bind="prop.Type">
+                                                            <option>string</option><option>int</option><option>decimal</option>
+                                                            <option>bool</option><option>DateTime</option><option>Guid</option>
+                                                        </select>
+                                                    </td>
+                                                    <td><button class="btn btn-sm btn-outline-danger" @onclick="() => evt.Properties.RemoveAt(propIndex)">X</button></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+
+                <!-- Relationships -->
+                @if (ctx.Relationships.Count > 0)
+                {
+                    <h6 class="fw-bold mt-3">Relationships</h6>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr><th>From</th><th>To</th><th>Type</th><th>Navigation</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            @for (var rIdx = 0; rIdx < ctx.Relationships.Count; rIdx++)
+                            {
+                                var rel = ctx.Relationships[rIdx];
+                                var relIndex = rIdx;
+                                <tr>
+                                    <td><input type="text" class="form-control form-control-sm" @bind="rel.FromEntity" /></td>
+                                    <td><input type="text" class="form-control form-control-sm" @bind="rel.ToEntity" /></td>
+                                    <td>
+                                        <select class="form-select form-select-sm" @bind="rel.Type">
+                                            @foreach (var rt in Enum.GetValues<RelationshipType>())
+                                            {
+                                                <option value="@rt">@rt</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td><input type="text" class="form-control form-control-sm" @bind="rel.NavigationProperty" placeholder="(optional)" /></td>
+                                    <td><button class="btn btn-sm btn-outline-danger" @onclick="() => ctx.Relationships.RemoveAt(relIndex)">X</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Output area -->
+    @if (!string.IsNullOrEmpty(_exportOutput))
+    {
+        <div class="card shadow-sm mt-3 mb-4">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <span>@_exportTitle</span>
+                <button class="btn btn-sm btn-outline-light" @onclick="() => _exportOutput = string.Empty">Close</button>
+            </div>
+            <div class="card-body">
+                <pre style="max-height:500px; overflow:auto;"><code>@_exportOutput</code></pre>
+            </div>
+        </div>
+    }
+
+    <!-- Generated C# files -->
+    @if (_generatedFiles.Count > 0)
+    {
+        <div class="card shadow-sm mt-3 mb-4">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <span>Generated C# Files (@_generatedFiles.Count)</span>
+                <button class="btn btn-sm btn-outline-light" @onclick="() => _generatedFiles.Clear()">Close</button>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs mb-3">
+                    @foreach (var file in _generatedFiles.Keys.Take(20))
+                    {
+                        var f = file;
+                        <li class="nav-item">
+                            <button class="nav-link @(_activeFile == f ? "active" : "")" @onclick="() => _activeFile = f">
+                                @Path.GetFileName(f)
+                            </button>
+                        </li>
+                    }
+                </ul>
+                @if (!string.IsNullOrEmpty(_activeFile) && _generatedFiles.ContainsKey(_activeFile))
+                {
+                    <p class="text-muted small mb-1">@_activeFile</p>
+                    <pre style="max-height:500px; overflow:auto;"><code>@_generatedFiles[_activeFile]</code></pre>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private DomainModel _model = new()
+    {
+        Name = "MyDomain",
+        Version = "1.0.0"
+    };
+
+    private string _statusMessage = "";
+    private string _statusCss = "alert-info";
+    private string _exportOutput = "";
+    private string _exportTitle = "";
+    private string _importJson = "";
+    private Dictionary<string, string> _generatedFiles = new();
+    private string _activeFile = "";
+
+    // ── Bounded Context ────────────────────────────────────────────
+
+    private void AddBoundedContext()
+    {
+        _model.BoundedContexts.Add(new BoundedContext { Name = "NewContext" });
+    }
+
+    private void RemoveBoundedContext(int index)
+    {
+        if (index >= 0 && index < _model.BoundedContexts.Count)
+            _model.BoundedContexts.RemoveAt(index);
+    }
+
+    // ── Entities / VOs / Events / Relationships ────────────────────
+
+    private void AddEntity(BoundedContext ctx)
+    {
+        ctx.Entities.Add(new EntityDefinition { Name = "NewEntity", IsAggregateRoot = true });
+    }
+
+    private void AddValueObject(BoundedContext ctx)
+    {
+        ctx.ValueObjects.Add(new ValueObjectDefinition { Name = "NewValueObject" });
+    }
+
+    private void AddDomainEvent(BoundedContext ctx)
+    {
+        ctx.DomainEvents.Add(new DomainEventDefinition { Name = "NewEvent" });
+    }
+
+    private void AddRelationship(BoundedContext ctx)
+    {
+        ctx.Relationships.Add(new RelationshipDefinition());
+    }
+
+    private void AddProperty(List<PropertyDefinition> properties)
+    {
+        properties.Add(new PropertyDefinition { Name = "NewProperty", Type = "string", IsRequired = true });
+    }
+
+    private List<string> ParseCommaSeparated(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return new List<string>();
+        return value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+    }
+
+    // ── Export Actions ─────────────────────────────────────────────
+
+    private void ExportJson()
+    {
+        _exportTitle = "Domain Model JSON";
+        _exportOutput = DomainModelSerializer.ToJson(_model);
+    }
+
+    private void ExportMermaid()
+    {
+        _exportTitle = "Mermaid Class Diagram";
+        _exportOutput = DomainModelSerializer.ExportToMermaid(_model);
+    }
+
+    private void ExportPlantUml()
+    {
+        _exportTitle = "PlantUML Class Diagram";
+        _exportOutput = DomainModelSerializer.ExportToPlantUml(_model);
+    }
+
+    private void GenerateCSharp()
+    {
+        try
+        {
+            _generatedFiles = DomainModelSerializer.ExportToCSharp(_model);
+            _activeFile = _generatedFiles.Keys.FirstOrDefault() ?? "";
+            _statusMessage = $"<b>Generated {_generatedFiles.Count} C# files</b> from domain model <b>{_model.Name}</b>.";
+            _statusCss = "alert-success";
+        }
+        catch (Exception ex)
+        {
+            _statusMessage = $"<b>Error:</b> {ex.Message}";
+            _statusCss = "alert-danger";
+        }
+    }
+
+    private void ImportJson()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_importJson))
+            {
+                _statusMessage = "Paste a domain model JSON string to import.";
+                _statusCss = "alert-warning";
+                return;
+            }
+
+            _model = DomainModelSerializer.FromJson(_importJson);
+            _importJson = "";
+            _statusMessage = $"<b>Imported</b> domain model <b>{_model.Name}</b> with {_model.BoundedContexts.Count} bounded context(s).";
+            _statusCss = "alert-success";
+        }
+        catch (Exception ex)
+        {
+            _statusMessage = $"<b>Import error:</b> {ex.Message}";
+            _statusCss = "alert-danger";
+        }
+    }
+}

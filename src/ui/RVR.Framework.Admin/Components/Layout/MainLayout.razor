@@ -1,0 +1,29 @@
+@inherits LayoutComponentBase
+
+<div class="admin-wrapper">
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h3>RVR Admin</h3>
+        </div>
+        <ul class="sidebar-nav">
+            <li>
+                <NavLink href="/" Match="NavLinkMatch.All" class="nav-link">Dashboard</NavLink>
+            </li>
+            <li>
+                <NavLink href="/users" class="nav-link">Utilisateurs</NavLink>
+            </li>
+            <li>
+                <NavLink href="/products" class="nav-link">Produits</NavLink>
+            </li>
+            <li>
+                <NavLink href="/audit" class="nav-link">Audit Logs</NavLink>
+            </li>
+            <li>
+                <NavLink href="/health" class="nav-link">Health</NavLink>
+            </li>
+        </ul>
+    </nav>
+    <main class="main-content">
+        @Body
+    </main>
+</div>

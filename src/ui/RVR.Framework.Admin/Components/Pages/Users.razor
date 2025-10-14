@@ -1,0 +1,91 @@
+@page "/users"
+@using RVR.Framework.Infrastructure.Data
+@using RVR.Framework.Domain.Entities.Identity
+@inject RVRDbContext DbContext
+
+<h1>Utilisateurs</h1>
+
+<div class="toolbar">
+    <input type="text" placeholder="Rechercher par nom ou email..."
+           @bind="_searchTerm" @bind:event="oninput" @bind:after="Search"
+           class="search-input" />
+    <span class="result-count">@_users.Count resultat(s)</span>
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Nom d'utilisateur</th>
+            <th>Email</th>
+            <th>Prenom</th>
+            <th>Nom</th>
+            <th>Actif</th>
+            <th>Email confirme</th>
+            <th>2FA</th>
+            <th>Date creation</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in _users)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>@user.FirstName</td>
+                <td>@user.LastName</td>
+                <td>
+                    <span class="@(user.IsActive ? "badge badge-success" : "badge badge-danger")">
+                        @(user.IsActive ? "Oui" : "Non")
+                    </span>
+                </td>
+                <td>
+                    <span class="@(user.EmailConfirmed ? "badge badge-success" : "badge badge-warning")">
+                        @(user.EmailConfirmed ? "Oui" : "Non")
+                    </span>
+                </td>
+                <td>@(user.TwoFactorEnabled ? "Oui" : "Non")</td>
+                <td>@user.CreatedAt.ToString("yyyy-MM-dd")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!_users.Any())
+{
+    <p class="empty-state">Aucun utilisateur trouve.</p>
+}
+
+@code {
+    private string _searchTerm = string.Empty;
+    private List<User> _users = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task Search()
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        var query = DbContext.Users.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(_searchTerm))
+        {
+            var term = _searchTerm.Trim().ToUpperInvariant();
+            query = query.Where(u =>
+                u.NormalizedUserName.Contains(term) ||
+                u.NormalizedEmail.Contains(term) ||
+                (u.FirstName != null && u.FirstName.ToUpper().Contains(term)) ||
+                (u.LastName != null && u.LastName.ToUpper().Contains(term)));
+        }
+
+        _users = await query
+            .OrderBy(u => u.UserName)
+            .Take(100)
+            .ToListAsync();
+    }
+}

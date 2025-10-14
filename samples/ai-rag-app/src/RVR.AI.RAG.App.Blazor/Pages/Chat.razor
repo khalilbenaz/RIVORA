@@ -1,0 +1,207 @@
+@page "/chat"
+@using MudBlazor
+@inject HttpClient Http
+@inject IDialogService Dialog
+@inject ISnackbar Snackbar
+
+<MudGrid>
+    <MudItem xs="12" md="3">
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudText Typo="Typo.h6">Conversations</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="NewConversation" Class="mt-2">New Chat</MudButton>
+            <MudList>
+                @foreach (var conv in conversations)
+                {
+                    <MudListItem OnClick="() => LoadConversation(conv.Id)" 
+                                 Class="@(selectedConversation?.Id == conv.Id ? "mud-primary-text" : "")">
+                        @conv.Title
+                        <MudChip Size="Size.Small">@conv.MessageCount msgs</MudChip>
+                    </MudListItem>
+                }
+            </MudList>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" md="9">
+        <MudPaper Class="pa-4 d-flex flex-column" Style="height: 70vh" Elevation="2">
+            <MudGrid Class="mb-2">
+                <MudItem xs="6">
+                    <MudSelect Label="Provider" @bind-Value="selectedProvider">
+                        <MudSelectOption Value="OpenAI">OpenAI</MudSelectOption>
+                        <MudSelectOption Value="Anthropic">Anthropic</MudSelectOption>
+                        <MudSelectOption Value="Ollama">Ollama</MudSelectOption>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudSelect Label="Model" @bind-Value="selectedModel">
+                        @if (selectedProvider == "OpenAI")
+                        {
+                            <MudSelectOption Value="gpt-3.5-turbo">GPT-3.5 Turbo</MudSelectOption>
+                            <MudSelectOption Value="gpt-4">GPT-4</MudSelectOption>
+                        }
+                        else if (selectedProvider == "Anthropic")
+                        {
+                            <MudSelectOption Value="claude-3-sonnet-20240229">Claude 3 Sonnet</MudSelectOption>
+                            <MudSelectOption Value="claude-3-opus-20240229">Claude 3 Opus</MudSelectOption>
+                        }
+                        else
+                        {
+                            <MudSelectOption Value="llama2">Llama 2</MudSelectOption>
+                            <MudSelectOption Value="mistral">Mistral</MudSelectOption>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+
+            <MudSwitch @bind-Value="useRAG" Color="Color.Primary">Use RAG (Search Documents)</MudSwitch>
+
+            <MudPaper Class="flex-grow-1 pa-4 overflow-auto" Style="overflow-y: auto;">
+                @foreach (var msg in messages)
+                {
+                    <MudChatMessage Message="msg.Content" Role="@(msg.Role == "User" ? MessageRole.User : MessageRole.Bot)" />
+                }
+                @if (isLoading)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" />
+                }
+            </MudPaper>
+
+            <MudTextField @bind-Value="userInput" 
+                          Placeholder="Type your message..." 
+                          Lines="2" 
+                          Variant="Variant.Outlined"
+                          OnKeyDown="HandleKeyDown"
+                          Class="mt-2">
+                < MudTextFieldContent>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SendMessage" Disabled="isLoading">
+                        <MudIcon>Icons.Material.Filled.Send</MudIcon>
+                    </MudButton>
+                </MudTextFieldContent>
+            </MudTextField>
+
+            @if (lastResponse != null)
+            {
+                <MudText Typo="Typo.caption" Class="mt-2">
+                    Tokens: @lastResponse.TokenCount | Cost: $@lastResponse.Cost.ToString("F4") | Latency: @lastResponse.Latency.TotalMilliseconds.ToString("F0")ms
+                </MudText>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private List<ConversationDto> conversations = new();
+    private ConversationDto? selectedConversation;
+    private List<ChatMessageDto> messages = new();
+    private string userInput = "";
+    private bool isLoading = false;
+    private bool useRAG = true;
+    private string selectedProvider = "OpenAI";
+    private string selectedModel = "gpt-3.5-turbo";
+    private ChatResponse? lastResponse;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadConversations();
+    }
+
+    private async Task LoadConversations()
+    {
+        conversations = await Http.GetFromJsonAsync<List<ConversationDto>>("/api/conversations") ?? new();
+    }
+
+    private async Task LoadConversation(Guid id)
+    {
+        // Load conversation messages
+        selectedConversation = conversations.FirstOrDefault(c => c.Id == id);
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(userInput) || isLoading) return;
+
+        isLoading = true;
+        messages.Add(new ChatMessageDto { Role = "User", Content = userInput });
+        
+        try
+        {
+            var request = new ChatRequest
+            {
+                Message = userInput,
+                ConversationId = selectedConversation?.Id,
+                Provider = selectedProvider,
+                Model = selectedModel,
+                UseRAG = useRAG
+            };
+
+            lastResponse = await Http.PostAsJsonAsync("/api/chat", request)
+                .ContinueWith(t => t.Result.Content.ReadFromJsonAsync<ChatResponse>())
+                .Unwrap();
+
+            if (lastResponse != null)
+            {
+                messages.Add(new ChatMessageDto { Role = "Assistant", Content = lastResponse.Message });
+                userInput = "";
+                
+                if (selectedConversation == null || lastResponse.ConversationId != selectedConversation.Id)
+                {
+                    await LoadConversations();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            await SendMessage();
+        }
+    }
+
+    private void NewConversation()
+    {
+        selectedConversation = null;
+        messages.Clear();
+        lastResponse = null;
+    }
+
+    public class ChatRequest
+    {
+        public string Message { get; set; } = "";
+        public Guid? ConversationId { get; set; }
+        public string Provider { get; set; } = "OpenAI";
+        public string Model { get; set; } = "gpt-3.5-turbo";
+        public bool UseRAG { get; set; } = true;
+    }
+
+    public class ChatResponse
+    {
+        public string Message { get; set; } = "";
+        public Guid ConversationId { get; set; }
+        public int TokenCount { get; set; }
+        public decimal Cost { get; set; }
+        public TimeSpan Latency { get; set; }
+    }
+
+    public class ChatMessageDto
+    {
+        public string Role { get; set; } = "";
+        public string Content { get; set; } = "";
+    }
+
+    public class ConversationDto
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = "";
+        public int MessageCount { get; set; }
+    }
+}

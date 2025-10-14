@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>RVR.Framework.Admin</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\RVR.Framework.Domain\RVR.Framework.Domain.csproj" />
+    <ProjectReference Include="..\..\core\RVR.Framework.Application\RVR.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\core\RVR.Framework.Infrastructure\RVR.Framework.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

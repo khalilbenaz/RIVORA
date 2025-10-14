@@ -1,0 +1,65 @@
+@page "/localization/translations"
+
+<PageTitle>Dynamic Translations - RVR Studio</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>🌐 Dynamic Translations</h2>
+    <div>
+        <select class="form-select d-inline-block w-auto me-2">
+            <option value="en-US">English (US)</option>
+            <option value="fr-FR" selected>Français (FR)</option>
+            <option value="es-ES">Español (ES)</option>
+        </select>
+        <button class="btn btn-primary">+ Add Key</button>
+    </div>
+</div>
+
+<div class="alert alert-info" role="alert">
+    These translations are loaded from the database via <strong>RVR.Framework.Localization.Dynamic</strong> and are cached in Redis. Updates here will invalidate the cache instantly.
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 30%">Key</th>
+                    <th style="width: 50%">Value (fr-FR)</th>
+                    <th style="width: 20%">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>Auth.Login.Title</code></td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm" value="Connexion à votre compte" />
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-success">Save</button>
+                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>Common.Buttons.Save</code></td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm" value="Enregistrer les modifications" />
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-success">Save</button>
+                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>Errors.Validation.Required</code></td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm" value="Ce champ est obligatoire." />
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-success">Save</button>
+                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

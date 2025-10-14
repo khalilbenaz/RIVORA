@@ -1,0 +1,6 @@
+@RVR.Framework.Api_HostAddress = http://localhost:5220
+
+GET {{RVR.Framework.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

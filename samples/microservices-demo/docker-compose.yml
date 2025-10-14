@@ -1,0 +1,185 @@
+version: '3.8'
+
+services:
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: microservices-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL - Identity Service
+  postgres_identity:
+    image: postgres:15-alpine
+    container_name: microservices-db-identity
+    environment:
+      POSTGRES_DB: identity_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-identity-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  # PostgreSQL - Product Service
+  postgres_products:
+    image: postgres:15-alpine
+    container_name: microservices-db-products
+    environment:
+      POSTGRES_DB: products_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-products-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  # PostgreSQL - Order Service
+  postgres_orders:
+    image: postgres:15-alpine
+    container_name: microservices-db-orders
+    environment:
+      POSTGRES_DB: orders_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-orders-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  # Identity Service
+  identity-service:
+    build:
+      context: .
+      dockerfile: src/RVR.Microservices.IdentityService/Dockerfile
+    container_name: microservices-identity
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres_identity;Database=identity_db;Username=postgres;Password=postgres
+      - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - JwtSettings__Issuer=RVR.Microservices
+      - JwtSettings__Audience=RVR.Microservices.Users
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    ports:
+      - "5001:80"
+    depends_on:
+      - postgres_identity
+      - rabbitmq
+    networks:
+      - microservices-network
+
+  # Product Service
+  product-service:
+    build:
+      context: .
+      dockerfile: src/RVR.Microservices.ProductService/Dockerfile
+    container_name: microservices-product
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres_products;Database=products_db;Username=postgres;Password=postgres
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    ports:
+      - "5002:80"
+    depends_on:
+      - postgres_products
+      - rabbitmq
+    networks:
+      - microservices-network
+
+  # Order Service
+  order-service:
+    build:
+      context: .
+      dockerfile: src/RVR.Microservices.OrderService/Dockerfile
+    container_name: microservices-order
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres_orders;Database=orders_db;Username=postgres;Password=postgres
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+      - GrpcServices__ProductService=http://product-service:80
+      - GrpcServices__IdentityService=http://identity-service:80
+    ports:
+      - "5003:80"
+    depends_on:
+      - postgres_orders
+      - rabbitmq
+      - product-service
+      - identity-service
+    networks:
+      - microservices-network
+
+  # Notification Service
+  notification-service:
+    build:
+      context: .
+      dockerfile: src/RVR.Microservices.NotificationService/Dockerfile
+    container_name: microservices-notification
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    ports:
+      - "5004:80"
+    depends_on:
+      - rabbitmq
+    networks:
+      - microservices-network
+
+  # API Gateway (YARP)
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/RVR.Microservices.ApiGateway/Dockerfile
+    container_name: microservices-gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "5000:80"
+    depends_on:
+      - identity-service
+      - product-service
+      - order-service
+      - notification-service
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
+
+volumes:
+  rabbitmq-data:
+  postgres-identity-data:
+  postgres-products-data:
+  postgres-orders-data:
