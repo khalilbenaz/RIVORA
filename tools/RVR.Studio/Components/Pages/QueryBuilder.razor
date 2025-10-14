@@ -1,0 +1,591 @@
+@page "/query-builder"
+@rendermode InteractiveServer
+
+<PageTitle>RVR Studio - Visual Query Builder</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Visual Query Builder</h2>
+            <p class="text-muted">Build queries visually, generate LINQ expressions, and execute against your database. Supports natural language input via the NaturalQuery module.</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(StatusMessage))
+    {
+        <div class="alert @StatusAlertClass alert-dismissible fade show" role="alert">
+            @((MarkupString)StatusMessage)
+            <button type="button" class="btn-close" @onclick="@(() => StatusMessage = "")"></button>
+        </div>
+    }
+
+    <!-- Natural Language Input -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Natural Language Query (NaturalQuery Module)</h5>
+                    <span class="badge bg-light text-info">AI-POWERED</span>
+                </div>
+                <div class="card-body bg-light">
+                    <div class="input-group">
+                        <textarea class="form-control" rows="2" @bind="NaturalLanguageInput"
+                                  placeholder="e.g. 'Show all customers where name contains Smith, ordered by creation date descending, limit 10'"></textarea>
+                        <button class="btn btn-info text-white px-4" @onclick="ParseNaturalLanguage" disabled="@IsProcessing">
+                            @if (IsProcessing)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                <span class="ms-2">Parsing...</span>
+                            }
+                            else
+                            {
+                                <span>Parse to Query</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Entity Selection & Configuration -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">1. Select Entity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Entity Name</label>
+                        <input type="text" class="form-control" @bind="EntityName" placeholder="e.g. Customer, Order, Product" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Available Properties (comma-separated)</label>
+                        <textarea class="form-control" rows="3" @bind="PropertiesInput"
+                                  placeholder="Id, Name, Email, CreatedAt, IsActive, Amount"></textarea>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm w-100" @onclick="LoadProperties">
+                        Load Properties
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">4. Pagination</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Skip</label>
+                        <input type="number" class="form-control" @bind="SkipCount" min="0" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Take (Page Size)</label>
+                        <input type="number" class="form-control" @bind="TakeCount" min="1" max="1000" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters & Sorting -->
+        <div class="col-md-8">
+            <!-- Filters -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">2. Filters (WHERE)</h5>
+                    <button class="btn btn-sm btn-light" @onclick="AddFilter">+ Add Filter</button>
+                </div>
+                <div class="card-body p-0">
+                    @if (Filters.Count == 0)
+                    {
+                        <div class="p-3 text-muted text-center">No filters defined. Click "Add Filter" to start.</div>
+                    }
+                    else
+                    {
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 80px">Logic</th>
+                                    <th>Property</th>
+                                    <th>Operator</th>
+                                    <th>Value</th>
+                                    <th style="width: 60px">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Filters.Count; i++)
+                                {
+                                    var filter = Filters[i];
+                                    var index = i;
+                                    <tr>
+                                        <td>
+                                            @if (index > 0)
+                                            {
+                                                <select class="form-select form-select-sm" @bind="filter.LogicalOp">
+                                                    <option value="And">AND</option>
+                                                    <option value="Or">OR</option>
+                                                </select>
+                                            }
+                                        </td>
+                                        <td>
+                                            <select class="form-select form-select-sm" @bind="filter.PropertyName">
+                                                <option value="">-- Select --</option>
+                                                @foreach (var prop in Properties)
+                                                {
+                                                    <option value="@prop">@prop</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select class="form-select form-select-sm" @bind="filter.Operator">
+                                                <option value="Equals">Equals (==)</option>
+                                                <option value="NotEquals">Not Equals (!=)</option>
+                                                <option value="Contains">Contains</option>
+                                                <option value="StartsWith">Starts With</option>
+                                                <option value="EndsWith">Ends With</option>
+                                                <option value="GreaterThan">Greater Than (&gt;)</option>
+                                                <option value="GreaterThanOrEqual">Greater Than Or Equal (&gt;=)</option>
+                                                <option value="LessThan">Less Than (&lt;)</option>
+                                                <option value="LessThanOrEqual">Less Than Or Equal (&lt;=)</option>
+                                                <option value="IsNull">Is Null</option>
+                                                <option value="IsNotNull">Is Not Null</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm" @bind="filter.Value"
+                                                   disabled="@(filter.Operator == "IsNull" || filter.Operator == "IsNotNull")" />
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveFilter(filter)">X</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+
+            <!-- Sorting -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">3. Sorting (ORDER BY)</h5>
+                    <button class="btn btn-sm btn-light" @onclick="AddSort">+ Add Sort</button>
+                </div>
+                <div class="card-body p-0">
+                    @if (Sorts.Count == 0)
+                    {
+                        <div class="p-3 text-muted text-center">No sorting defined. Click "Add Sort" to start.</div>
+                    }
+                    else
+                    {
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Direction</th>
+                                    <th style="width: 60px">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sort in Sorts)
+                                {
+                                    <tr>
+                                        <td>
+                                            <select class="form-select form-select-sm" @bind="sort.PropertyName">
+                                                <option value="">-- Select --</option>
+                                                @foreach (var prop in Properties)
+                                                {
+                                                    <option value="@prop">@prop</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select class="form-select form-select-sm" @bind="sort.Descending">
+                                                <option value="false">Ascending</option>
+                                                <option value="true">Descending</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveSort(sort)">X</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-12 text-end">
+            <button class="btn btn-outline-secondary btn-lg me-2" @onclick="GenerateLinqPreview"
+                    disabled="@(string.IsNullOrWhiteSpace(EntityName))">
+                Generate LINQ Preview
+            </button>
+            <button class="btn btn-primary btn-lg" @onclick="ExecuteQuery"
+                    disabled="@(string.IsNullOrWhiteSpace(EntityName))">
+                Execute Query
+            </button>
+        </div>
+    </div>
+
+    <!-- LINQ Preview -->
+    @if (!string.IsNullOrEmpty(LinqPreview))
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title mb-0">Generated LINQ Expression</h5>
+                    </div>
+                    <div class="card-body bg-light">
+                        <pre class="mb-0"><code>@LinqPreview</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Query Results -->
+    @if (QueryResults != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Query Results</h5>
+                        <span class="badge bg-light text-dark">@QueryResults.Count row(s)</span>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (QueryResults.Count == 0)
+                        {
+                            <div class="p-3 text-muted text-center">No results found.</div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            @foreach (var prop in Properties)
+                                            {
+                                                <th>@prop</th>
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var row in QueryResults)
+                                        {
+                                            <tr>
+                                                @foreach (var prop in Properties)
+                                                {
+                                                    <td>@(row.ContainsKey(prop) ? row[prop] : "-")</td>
+                                                }
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string EntityName { get; set; } = "";
+    private string PropertiesInput { get; set; } = "Id, Name, Email, CreatedAt, IsActive";
+    private string NaturalLanguageInput { get; set; } = "";
+    private bool IsProcessing { get; set; }
+    private string StatusMessage { get; set; } = "";
+    private string StatusAlertClass { get; set; } = "alert-info";
+    private string LinqPreview { get; set; } = "";
+
+    private List<string> Properties { get; set; } = new() { "Id", "Name", "Email", "CreatedAt", "IsActive" };
+    private List<FilterEntry> Filters { get; set; } = new();
+    private List<SortEntry> Sorts { get; set; } = new();
+    private List<Dictionary<string, string>>? QueryResults { get; set; }
+
+    private int SkipCount { get; set; } = 0;
+    private int TakeCount { get; set; } = 25;
+
+    private void LoadProperties()
+    {
+        if (!string.IsNullOrWhiteSpace(PropertiesInput))
+        {
+            Properties = PropertiesInput.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+            StatusMessage = $"<b>Loaded {Properties.Count} properties</b> for entity <b>{EntityName}</b>.";
+            StatusAlertClass = "alert-success";
+        }
+    }
+
+    private void AddFilter()
+    {
+        Filters.Add(new FilterEntry
+        {
+            PropertyName = Properties.FirstOrDefault() ?? "",
+            Operator = "Equals",
+            LogicalOp = "And"
+        });
+    }
+
+    private void RemoveFilter(FilterEntry filter) => Filters.Remove(filter);
+
+    private void AddSort()
+    {
+        Sorts.Add(new SortEntry
+        {
+            PropertyName = Properties.FirstOrDefault() ?? "",
+            Descending = false
+        });
+    }
+
+    private void RemoveSort(SortEntry sort) => Sorts.Remove(sort);
+
+    private void GenerateLinqPreview()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"var query = dbContext.Set<{EntityName}>()");
+        sb.Append("    .AsQueryable()");
+
+        foreach (var filter in Filters.Where(f => !string.IsNullOrEmpty(f.PropertyName)))
+        {
+            var filterIndex = Filters.IndexOf(filter);
+            sb.AppendLine();
+
+            if (filterIndex > 0)
+            {
+                sb.Append($"    // {filter.LogicalOp.ToUpper()} ");
+            }
+            else
+            {
+                sb.Append("    ");
+            }
+
+            sb.Append(GenerateFilterExpression(filter));
+        }
+
+        foreach (var sort in Sorts.Where(s => !string.IsNullOrEmpty(s.PropertyName)))
+        {
+            sb.AppendLine();
+            var method = sort.Descending ? "OrderByDescending" : "OrderBy";
+            sb.Append($"    .{method}(x => x.{sort.PropertyName})");
+        }
+
+        if (SkipCount > 0)
+        {
+            sb.AppendLine();
+            sb.Append($"    .Skip({SkipCount})");
+        }
+
+        sb.AppendLine();
+        sb.Append($"    .Take({TakeCount})");
+
+        sb.AppendLine(";");
+        sb.AppendLine();
+        sb.AppendLine("var results = await query.ToListAsync();");
+
+        LinqPreview = sb.ToString();
+    }
+
+    private string GenerateFilterExpression(FilterEntry filter)
+    {
+        return filter.Operator switch
+        {
+            "Equals" => $".Where(x => x.{filter.PropertyName} == \"{filter.Value}\")",
+            "NotEquals" => $".Where(x => x.{filter.PropertyName} != \"{filter.Value}\")",
+            "Contains" => $".Where(x => x.{filter.PropertyName}.Contains(\"{filter.Value}\"))",
+            "StartsWith" => $".Where(x => x.{filter.PropertyName}.StartsWith(\"{filter.Value}\"))",
+            "EndsWith" => $".Where(x => x.{filter.PropertyName}.EndsWith(\"{filter.Value}\"))",
+            "GreaterThan" => $".Where(x => x.{filter.PropertyName} > {filter.Value})",
+            "GreaterThanOrEqual" => $".Where(x => x.{filter.PropertyName} >= {filter.Value})",
+            "LessThan" => $".Where(x => x.{filter.PropertyName} < {filter.Value})",
+            "LessThanOrEqual" => $".Where(x => x.{filter.PropertyName} <= {filter.Value})",
+            "IsNull" => $".Where(x => x.{filter.PropertyName} == null)",
+            "IsNotNull" => $".Where(x => x.{filter.PropertyName} != null)",
+            _ => $".Where(x => x.{filter.PropertyName} == \"{filter.Value}\")"
+        };
+    }
+
+    private async Task ParseNaturalLanguage()
+    {
+        if (string.IsNullOrWhiteSpace(NaturalLanguageInput))
+        {
+            StatusMessage = "<b>Please enter a natural language query.</b>";
+            StatusAlertClass = "alert-warning";
+            return;
+        }
+
+        IsProcessing = true;
+        StateHasChanged();
+
+        try
+        {
+            await Task.Delay(500); // Simulate NaturalQuery parsing
+
+            // Parse the NL input into structured filters/sorts using simple heuristics
+            // In production this would call INaturalQueryService.Parse()
+            var lower = NaturalLanguageInput.ToLower();
+
+            Filters.Clear();
+            Sorts.Clear();
+
+            // Extract entity name
+            if (lower.Contains("customer")) EntityName = "Customer";
+            else if (lower.Contains("order")) EntityName = "Order";
+            else if (lower.Contains("product")) EntityName = "Product";
+            else if (lower.Contains("user")) EntityName = "User";
+            else if (lower.Contains("invoice")) EntityName = "Invoice";
+
+            // Parse "contains" filters
+            if (lower.Contains("contains"))
+            {
+                var containsMatch = System.Text.RegularExpressions.Regex.Match(lower, @"(\w+)\s+contains\s+(\w+)");
+                if (containsMatch.Success)
+                {
+                    var propName = char.ToUpper(containsMatch.Groups[1].Value[0]) + containsMatch.Groups[1].Value.Substring(1);
+                    Filters.Add(new FilterEntry
+                    {
+                        PropertyName = propName,
+                        Operator = "Contains",
+                        Value = containsMatch.Groups[2].Value,
+                        LogicalOp = "And"
+                    });
+                }
+            }
+
+            // Parse "where X = Y" filters
+            if (lower.Contains("where"))
+            {
+                var whereMatch = System.Text.RegularExpressions.Regex.Match(lower, @"where\s+(\w+)\s*=\s*[""']?(\w+)[""']?");
+                if (whereMatch.Success)
+                {
+                    var propName = char.ToUpper(whereMatch.Groups[1].Value[0]) + whereMatch.Groups[1].Value.Substring(1);
+                    Filters.Add(new FilterEntry
+                    {
+                        PropertyName = propName,
+                        Operator = "Equals",
+                        Value = whereMatch.Groups[2].Value,
+                        LogicalOp = "And"
+                    });
+                }
+            }
+
+            // Parse sorting
+            if (lower.Contains("order by") || lower.Contains("ordered by") || lower.Contains("sort by"))
+            {
+                var sortMatch = System.Text.RegularExpressions.Regex.Match(lower, @"(?:order|ordered|sort)\s+by\s+(\w+)(?:\s+(desc|descending|asc|ascending))?");
+                if (sortMatch.Success)
+                {
+                    var propName = char.ToUpper(sortMatch.Groups[1].Value[0]) + sortMatch.Groups[1].Value.Substring(1);
+                    var descending = sortMatch.Groups[2].Value.StartsWith("desc");
+                    Sorts.Add(new SortEntry { PropertyName = propName, Descending = descending });
+                }
+            }
+
+            // Parse limit/take
+            var limitMatch = System.Text.RegularExpressions.Regex.Match(lower, @"(?:limit|top|take)\s+(\d+)");
+            if (limitMatch.Success && int.TryParse(limitMatch.Groups[1].Value, out var limit))
+            {
+                TakeCount = limit;
+            }
+
+            GenerateLinqPreview();
+
+            StatusMessage = "<b>Natural language query parsed successfully!</b> Review the generated filters and LINQ expression below.";
+            StatusAlertClass = "alert-success";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"<b>Error parsing natural language:</b> {ex.Message}";
+            StatusAlertClass = "alert-danger";
+        }
+        finally
+        {
+            IsProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ExecuteQuery()
+    {
+        GenerateLinqPreview();
+
+        IsProcessing = true;
+        StatusMessage = "<b>Executing query...</b> (Demo mode - generating sample results)";
+        StatusAlertClass = "alert-info";
+        StateHasChanged();
+
+        try
+        {
+            await Task.Delay(800); // Simulate database query
+
+            // Generate demo results based on the current entity and filters
+            QueryResults = GenerateSampleResults();
+
+            StatusMessage = $"<b>Query executed successfully!</b> Returned {QueryResults.Count} row(s).";
+            StatusAlertClass = "alert-success";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"<b>Query execution failed:</b> {ex.Message}";
+            StatusAlertClass = "alert-danger";
+        }
+        finally
+        {
+            IsProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private List<Dictionary<string, string>> GenerateSampleResults()
+    {
+        var results = new List<Dictionary<string, string>>();
+        var rng = new Random(42);
+        var sampleCount = Math.Min(TakeCount, 10);
+
+        for (int i = 0; i < sampleCount; i++)
+        {
+            var row = new Dictionary<string, string>();
+            foreach (var prop in Properties)
+            {
+                row[prop] = prop.ToLower() switch
+                {
+                    "id" => Guid.NewGuid().ToString()[..8],
+                    "name" => $"Sample {EntityName} {i + 1 + SkipCount}",
+                    "email" => $"user{i + 1 + SkipCount}@example.com",
+                    "createdat" => DateTime.UtcNow.AddDays(-rng.Next(1, 365)).ToString("yyyy-MM-dd"),
+                    "isactive" => (rng.Next(0, 2) == 1).ToString(),
+                    "amount" => (rng.Next(10, 10000) / 100.0m).ToString("F2"),
+                    "status" => new[] { "Active", "Pending", "Closed" }[rng.Next(3)],
+                    _ => $"Value_{i + 1}"
+                };
+            }
+            results.Add(row);
+        }
+
+        return results;
+    }
+
+    private class FilterEntry
+    {
+        public string PropertyName { get; set; } = "";
+        public string Operator { get; set; } = "Equals";
+        public string Value { get; set; } = "";
+        public string LogicalOp { get; set; } = "And";
+    }
+
+    private class SortEntry
+    {
+        public string PropertyName { get; set; } = "";
+        public bool Descending { get; set; }
+    }
+}

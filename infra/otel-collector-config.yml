@@ -1,0 +1,126 @@
+# OpenTelemetry Collector Configuration for RIVORA Framework
+# Routes telemetry data to Loki (logs), Tempo (traces), and Prometheus (metrics)
+
+receivers:
+  # OTLP gRPC receiver (port 4317)
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Prometheus receiver for scraping metrics
+  prometheus:
+    config:
+      global:
+        scrape_interval: 15s
+      scrape_configs:
+        - job_name: 'otel-collector'
+          static_configs:
+            - targets: ['localhost:8888']
+
+processors:
+  # Batch processor for better performance
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+  # Memory limiter to prevent OOM
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 1000
+    spike_limit_mib: 200
+
+  # Resource processor to add common attributes
+  resource:
+    attributes:
+      - key: service.name
+        value: "RIVORA-framework"
+        action: upsert
+      - key: deployment.environment
+        value: "development"
+        action: upsert
+
+  # Transform processor for log enrichment
+  transform:
+    log_statements:
+      - context: log
+        statements:
+          - set(attributes["collector"], "otel-collector")
+
+  # Span processor for trace enrichment
+  span:
+    name:
+      from_attributes:
+        - http.method
+        - http.route
+      separator: " "
+
+exporters:
+  # Loki exporter for logs
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    labels:
+      attributes:
+        - key: service.name
+        - key: deployment.environment
+        - key: log.level
+    default_labels_enabled:
+      exporter: true
+      job: true
+
+  # Tempo exporter for traces
+  otlphttp/tempo:
+    endpoint: http://tempo:4318
+    tls:
+      insecure: true
+
+  # Prometheus exporter for metrics (scraped by Prometheus)
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: kba
+    send_timestamps: true
+    metric_expiration: 180s
+    enable_open_metrics: true
+
+  # Debug exporter for development
+  debug:
+    verbosity: detailed
+
+extensions:
+  # Health check extension
+  health_check:
+    endpoint: 0.0.0.0:13133
+    path: /health
+
+  # Prometheus metrics for the collector itself
+  pprof:
+    endpoint: 0.0.0.0:1777
+
+  # ZPages for debugging
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+service:
+  extensions: [health_check, pprof, zpages]
+
+  pipelines:
+    # Logs pipeline: OTLP -> Loki
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, transform]
+      exporters: [loki, debug]
+
+    # Traces pipeline: OTLP -> Tempo
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, span]
+      exporters: [otlphttp/tempo, debug]
+
+    # Metrics pipeline: OTLP/Prometheus -> Prometheus
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, batch]
+      exporters: [prometheus, debug]

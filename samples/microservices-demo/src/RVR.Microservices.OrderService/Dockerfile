@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["RVR.Microservices.Demo.sln", "./"]
+COPY ["src/RVR.Microservices.OrderService/RVR.Microservices.OrderService.csproj", "src/RVR.Microservices.OrderService/"]
+COPY ["src/RVR.Microservices.Shared.Domain/RVR.Microservices.Shared.Domain.csproj", "src/RVR.Microservices.Shared.Domain/"]
+COPY ["src/RVR.Microservices.Shared.Application/RVR.Microservices.Shared.Application.csproj", "src/RVR.Microservices.Shared.Application/"]
+COPY ["src/RVR.Microservices.Shared.Infrastructure/RVR.Microservices.Shared.Infrastructure.csproj", "src/RVR.Microservices.Shared.Infrastructure/"]
+COPY ["src/RVR.Microservices.Shared.Grpc/RVR.Microservices.Shared.Grpc.csproj", "src/RVR.Microservices.Shared.Grpc/"]
+RUN dotnet restore
+COPY . .
+WORKDIR "/src/src/RVR.Microservices.OrderService"
+RUN dotnet publish -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+EXPOSE 80
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "RVR.Microservices.OrderService.dll"]

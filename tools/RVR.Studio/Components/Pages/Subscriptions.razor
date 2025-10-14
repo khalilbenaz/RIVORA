@@ -1,0 +1,86 @@
+@page "/saas/subscriptions"
+
+<PageTitle>SaaS Subscriptions - RVR Studio</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>💳 SaaS Subscriptions & Billing</h2>
+    <button class="btn btn-primary">Sync with Stripe</button>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Active MRR</h5>
+                <h2 class="card-text">$12,450</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Active Tenants</h5>
+                <h2 class="card-text">142</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Past Due</h5>
+                <h2 class="card-text">3</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        Recent Tenants
+    </div>
+    <div class="card-body">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Tenant Name</th>
+                    <th>Plan / Edition</th>
+                    <th>Status</th>
+                    <th>Stripe Customer ID</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Acme Corp</td>
+                    <td><span class="badge bg-primary">Enterprise</span></td>
+                    <td><span class="badge bg-success">Active</span></td>
+                    <td>cus_M123456789</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary">View</button>
+                        <button class="btn btn-sm btn-outline-danger">Suspend</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Startup Inc</td>
+                    <td><span class="badge bg-info">Pro</span></td>
+                    <td><span class="badge bg-success">Active</span></td>
+                    <td>cus_M987654321</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary">View</button>
+                        <button class="btn btn-sm btn-outline-danger">Suspend</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Failing LLC</td>
+                    <td><span class="badge bg-info">Pro</span></td>
+                    <td><span class="badge bg-danger">Past Due</span></td>
+                    <td>cus_M555555555</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary">View</button>
+                        <button class="btn btn-sm btn-outline-warning">Revoke Access</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

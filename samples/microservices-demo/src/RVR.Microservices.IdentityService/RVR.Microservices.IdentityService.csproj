@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Grpc.AspNetCore" />
+    <PackageReference Include="MassTransit.RabbitMQ" />
+    <PackageReference Include="Serilog.AspNetCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RVR.Microservices.Shared.Domain\RVR.Microservices.Shared.Domain.csproj" />
+    <ProjectReference Include="..\RVR.Microservices.Shared.Infrastructure\RVR.Microservices.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\RVR.Microservices.Shared.Grpc\RVR.Microservices.Shared.Grpc.csproj" />
+  </ItemGroup>
+</Project>

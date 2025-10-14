@@ -1,0 +1,234 @@
+@page "/solution-creator"
+@using System.IO
+@rendermode InteractiveServer
+
+<PageTitle>RVR Studio - Solution Creator</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>🚀 Solution Creator</h2>
+            <p class="text-muted">Générez une nouvelle solution complète basée sur les templates RIVORA Framework.</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <div class="alert @(IsError ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @((MarkupString)Message)
+            <button type="button" class="btn-close" @onclick="@(() => Message = "")"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Configuration de la solution -->
+        <div class="col-md-5">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">1. Paramètres Généraux</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom de la Solution</label>
+                        <input type="text" class="form-control" @bind="SolutionName" placeholder="Ex: MyEnterpriseApp" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Dossier de destination</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" @bind="OutputDirectory" />
+                        </div>
+                        <small class="text-muted">Un nouveau dossier sera créé dans ce répertoire.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">3. Options de Multi-Tenancy</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Stratégie d'isolation</label>
+                        <select class="form-select" @bind="TenancyStrategy">
+                            <option value="row">Row-Level (Shared DB, Shared Schema)</option>
+                            <option value="schema">Schema Isolation (Shared DB, Separate Schemas)</option>
+                            <option value="database">Database Isolation (Separate DBs)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Choix de l'Architecture -->
+        <div class="col-md-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">2. Architecture & Template</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Monolithe Modulaire -->
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-@(SelectedArchitecture == "monolith" ? "primary" : "light") selectable-card" 
+                                 @onclick="@(() => SelectedArchitecture = "monolith")"
+                                 style="cursor: pointer; transition: all 0.2s;">
+                                <div class="card-body text-center">
+                                    <div class="display-4 mb-2">🏢</div>
+                                    <h5>Monolithe Modulaire</h5>
+                                    <p class="small text-muted">Clean Architecture standard. Idéal pour la plupart des applications d'entreprise.</p>
+                                    @if(SelectedArchitecture == "monolith") { <div class="badge bg-primary">Sélectionné</div> }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Microservices -->
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-@(SelectedArchitecture == "microservices" ? "primary" : "light") selectable-card" 
+                                 @onclick="@(() => SelectedArchitecture = "microservices")"
+                                 style="cursor: pointer; transition: all 0.2s;">
+                                <div class="card-body text-center">
+                                    <div class="display-4 mb-2">☁️</div>
+                                    <h5>Cloud Microservices</h5>
+                                    <p class="small text-muted">Solution distribuée avec API Gateway, Bus de messages et services isolés.</p>
+                                    @if(SelectedArchitecture == "microservices") { <div class="badge bg-primary">Sélectionné</div> }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label">Template de démarrage</label>
+                        <select class="form-select" @bind="TemplateName">
+                            @if(SelectedArchitecture == "monolith")
+                            {
+                                <option value="saas-starter">SaaS Starter (Auth, Multitenant, UI)</option>
+                                <option value="minimal">Minimal API (Cœur du framework uniquement)</option>
+                                <option value="ai-rag">AI Native (Avec intégration RAG / Vector DB)</option>
+                            }
+                            else
+                            {
+                                <option value="microservices-base">Base Microservices (Gateway + 2 Services)</option>
+                                <option value="microservices-full">E-Commerce Microservices (Catalog, Ordering, Basket)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button class="btn btn-primary btn-xl py-3 px-5 shadow" @onclick="GenerateSolution" disabled="@IsBusy">
+                    @if(IsBusy) { 
+                        <span class="spinner-border spinner-border-sm me-2"></span> 
+                        <span>Génération en cours...</span>
+                    } else {
+                        <span>🚀 CRÉER LA SOLUTION</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .selectable-card:hover { transform: translateY(-5px); border-color: #0d6efd !important; }
+    .btn-xl { font-weight: bold; font-size: 1.2rem; }
+</style>
+
+@code {
+    private string SolutionName { get; set; } = "MyProject";
+    private string OutputDirectory { get; set; } = "";
+    private string SelectedArchitecture { get; set; } = "monolith";
+    private string TemplateName { get; set; } = "saas-starter";
+    private string TenancyStrategy { get; set; } = "row";
+    
+    private string Message { get; set; } = "";
+    private bool IsError { get; set; } = false;
+    private bool IsBusy { get; set; } = false;
+
+    protected override void OnInitialized()
+    {
+        // Dossier par défaut dans Mes Documents ou à côté de la solution actuelle
+        OutputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "RVR-Solutions");
+    }
+
+    private async Task GenerateSolution()
+    {
+        if (string.IsNullOrWhiteSpace(SolutionName))
+        {
+            SetMessage("⚠️ Le nom de la solution est obligatoire.", true);
+            return;
+        }
+
+        IsBusy = true;
+        SetMessage($"⚙️ Préparation de la solution <b>{SolutionName}</b>...", false);
+        StateHasChanged();
+
+        try
+        {
+            // Construction de la commande RVR CLI
+            // kba new SolutionName --template TemplateName --tenancy TenancyStrategy
+            var cmd = $"kba new {SolutionName} --template {TemplateName} --tenancy {TenancyStrategy}";
+            
+            // Simulation de l'appel CLI pour l'instant ou appel réel si kba est installé
+            await RunCommandAsync(cmd, "Génération de la solution");
+        }
+        catch (Exception ex)
+        {
+            SetMessage($"❌ Erreur : {ex.Message}", true);
+        }
+        finally
+        {
+            IsBusy = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RunCommandAsync(string command, string taskName)
+    {
+        try
+        {
+            if (!Directory.Exists(OutputDirectory))
+            {
+                Directory.CreateDirectory(OutputDirectory);
+            }
+
+            var process = new System.Diagnostics.Process
+            {
+                StartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c {command}",
+                    WorkingDirectory = OutputDirectory,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            process.Start();
+            var output = await process.StandardOutput.ReadToEndAsync();
+            var error = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode == 0)
+            {
+                SetMessage($"✅ <b>Succès !</b> La solution a été créée dans {Path.Combine(OutputDirectory, SolutionName)}.<br/><pre class='mt-2' style='font-size: 0.8em;'>{output}</pre>", false);
+            }
+            else
+            {
+                SetMessage($"❌ <b>Échec :</b> {error}{output}", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            SetMessage($"❌ Erreur système : {ex.Message}", true);
+        }
+    }
+
+    private void SetMessage(string msg, bool isError)
+    {
+        Message = msg;
+        IsError = isError;
+    }
+}

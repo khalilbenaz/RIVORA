@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>rvr</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <Version>3.3.0</Version>
+    <Authors>Khalil Benazzouz</Authors>
+    <Description>Rivora Framework CLI - Enterprise .NET 9 scaffolding, AI code review, domain design, and migration tool</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/khalilbenaz/RIVORA</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/khalilbenaz/RIVORA</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>https://github.com/khalilbenaz/RIVORA/releases/tag/v3.3.0</PackageReleaseNotes>
+    <PackageTags>rivora rvr framework dotnet cli tool generator scaffolding ai review design</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Anthropic.SDK" />
+    <PackageReference Include="OpenAI" />
+    <PackageReference Include="Scriban" />
+    <PackageReference Include="Spectre.Console" />
+    <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="System.CommandLine.NamingConventionBinder" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>

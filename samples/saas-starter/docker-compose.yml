@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: saas-starter-db
+    environment:
+      POSTGRES_DB: saas_starter
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - saas-network
+
+  # Redis for caching and Hangfire
+  redis:
+    image: redis:7-alpine
+    container_name: saas-starter-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - saas-network
+
+  # API Service
+  api:
+    build:
+      context: .
+      dockerfile: src/RVR.SaaS.Starter.Api/Dockerfile
+    container_name: saas-starter-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=saas_starter;Username=postgres;Password=postgres
+      - IdentitySettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - IdentitySettings__Issuer=RVR.SaaS.Starter
+      - IdentitySettings__Audience=RVR.SaaS.Starter.Users
+    ports:
+      - "5000:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - saas-network
+    volumes:
+      - ./logs:/app/logs
+
+  # Blazor WebAssembly (served via nginx)
+  blazor:
+    build:
+      context: .
+      dockerfile: src/RVR.SaaS.Starter.Blazor/Dockerfile
+    container_name: saas-starter-blazor
+    ports:
+      - "5001:80"
+    depends_on:
+      - api
+    networks:
+      - saas-network
+
+networks:
+  saas-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

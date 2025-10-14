@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # Qdrant Vector Store
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ai-rag-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - ai-rag-network
+
+  # PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-rag-db
+    environment:
+      POSTGRES_DB: ai_rag
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - ai-rag-network
+
+  # Ollama (optional, for local models)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ai-rag-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - ai-rag-network
+    profiles:
+      - ollama
+
+  # API Service
+  api:
+    build:
+      context: .
+      dockerfile: src/RVR.AI.RAG.App.Api/Dockerfile
+    container_name: ai-rag-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=ai_rag;Username=postgres;Password=postgres
+      - VectorStore__Qdrant__Endpoint=http://qdrant:6333
+      - AIProviders__OpenAI__ApiKey=${OPENAI_API_KEY:-}
+      - AIProviders__Anthropic__ApiKey=${ANTHROPIC_API_KEY:-}
+      - AIProviders__Ollama__Endpoint=http://ollama:11434
+    ports:
+      - "5000:80"
+    depends_on:
+      - postgres
+      - qdrant
+    networks:
+      - ai-rag-network
+
+  # Blazor WebAssembly
+  blazor:
+    build:
+      context: .
+      dockerfile: src/RVR.AI.RAG.App.Blazor/Dockerfile
+    container_name: ai-rag-blazor
+    ports:
+      - "5001:80"
+    depends_on:
+      - api
+    networks:
+      - ai-rag-network
+
+networks:
+  ai-rag-network:
+    driver: bridge
+
+volumes:
+  qdrant-data:
+  postgres-data:
+  ollama-data:

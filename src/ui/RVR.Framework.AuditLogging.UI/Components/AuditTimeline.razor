@@ -1,0 +1,210 @@
+@using RVR.Framework.AuditLogging.UI.Models
+@using RVR.Framework.AuditLogging.UI.Services
+
+<div class="audit-dashboard">
+    <h2>Audit Log Timeline</h2>
+
+    <!-- Filters -->
+    <div class="audit-filters" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; padding:16px; background:#f8f9fa; border-radius:8px;">
+        <div style="display:flex; flex-direction:column;">
+            <label style="font-size:0.85em; font-weight:600; margin-bottom:4px;">Date From</label>
+            <input type="datetime-local" @bind="_filter.DateFrom" class="filter-input" />
+        </div>
+        <div style="display:flex; flex-direction:column;">
+            <label style="font-size:0.85em; font-weight:600; margin-bottom:4px;">Date To</label>
+            <input type="datetime-local" @bind="_filter.DateTo" class="filter-input" />
+        </div>
+        <div style="display:flex; flex-direction:column;">
+            <label style="font-size:0.85em; font-weight:600; margin-bottom:4px;">User ID</label>
+            <input type="text" placeholder="User ID..." @bind="_filter.UserId" class="filter-input" />
+        </div>
+        <div style="display:flex; flex-direction:column;">
+            <label style="font-size:0.85em; font-weight:600; margin-bottom:4px;">Entity Type</label>
+            <select @bind="_filter.EntityType" class="filter-input">
+                <option value="">All Entity Types</option>
+                @foreach (var entityType in _entityTypes)
+                {
+                    <option value="@entityType">@entityType</option>
+                }
+            </select>
+        </div>
+        <div style="display:flex; flex-direction:column;">
+            <label style="font-size:0.85em; font-weight:600; margin-bottom:4px;">Action</label>
+            <select @bind="_filter.Action" class="filter-input">
+                <option value="">All Actions</option>
+                @foreach (var action in _actions)
+                {
+                    <option value="@action">@action</option>
+                }
+            </select>
+        </div>
+        <div style="display:flex; flex-direction:column;">
+            <label style="font-size:0.85em; font-weight:600; margin-bottom:4px;">Status</label>
+            <select @bind="_filter.StatusFilter" class="filter-input">
+                <option value="">All Statuses</option>
+                <option value="success">Success (2xx)</option>
+                <option value="error">Errors (4xx/5xx)</option>
+            </select>
+        </div>
+        <div style="display:flex; flex-direction:column;">
+            <label style="font-size:0.85em; font-weight:600; margin-bottom:4px;">Search</label>
+            <input type="text" placeholder="Search URL, method..." @bind="_filter.SearchTerm" class="filter-input" />
+        </div>
+        <div style="display:flex; align-items:flex-end; gap:8px;">
+            <button class="btn btn-primary" @onclick="ApplyFilters">Apply</button>
+            <button class="btn btn-secondary" @onclick="ClearFilters">Clear</button>
+        </div>
+    </div>
+
+    <!-- Export Buttons -->
+    <div class="audit-export" style="display:flex; gap:8px; margin-bottom:16px;">
+        <button class="btn btn-outline" @onclick="@(() => OnExportRequested.InvokeAsync("csv"))">Export CSV</button>
+        <button class="btn btn-outline" @onclick="@(() => OnExportRequested.InvokeAsync("excel"))">Export Excel</button>
+        <button class="btn btn-outline" @onclick="@(() => OnExportRequested.InvokeAsync("pdf"))">Export PDF</button>
+        <span style="margin-left:auto; align-self:center; color:#666;">@_entries.Count() result(s)</span>
+    </div>
+
+    <!-- Timeline View -->
+    @if (_loading)
+    {
+        <div class="audit-loading" style="text-align:center; padding:40px; color:#999;">Loading audit entries...</div>
+    }
+    else if (!_entries.Any())
+    {
+        <div class="audit-empty" style="text-align:center; padding:40px; color:#999;">No audit log entries found matching the current filters.</div>
+    }
+    else
+    {
+        <div class="audit-timeline" style="position:relative; padding-left:40px;">
+            <div style="position:absolute; left:18px; top:0; bottom:0; width:2px; background:#e0e0e0;"></div>
+
+            @{ string? currentDate = null; }
+            @foreach (var entry in _entries)
+            {
+                var dateKey = entry.ExecutionDate.ToString("yyyy-MM-dd");
+                @if (currentDate != dateKey)
+                {
+                    currentDate = dateKey;
+                    <div class="timeline-date-header" style="font-weight:700; font-size:0.95em; color:#333; padding:12px 0 4px 0; position:relative;">
+                        <div style="position:absolute; left:-30px; top:14px; width:12px; height:12px; border-radius:50%; background:#4a90d9; border:2px solid #fff; box-shadow:0 0 0 2px #4a90d9;"></div>
+                        @entry.ExecutionDate.ToString("dddd, MMMM dd, yyyy")
+                    </div>
+                }
+
+                <div class="timeline-entry" style="position:relative; padding:10px 16px; margin-bottom:8px; background:#fff; border:1px solid #e8e8e8; border-radius:6px; border-left:3px solid @(GetStatusColor(entry.HttpStatusCode));">
+                    <div style="position:absolute; left:-28px; top:16px; width:8px; height:8px; border-radius:50%; background:@(GetStatusColor(entry.HttpStatusCode));"></div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <span style="font-weight:600; font-size:0.85em; color:#555;">@entry.ExecutionDate.ToString("HH:mm:ss")</span>
+                            <span class="badge" style="background:@(GetMethodColor(entry.HttpMethod)); color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75em; font-weight:700;">@entry.HttpMethod</span>
+                            <span style="font-size:0.9em; color:#333; max-width:400px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="@entry.Url">@entry.Url</span>
+                        </div>
+                        <div style="display:flex; gap:12px; align-items:center; font-size:0.85em;">
+                            <span style="color:#888;">@entry.UserDisplay</span>
+                            <span style="color:#888;">@entry.IpAddress</span>
+                            <span style="padding:2px 8px; border-radius:4px; font-weight:600; background:@(GetStatusBgColor(entry.HttpStatusCode)); color:@(GetStatusColor(entry.HttpStatusCode));">@entry.HttpStatusCode</span>
+                            <span style="color:#888;">@(entry.ExecutionTime)ms</span>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(entry.EntityType))
+                    {
+                        <div style="font-size:0.8em; color:#888; margin-top:4px;">
+                            Entity: @entry.EntityType @if (!string.IsNullOrEmpty(entry.Action)) { <text> | Action: @entry.Action</text> }
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(entry.ExceptionMessage))
+                    {
+                        <div style="font-size:0.8em; color:#d32f2f; margin-top:4px; max-width:600px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="@entry.ExceptionMessage">
+                            @entry.ExceptionMessage
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private AuditLogFilter _filter = new();
+    private IEnumerable<AuditEntryViewModel> _entries = [];
+    private IEnumerable<string> _entityTypes = [];
+    private IEnumerable<string> _actions = [];
+    private bool _loading = true;
+
+    /// <summary>
+    /// The audit log reader service to use for loading data.
+    /// </summary>
+    [Parameter]
+    public IAuditLogReader? AuditLogReader { get; set; }
+
+    /// <summary>
+    /// Callback invoked when the user requests an export. The string parameter is the format: "csv", "excel", or "pdf".
+    /// </summary>
+    [Parameter]
+    public EventCallback<string> OnExportRequested { get; set; }
+
+    /// <summary>
+    /// Gets the currently applied filter, useful for export operations.
+    /// </summary>
+    public AuditLogFilter CurrentFilter => _filter;
+
+    /// <summary>
+    /// Gets the currently displayed entries, useful for export operations.
+    /// </summary>
+    public IEnumerable<AuditEntryViewModel> CurrentEntries => _entries;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuditLogReader is not null)
+        {
+            _entityTypes = await AuditLogReader.GetDistinctEntityTypesAsync();
+            _actions = await AuditLogReader.GetDistinctActionsAsync();
+            _entries = await AuditLogReader.GetRecentLogsAsync(200);
+        }
+        _loading = false;
+    }
+
+    private async Task ApplyFilters()
+    {
+        if (AuditLogReader is null) return;
+        _loading = true;
+        StateHasChanged();
+        _entries = await AuditLogReader.GetFilteredLogsAsync(_filter);
+        _loading = false;
+    }
+
+    private async Task ClearFilters()
+    {
+        _filter = new AuditLogFilter();
+        await ApplyFilters();
+    }
+
+    private static string GetStatusColor(int? statusCode) => statusCode switch
+    {
+        >= 200 and < 300 => "#2e7d32",
+        >= 300 and < 400 => "#f57c00",
+        >= 400 => "#d32f2f",
+        _ => "#9e9e9e"
+    };
+
+    private static string GetStatusBgColor(int? statusCode) => statusCode switch
+    {
+        >= 200 and < 300 => "#e8f5e9",
+        >= 300 and < 400 => "#fff3e0",
+        >= 400 => "#ffebee",
+        _ => "#f5f5f5"
+    };
+
+    private static string GetMethodColor(string? method) => method?.ToUpperInvariant() switch
+    {
+        "GET" => "#4a90d9",
+        "POST" => "#2e7d32",
+        "PUT" => "#f57c00",
+        "PATCH" => "#7b1fa2",
+        "DELETE" => "#d32f2f",
+        _ => "#9e9e9e"
+    };
+}

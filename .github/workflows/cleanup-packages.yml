@@ -1,0 +1,43 @@
+name: Cleanup GitHub Packages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete all RVR.Framework packages (keep only RVR.CLI)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # List all NuGet packages for this user
+          PACKAGES=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/user/packages?package_type=nuget&per_page=100")
+
+          echo "$PACKAGES" | jq -r '.[] | select(.name != "RVR.CLI") | .name' | while read pkg; do
+            echo "Deleting package: $pkg"
+            # Get all versions
+            VERSIONS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/user/packages/nuget/$pkg/versions")
+
+            echo "$VERSIONS" | jq -r '.[].id' | while read vid; do
+              curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/user/packages/nuget/$pkg/versions/$vid"
+              echo "  Deleted version $vid"
+            done
+
+            # Delete the package itself
+            curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/user/packages/nuget/$pkg"
+            echo "  Package $pkg deleted"
+          done
+
+          echo "Done. Only RVR.CLI should remain."

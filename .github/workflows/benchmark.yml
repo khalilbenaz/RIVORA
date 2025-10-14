@@ -1,0 +1,262 @@
+name: Performance Benchmarks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/RVR.Framework.Benchmarks/**'
+      - 'Directory.Packages.props'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  benchmark:
+    name: Run Benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+
+      - name: Checkout base branch for baseline
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: baseline
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore tests/RVR.Framework.Benchmarks/RVR.Framework.Benchmarks.csproj
+
+      - name: Build benchmarks (Release)
+        run: dotnet build tests/RVR.Framework.Benchmarks/RVR.Framework.Benchmarks.csproj -c Release --no-restore
+
+      - name: Run benchmarks on PR branch
+        run: |
+          dotnet run --project tests/RVR.Framework.Benchmarks/RVR.Framework.Benchmarks.csproj \
+            -c Release --no-build -- \
+            --filter '*' \
+            --exporters json \
+            --artifacts ./BenchmarkResults/pr
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+      - name: Restore baseline dependencies
+        working-directory: baseline
+        run: |
+          if [ -f "tests/RVR.Framework.Benchmarks/RVR.Framework.Benchmarks.csproj" ]; then
+            dotnet restore tests/RVR.Framework.Benchmarks/RVR.Framework.Benchmarks.csproj
+          fi
+
+      - name: Build and run baseline benchmarks
+        working-directory: baseline
+        run: |
+          if [ -f "tests/RVR.Framework.Benchmarks/RVR.Framework.Benchmarks.csproj" ]; then
+            dotnet build tests/RVR.Framework.Benchmarks/RVR.Framework.Benchmarks.csproj -c Release --no-restore
+            dotnet run --project tests/RVR.Framework.Benchmarks/RVR.Framework.Benchmarks.csproj \
+              -c Release --no-build -- \
+              --filter '*' \
+              --exporters json \
+              --artifacts ../BenchmarkResults/baseline
+          else
+            echo "No baseline benchmarks found - skipping comparison"
+            mkdir -p ../BenchmarkResults/baseline
+          fi
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+      - name: Compare results and generate report
+        id: compare
+        run: |
+          cat << 'SCRIPT' > compare.py
+          import json
+          import os
+          import glob
+          import sys
+
+          def load_results(directory):
+              results = {}
+              for f in glob.glob(os.path.join(directory, "**/*-report-full.json"), recursive=True):
+                  with open(f) as fh:
+                      data = json.load(fh)
+                      for bench in data.get("Benchmarks", []):
+                          name = bench.get("FullName", bench.get("Method", "Unknown"))
+                          stats = bench.get("Statistics", {})
+                          if stats:
+                              results[name] = {
+                                  "mean_ns": stats.get("Mean", 0),
+                                  "median_ns": stats.get("Median", 0),
+                                  "stddev_ns": stats.get("StandardDeviation", 0),
+                                  "allocated_bytes": bench.get("Memory", {}).get("BytesAllocatedPerOperation", 0),
+                              }
+              return results
+
+          pr_results = load_results("BenchmarkResults/pr")
+          baseline_results = load_results("BenchmarkResults/baseline")
+
+          def format_ns(ns):
+              if ns >= 1_000_000_000:
+                  return f"{ns / 1_000_000_000:.2f} s"
+              elif ns >= 1_000_000:
+                  return f"{ns / 1_000_000:.2f} ms"
+              elif ns >= 1_000:
+                  return f"{ns / 1_000:.2f} us"
+              return f"{ns:.2f} ns"
+
+          def format_bytes(b):
+              if b >= 1_048_576:
+                  return f"{b / 1_048_576:.1f} MB"
+              elif b >= 1024:
+                  return f"{b / 1024:.1f} KB"
+              return f"{b:.0f} B"
+
+          lines = []
+          lines.append("## Performance Benchmark Results")
+          lines.append("")
+
+          regressions = []
+          improvements = []
+
+          if baseline_results:
+              lines.append("### Comparison with baseline (main branch)")
+              lines.append("")
+              lines.append("| Benchmark | Baseline | PR | Change | Alloc Change | Status |")
+              lines.append("|-----------|----------|-----|--------|--------------|--------|")
+
+              for name in sorted(set(list(pr_results.keys()) + list(baseline_results.keys()))):
+                  pr = pr_results.get(name)
+                  base = baseline_results.get(name)
+
+                  if pr and base and base["mean_ns"] > 0:
+                      change_pct = ((pr["mean_ns"] - base["mean_ns"]) / base["mean_ns"]) * 100
+                      alloc_change = ""
+                      if base["allocated_bytes"] > 0:
+                          alloc_pct = ((pr["allocated_bytes"] - base["allocated_bytes"]) / base["allocated_bytes"]) * 100
+                          alloc_change = f"{alloc_pct:+.1f}%"
+
+                      short_name = name.split(".")[-1] if "." in name else name
+                      if change_pct > 10:
+                          status = "regression"
+                          regressions.append((short_name, change_pct))
+                      elif change_pct < -10:
+                          status = "improvement"
+                          improvements.append((short_name, change_pct))
+                      else:
+                          status = "neutral"
+
+                      lines.append(
+                          f"| {short_name} | {format_ns(base['mean_ns'])} | "
+                          f"{format_ns(pr['mean_ns'])} | {change_pct:+.1f}% | "
+                          f"{alloc_change} | {status} |"
+                      )
+                  elif pr and not base:
+                      short_name = name.split(".")[-1] if "." in name else name
+                      lines.append(f"| {short_name} | - | {format_ns(pr['mean_ns'])} | NEW | - | new |")
+          else:
+              lines.append("### PR Branch Results (no baseline available)")
+              lines.append("")
+              lines.append("| Benchmark | Mean | Median | StdDev | Allocated |")
+              lines.append("|-----------|------|--------|--------|-----------|")
+              for name in sorted(pr_results.keys()):
+                  pr = pr_results[name]
+                  short_name = name.split(".")[-1] if "." in name else name
+                  lines.append(
+                      f"| {short_name} | {format_ns(pr['mean_ns'])} | "
+                      f"{format_ns(pr['median_ns'])} | {format_ns(pr['stddev_ns'])} | "
+                      f"{format_bytes(pr['allocated_bytes'])} |"
+                  )
+
+          lines.append("")
+
+          if regressions:
+              lines.append(f"### Regressions Detected ({len(regressions)})")
+              lines.append("")
+              for name, pct in regressions:
+                  lines.append(f"- **{name}**: {pct:+.1f}% slower")
+              lines.append("")
+
+          if improvements:
+              lines.append(f"### Improvements ({len(improvements)})")
+              lines.append("")
+              for name, pct in improvements:
+                  lines.append(f"- **{name}**: {pct:+.1f}% faster")
+              lines.append("")
+
+          lines.append("---")
+          lines.append("*Generated by RVR.Framework Benchmark CI*")
+
+          report = "\n".join(lines)
+          with open("benchmark-report.md", "w") as f:
+              f.write(report)
+
+          # Set output for regression detection
+          has_regressions = "true" if regressions else "false"
+          with open(os.environ.get("GITHUB_OUTPUT", "/dev/null"), "a") as f:
+              f.write(f"has_regressions={has_regressions}\n")
+              f.write(f"regression_count={len(regressions)}\n")
+
+          print(report)
+
+          SCRIPT
+          python3 compare.py
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('benchmark-report.md', 'utf8');
+
+            // Find and update existing comment or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const marker = '<!-- benchmark-results -->';
+            const body = `${marker}\n${report}`;
+            const existingComment = comments.find(c => c.body.includes(marker));
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
+
+      - name: Upload benchmark artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: |
+            BenchmarkResults/
+            benchmark-report.md
+          retention-days: 90
+
+      - name: Warn on regressions
+        if: steps.compare.outputs.has_regressions == 'true'
+        run: |
+          echo "::warning::Performance regressions detected (${{ steps.compare.outputs.regression_count }} benchmarks regressed by >10%)"
+          echo "Review the benchmark report in the PR comments for details."

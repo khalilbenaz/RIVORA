@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+html, body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Sidebar Customization */
+.sidebar {
+    background-color: #1e1e2d !important; /* Darker, more premium shade */
+    border-right: 1px solid #2d2d3f;
+}
+
+.top-row {
+    background-color: #151521 !important; /* Slightly darker than sidebar for contrast */
+}
+
+.nav-link {
+    color: #a2a3b7 !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateX(3px);
+}
+
+.nav-link.active {
+    color: #ffffff !important;
+    background-color: #3699ff !important;
+    box-shadow: 0 4px 10px rgba(54, 153, 255, 0.3);
+}
+
+/* Typography and Cards */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: #181c32;
+}
+
+.card {
+    border: 0;
+    box-shadow: 0 0 20px 0 rgba(76, 87, 125, 0.05);
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #ebedf3;
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+    border-top-left-radius: 0.75rem !important;
+    border-top-right-radius: 0.75rem !important;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0.4rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: #3699ff;
+    border-color: #3699ff;
+    box-shadow: 0 4px 10px rgba(54, 153, 255, 0.2);
+}
+
+.btn-primary:hover {
+    background-color: #187de4;
+    border-color: #187de4;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(54, 153, 255, 0.3);
+}
+
+/* Tables */
+.table {
+    vertical-align: middle;
+}
+
+.table thead th {
+    font-weight: 600;
+    color: #b5b5c3;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05rem;
+    border-bottom: 1px solid #ebedf3;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* Misc Utilities */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Blazor Defaults overrides */
+a, .btn-link { color: #3699ff; text-decoration: none; }
+a:hover { color: #187de4; }
+.content { padding-top: 1.5rem !important; }
+h1:focus { outline: none; }
+.valid.modified:not([type=checkbox]) { outline: 1px solid #1bc5bd; }
+.invalid { outline: 1px solid #f64e60; }
+.validation-message { color: #f64e60; }

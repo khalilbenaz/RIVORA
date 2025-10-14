@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="HotChocolate.AspNetCore" />
+    <PackageReference Include="HotChocolate.Data.EntityFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\RVR.Framework.Domain\RVR.Framework.Domain.csproj" />
+    <ProjectReference Include="..\..\core\RVR.Framework.Application\RVR.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\core\RVR.Framework.Infrastructure\RVR.Framework.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

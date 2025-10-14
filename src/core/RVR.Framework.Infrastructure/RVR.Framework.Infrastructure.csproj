@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\RVR.Framework.Core\RVR.Framework.Core.csproj" />
+    <ProjectReference Include="..\RVR.Framework.Domain\RVR.Framework.Domain.csproj" />
+    <ProjectReference Include="..\RVR.Framework.Application\RVR.Framework.Application.csproj" />
+    <ProjectReference Include="..\..\multitenancy\RVR.Framework.MultiTenancy\RVR.Framework.MultiTenancy.csproj" />
+    <ProjectReference Include="..\..\security\RVR.Framework.Security\RVR.Framework.Security.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Quartz" />
+    <PackageReference Include="EFCore.BulkExtensions.Core" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

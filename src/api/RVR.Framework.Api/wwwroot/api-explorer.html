@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIVORA Framework - API Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #16213e;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #aaa;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .tab.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .endpoint-group {
+            background: #16213e;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid #667eea;
+        }
+
+        .group-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .group-header h2 {
+            font-size: 20px;
+        }
+
+        .group-header .count {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .endpoints {
+            padding: 10px;
+        }
+
+        .endpoint {
+            background: #0f3460;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            border-left: 4px solid #667eea;
+        }
+
+        .endpoint-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .method {
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .method.get { background: #61affe; color: #000; }
+        .method.post { background: #49cc90; color: #000; }
+        .method.put { background: #fca130; color: #000; }
+        .method.delete { background: #f93e3e; color: #fff; }
+
+        .path {
+            flex: 1;
+            font-family: monospace;
+            color: #eee;
+        }
+
+        .auth-required {
+            background: #f93e3e;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .auth-optional {
+            background: #49cc90;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .endpoint-details {
+            display: none;
+            padding: 20px;
+            background: #1a1a2e;
+            border-top: 1px solid #667eea;
+        }
+
+        .endpoint-details.active {
+            display: block;
+        }
+
+        .test-form {
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background: #0f3460;
+            border: 1px solid #667eea;
+            border-radius: 5px;
+            color: #eee;
+            font-family: monospace;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            font-size: 13px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f3460;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #667eea;
+        }
+
+        .status-code {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .status-200 { background: #49cc90; color: #000; }
+        .status-201 { background: #49cc90; color: #000; }
+        .status-400 { background: #fca130; color: #000; }
+        .status-401 { background: #f93e3e; color: #fff; }
+        .status-404 { background: #f93e3e; color: #fff; }
+        .status-500 { background: #f93e3e; color: #fff; }
+
+        .response-body {
+            background: #1a1a2e;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        .response-body pre {
+            margin: 0;
+            color: #eee;
+            font-size: 13px;
+        }
+
+        .auth-panel {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #667eea;
+        }
+
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #f93e3e;
+        }
+
+        .status-indicator.authenticated {
+            background: #49cc90;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 RIVORA Framework API Explorer</h1>
+        <p>Documentation interactive et tests en temps réel</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('explorer')">📡 Explorer & Tests</button>
+        <button class="tab" onclick="showTab('docs')">📚 Documentation ReDoc</button>
+        <button class="tab" onclick="showTab('swagger')">🔧 Swagger UI</button>
+    </div>
+
+    <div id="explorer" class="container">
+        <div class="auth-panel">
+            <div class="auth-status">
+                <span class="status-indicator" id="authIndicator"></span>
+                <span id="authStatusText">Non authentifié</span>
+            </div>
+            <div class="form-group">
+                <label>Token JWT (optionnel pour les endpoints publics)</label>
+                <input type="text" id="jwtToken" placeholder="Collez votre token JWT ici ou utilisez /api/auth/login">
+            </div>
+            <button class="btn btn-primary" onclick="saveToken()">💾 Sauvegarder le token</button>
+            <button class="btn btn-primary" onclick="clearToken()">🗑️ Effacer le token</button>
+        </div>
+
+        <div id="endpointGroups"></div>
+    </div>
+
+    <div id="docs" class="container hidden">
+        <iframe src="/api-docs" style="width: 100%; height: calc(100vh - 120px); border: none; background: white;"></iframe>
+    </div>
+
+    <div id="swagger" class="container hidden">
+        <iframe src="/swagger" style="width: 100%; height: calc(100vh - 120px); border: none; background: white;"></iframe>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let endpoints = [];
+        let jwtToken = localStorage.getItem('jwtToken') || '';
+
+        // Charger le token sauvegardé
+        if (jwtToken) {
+            document.getElementById('jwtToken').value = jwtToken;
+            updateAuthStatus(true);
+        }
+
+        // Définition des endpoints
+        const endpointDefinitions = [
+            {
+                group: 'Initialization',
+                icon: '⚙️',
+                items: [
+                    { method: 'GET', path: '/api/init/status', auth: false, description: 'Vérifier le statut d\'initialisation' },
+                    { method: 'POST', path: '/api/init/first-admin', auth: false, description: 'Créer le premier administrateur', body: { userName: 'admin', email: 'admin@RVR.com', password: 'Admin@123456', firstName: 'Admin', lastName: 'System' } }
+                ]
+            },
+            {
+                group: 'Authentication',
+                icon: '🔐',
+                items: [
+                    { method: 'POST', path: '/api/auth/login', auth: false, description: 'Se connecter et obtenir un token JWT', body: { userName: 'admin', password: 'Admin@123456' } },
+                    { method: 'POST', path: '/api/auth/refresh-token', auth: false, description: 'Rafraîchir le token JWT', params: { token: 'votre_refresh_token' } },
+                    { method: 'POST', path: '/api/auth/logout', auth: true, description: 'Se déconnecter', params: { token: 'votre_token' } }
+                ]
+            },
+            {
+                group: 'Users',
+                icon: '👥',
+                items: [
+                    { method: 'GET', path: '/api/users', auth: true, description: 'Lister tous les utilisateurs' },
+                    { method: 'GET', path: '/api/users/{id}', auth: true, description: 'Obtenir un utilisateur par ID', pathParams: { id: 'guid' } },
+                    { method: 'GET', path: '/api/users/username/{username}', auth: true, description: 'Obtenir un utilisateur par nom', pathParams: { username: 'admin' } },
+                    { method: 'POST', path: '/api/users', auth: true, description: 'Créer un utilisateur', body: { userName: 'newuser', email: 'user@example.com', password: 'User@123456', firstName: 'John', lastName: 'Doe' } },
+                    { method: 'PUT', path: '/api/users/{id}', auth: true, description: 'Mettre à jour un utilisateur', pathParams: { id: 'guid' }, body: { userName: 'updateduser', email: 'updated@example.com', firstName: 'Jane', lastName: 'Doe' } },
+                    { method: 'DELETE', path: '/api/users/{id}', auth: true, description: 'Supprimer un utilisateur', pathParams: { id: 'guid' } }
+                ]
+            },
+            {
+                group: 'Products',
+                icon: '📦',
+                items: [
+                    { method: 'GET', path: '/api/products', auth: false, description: 'Lister tous les produits' },
+                    { method: 'GET', path: '/api/products/{id}', auth: false, description: 'Obtenir un produit par ID', pathParams: { id: 'guid' } },
+                    { method: 'GET', path: '/api/products/search', auth: false, description: 'Rechercher des produits', params: { term: 'laptop' } },
+                    { method: 'POST', path: '/api/products', auth: true, description: 'Créer un produit', body: { name: 'Laptop Dell', description: 'Professional laptop', price: 999.99, stock: 10, sku: 'LAPTOP-001', category: 'Electronics' } },
+                    { method: 'PUT', path: '/api/products/{id}', auth: true, description: 'Mettre à jour un produit', pathParams: { id: 'guid' }, body: { name: 'Updated Laptop', description: 'Updated description', price: 1099.99, stock: 5, category: 'Electronics' } },
+                    { method: 'DELETE', path: '/api/products/{id}', auth: true, description: 'Supprimer un produit', pathParams: { id: 'guid' } }
+                ]
+            }
+        ];
+
+        function renderEndpoints() {
+            const container = document.getElementById('endpointGroups');
+            container.innerHTML = '';
+
+            endpointDefinitions.forEach((group, groupIndex) => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'endpoint-group';
+                groupDiv.innerHTML = `
+                    <div class="group-header">
+                        <h2>${group.icon} ${group.group}</h2>
+                        <span class="count">${group.items.length} endpoints</span>
+                    </div>
+                    <div class="endpoints" id="group-${groupIndex}"></div>
+                `;
+                container.appendChild(groupDiv);
+
+                const endpointsDiv = document.getElementById(`group-${groupIndex}`);
+                group.items.forEach((endpoint, endpointIndex) => {
+                    const endpointDiv = document.createElement('div');
+                    endpointDiv.className = 'endpoint';
+                    const endpointId = `endpoint-${groupIndex}-${endpointIndex}`;
+                    
+                    endpointDiv.innerHTML = `
+                        <div class="endpoint-header" onclick="toggleEndpoint('${endpointId}')">
+                            <span class="method ${endpoint.method.toLowerCase()}">${endpoint.method}</span>
+                            <span class="path">${endpoint.path}</span>
+                            <span class="${endpoint.auth ? 'auth-required' : 'auth-optional'}">
+                                ${endpoint.auth ? '🔒 Auth requis' : '🔓 Public'}
+                            </span>
+                        </div>
+                        <div class="endpoint-details" id="${endpointId}">
+                            <p><strong>Description:</strong> ${endpoint.description}</p>
+                            <div class="test-form">
+                                ${endpoint.pathParams ? renderPathParams(endpoint.pathParams, endpointId) : ''}
+                                ${endpoint.params ? renderQueryParams(endpoint.params, endpointId) : ''}
+                                ${endpoint.body ? renderBody(endpoint.body, endpointId) : ''}
+                                <button class="btn btn-primary" onclick="testEndpoint('${groupIndex}', '${endpointIndex}', '${endpointId}')">
+                                    ▶️ Tester
+                                </button>
+                            </div>
+                            <div id="response-${endpointId}"></div>
+                        </div>
+                    `;
+                    endpointsDiv.appendChild(endpointDiv);
+                });
+            });
+        }
+
+        function renderPathParams(params, id) {
+            let html = '<div class="form-group"><label>Paramètres de chemin</label>';
+            for (const [key, value] of Object.entries(params)) {
+                html += `<input type="text" id="pathParam-${id}-${key}" placeholder="${key} (ex: ${value})" value="${value}">`;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function renderQueryParams(params, id) {
+            let html = '<div class="form-group"><label>Paramètres de requête</label>';
+            for (const [key, value] of Object.entries(params)) {
+                html += `<input type="text" id="queryParam-${id}-${key}" placeholder="${key}" value="${value}">`;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function renderBody(body, id) {
+            return `
+                <div class="form-group">
+                    <label>Corps de la requête (JSON)</label>
+                    <textarea id="body-${id}">${JSON.stringify(body, null, 2)}</textarea>
+                </div>
+            `;
+        }
+
+        function toggleEndpoint(id) {
+            const details = document.getElementById(id);
+            details.classList.toggle('active');
+        }
+
+        async function testEndpoint(groupIndex, endpointIndex, endpointId) {
+            const group = endpointDefinitions[groupIndex];
+            const endpoint = group.items[endpointIndex];
+            
+            let url = API_BASE + endpoint.path;
+
+            // Remplacer les paramètres de chemin
+            if (endpoint.pathParams) {
+                for (const key of Object.keys(endpoint.pathParams)) {
+                    const input = document.getElementById(`pathParam-${endpointId}-${key}`);
+                    if (input) {
+                        url = url.replace(`{${key}}`, input.value);
+                    }
+                }
+            }
+
+            // Ajouter les paramètres de requête
+            if (endpoint.params) {
+                const params = new URLSearchParams();
+                for (const key of Object.keys(endpoint.params)) {
+                    const input = document.getElementById(`queryParam-${endpointId}-${key}`);
+                    if (input && input.value) {
+                        params.append(key, input.value);
+                    }
+                }
+                if (params.toString()) {
+                    url += '?' + params.toString();
+                }
+            }
+
+            const options = {
+                method: endpoint.method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            // Ajouter le token si disponible
+            if (jwtToken) {
+                options.headers['Authorization'] = `Bearer ${jwtToken}`;
+            }
+
+            // Ajouter le corps si nécessaire
+            if (endpoint.body) {
+                const bodyInput = document.getElementById(`body-${endpointId}`);
+                if (bodyInput) {
+                    try {
+                        options.body = bodyInput.value;
+                    } catch (e) {
+                        alert('JSON invalide dans le corps de la requête');
+                        return;
+                    }
+                }
+            }
+
+            const responseDiv = document.getElementById(`response-${endpointId}`);
+            responseDiv.innerHTML = '<p>⏳ Envoi de la requête...</p>';
+
+            try {
+                const startTime = performance.now();
+                const response = await fetch(url, options);
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+
+                let responseBody;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    responseBody = await response.json();
+                } else {
+                    responseBody = await response.text();
+                }
+
+                const statusClass = `status-${Math.floor(response.status / 100) * 100}`;
+                
+                responseDiv.innerHTML = `
+                    <div class="response">
+                        <div class="response-header">
+                            <span class="status-code ${statusClass}">Status: ${response.status} ${response.statusText}</span>
+                            <span>⏱️ ${duration}ms</span>
+                        </div>
+                        <div class="response-body">
+                            <pre>${JSON.stringify(responseBody, null, 2)}</pre>
+                        </div>
+                    </div>
+                `;
+
+                // Si c'est un login réussi, sauvegarder le token automatiquement
+                if (endpoint.path === '/api/auth/login' && response.ok && responseBody.token) {
+                    document.getElementById('jwtToken').value = responseBody.token;
+                    saveToken();
+                    alert('✅ Token JWT sauvegardé automatiquement !');
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <div class="response">
+                        <div class="response-header">
+                            <span class="status-code status-500">Erreur</span>
+                        </div>
+                        <div class="response-body">
+                            <pre>${error.message}</pre>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function saveToken() {
+            jwtToken = document.getElementById('jwtToken').value.trim();
+            if (jwtToken) {
+                localStorage.setItem('jwtToken', jwtToken);
+                updateAuthStatus(true);
+                alert('✅ Token sauvegardé !');
+            }
+        }
+
+        function clearToken() {
+            jwtToken = '';
+            localStorage.removeItem('jwtToken');
+            document.getElementById('jwtToken').value = '';
+            updateAuthStatus(false);
+        }
+
+        function updateAuthStatus(isAuth) {
+            const indicator = document.getElementById('authIndicator');
+            const statusText = document.getElementById('authStatusText');
+            if (isAuth) {
+                indicator.classList.add('authenticated');
+                statusText.textContent = 'Authentifié ✅';
+            } else {
+                indicator.classList.remove('authenticated');
+                statusText.textContent = 'Non authentifié';
+            }
+        }
+
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = ['explorer', 'docs', 'swagger'];
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            contents.forEach(content => {
+                document.getElementById(content).classList.toggle('hidden', content !== tabName);
+            });
+        }
+
+        // Initialisation
+        renderEndpoints();
+    </script>
+</body>
+</html>

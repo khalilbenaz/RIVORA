@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option csharp_namespace = "RVR.Microservices.Shared.Grpc";
+
+package identity;
+
+service IdentityService {
+    rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+    rpc GetUserById (GetUserByIdRequest) returns (GetUserByIdResponse);
+}
+
+message ValidateTokenRequest {
+    string token = 1;
+}
+
+message ValidateTokenResponse {
+    bool is_valid = 1;
+    string user_id = 2;
+    string email = 3;
+    string role = 4;
+}
+
+message GetUserByIdRequest {
+    string user_id = 1;
+}
+
+message GetUserByIdResponse {
+    string user_id = 1;
+    string email = 2;
+    string first_name = 3;
+    string last_name = 4;
+    string role = 5;
+}
+
+service ProductService {
+    rpc GetProductById (ProductRequest) returns (ProductResponse);
+    rpc ReserveStock (ReserveStockRequest) returns (ReserveStockResponse);
+    rpc ReleaseStock (ReleaseStockRequest) returns (ReleaseStockResponse);
+}
+
+message ProductRequest {
+    string product_id = 1;
+}
+
+message ProductResponse {
+    string product_id = 1;
+    string name = 2;
+    string description = 3;
+    double price = 4;
+    int32 stock = 5;
+    bool is_available = 6;
+}
+
+message ReserveStockRequest {
+    string product_id = 1;
+    int32 quantity = 2;
+    string order_id = 3;
+}
+
+message ReserveStockResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message ReleaseStockRequest {
+    string product_id = 1;
+    int32 quantity = 2;
+    string order_id = 3;
+}
+
+message ReleaseStockResponse {
+    bool success = 1;
+    string message = 2;
+}

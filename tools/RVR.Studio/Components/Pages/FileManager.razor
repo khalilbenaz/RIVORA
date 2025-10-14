@@ -1,0 +1,162 @@
+@page "/storage/files"
+@rendermode InteractiveServer
+
+<PageTitle>Blob Storage Manager - RVR Studio</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📁 Blob Storage Manager</h2>
+    <div>
+        <span class="badge bg-secondary me-2">Provider: @GetProviderForContainer(SelectedContainer)</span>
+        <button class="btn btn-primary" @onclick="SimulateUpload" disabled="@IsUploading">
+            @(IsUploading ? "Uploading..." : "Upload File")
+        </button>
+    </div>
+</div>
+
+@if (ShowUploadSuccess)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Success!</strong> File successfully uploaded to @SelectedContainer.
+        <button type="button" class="btn-close" @onclick="() => ShowUploadSuccess = false"></button>
+    </div>
+}
+
+<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="list-group">
+            @foreach (var container in Containers)
+            {
+                <button type="button" 
+                        class="list-group-item list-group-item-action text-start @(SelectedContainer == container.Name ? "active" : "")"
+                        @onclick="() => SelectContainer(container.Name)">
+                    @container.Icon @container.Name
+                </button>
+            }
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header bg-light">
+                <strong>Container: @SelectedContainer</strong>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Size</th>
+                            <th>Last Modified</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Files.Any(f => f.Container == SelectedContainer))
+                        {
+                            @foreach (var file in Files.Where(f => f.Container == SelectedContainer))
+                            {
+                                <tr>
+                                    <td><span class="fs-5">@GetFileIcon(file.Name)</span> @file.Name</td>
+                                    <td>@file.Size</td>
+                                    <td>@file.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteFile(file)">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    No files in this container.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string SelectedContainer = "public-assets";
+    private bool IsUploading = false;
+    private bool ShowUploadSuccess = false;
+
+    private List<ContainerModel> Containers = new()
+    {
+        new ContainerModel { Name = "public-assets", Icon = "📦", Provider = "AWS S3" },
+        new ContainerModel { Name = "tenant-documents", Icon = "🔒", Provider = "Azure Blob" },
+        new ContainerModel { Name = "user-avatars", Icon = "🖼️", Provider = "Local System" }
+    };
+
+    private List<FileModel> Files = new()
+    {
+        new FileModel { Container = "public-assets", Name = "logo-header.png", Size = "45 KB", LastModified = DateTime.Now.AddDays(-1) },
+        new FileModel { Container = "public-assets", Name = "terms-of-service.pdf", Size = "1.2 MB", LastModified = DateTime.Now.AddDays(-3) },
+        new FileModel { Container = "tenant-documents", Name = "invoice-tenant-442.pdf", Size = "210 KB", LastModified = DateTime.Now.AddHours(-5) },
+        new FileModel { Container = "user-avatars", Name = "default-avatar.svg", Size = "12 KB", LastModified = DateTime.Now.AddMonths(-1) }
+    };
+
+    private void SelectContainer(string name)
+    {
+        SelectedContainer = name;
+        ShowUploadSuccess = false;
+    }
+
+    private string GetProviderForContainer(string name)
+    {
+        return Containers.FirstOrDefault(c => c.Name == name)?.Provider ?? "Unknown";
+    }
+
+    private string GetFileIcon(string filename)
+    {
+        if (filename.EndsWith(".pdf")) return "📄";
+        if (filename.EndsWith(".png") || filename.EndsWith(".jpg") || filename.EndsWith(".svg")) return "🖼️";
+        return "📦";
+    }
+
+    private void DeleteFile(FileModel file)
+    {
+        Files.Remove(file);
+    }
+
+    private async Task SimulateUpload()
+    {
+        IsUploading = true;
+        ShowUploadSuccess = false;
+        
+        // Simulate network delay
+        await Task.Delay(1000);
+        
+        var randomNum = new Random().Next(100, 999);
+        Files.Insert(0, new FileModel 
+        { 
+            Container = SelectedContainer, 
+            Name = $"new-upload-{randomNum}.jpg", 
+            Size = $"{new Random().Next(10, 500)} KB", 
+            LastModified = DateTime.Now 
+        });
+
+        IsUploading = false;
+        ShowUploadSuccess = true;
+    }
+
+    public class ContainerModel
+    {
+        public string Name { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public string Provider { get; set; } = "";
+    }
+
+    public class FileModel
+    {
+        public string Container { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Size { get; set; } = "";
+        public DateTime LastModified { get; set; }
+    }
+}

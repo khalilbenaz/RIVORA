@@ -1,0 +1,264 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- .NET Core -->
+    <PackageVersion Include="Anthropic.SDK" Version="4.2.0" />
+    <PackageVersion Include="Microsoft.NETCore.App" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
+    <!-- Entity Framework -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0" />
+    <!-- Database Providers -->
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
+    <PackageVersion Include="OpenAI" Version="2.2.0" />
+    <PackageVersion Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+    <PackageVersion Include="EFCore.BulkExtensions.Core" Version="9.0.0" />
+    <PackageVersion Include="EFCore.NamingConventions" Version="9.0.0" />
+    <!-- MediatR -->
+    <PackageVersion Include="MediatR" Version="12.2.0" />
+    <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
+    <!-- Validation -->
+    <PackageVersion Include="FluentValidation" Version="11.9.0" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
+    <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <!-- Serialization -->
+    <PackageVersion Include="Stripe.net" Version="50.4.1" />
+    <PackageVersion Include="System.Text.Json" Version="9.0.0" />
+    <PackageVersion Include="Mapperly" Version="3.6.0" />
+    <PackageVersion Include="MessagePack" Version="2.5.187" />
+    <!-- Extensions -->
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="9.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <!-- Serilog -->
+    <PackageVersion Include="Serilog" Version="4.2.0" />
+    <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />
+    <!-- OpenTelemetry -->
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
+    <!-- Polly -->
+    <PackageVersion Include="Polly" Version="8.2.0" />
+    <PackageVersion Include="Polly.Extensions.Http" Version="3.0.0" />
+    <!-- MongoDB -->
+    <PackageVersion Include="MongoDB.Driver" Version="3.1.0" />
+    <!-- Redis -->
+    <PackageVersion Include="StackExchange.Redis" Version="2.8.16" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.0" />
+    <!-- Elasticsearch -->
+    <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="8.17.0" />
+    <!-- Messaging -->
+    <PackageVersion Include="MassTransit" Version="8.1.2" />
+    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.1.2" />
+    <!-- Job Scheduling -->
+    <PackageVersion Include="Hangfire.Core" Version="1.8.14" />
+    <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.14" />
+    <PackageVersion Include="Hangfire.SqlServer" Version="1.8.14" />
+    <PackageVersion Include="Quartz" Version="3.13.0" />
+    <PackageVersion Include="Quartz.Extensions.Hosting" Version="3.13.0" />
+    <PackageVersion Include="Quartz.Extensions.DependencyInjection" Version="3.13.0" />
+    <PackageVersion Include="Quartz.Serialization.Json" Version="3.13.0" />
+    <PackageVersion Include="Quartz.Plugins.TimeZoneConverter" Version="3.13.0" />
+    <!-- API Versioning -->
+    <PackageVersion Include="Asp.Versioning.Mvc" Version="8.1.0" />
+    <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
+    <!-- Azure -->
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.43.0" />
+    <PackageVersion Include="Azure.Data.AppConfiguration" Version="1.4.1" />
+    <PackageVersion Include="Azure.Identity" Version="1.13.2" />
+    <!-- Configuration -->
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <!-- Health Checks -->
+    <PackageVersion Include="AspNetCore.HealthChecks.SqlServer" Version="8.0.2" />
+    <PackageVersion Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.2" />
+    <PackageVersion Include="AspNetCore.HealthChecks.MySql" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Redis" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.UI" Version="8.0.2" />
+    <PackageVersion Include="AspNetCore.HealthChecks.UI.Core" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.RabbitMQ" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.AzureServiceBus" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Kafka" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Gcp.CloudFirestore" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.MongoDb" Version="8.1.0" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Gremlin" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.DynamoDb" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.S3" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.SecretsManager" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Sqs" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Sns" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Azure.Storage.Blobs" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Azure.Storage.Files.Shares" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Azure.Storage.Queues" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Azure.KeyVault.Secrets" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Azure.IoTHub" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.ApplicationStatus" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Network" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Prometheus.Metrics" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.System" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.EventStore" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.EventStore.gRPC" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.CosmosDb" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Oracle" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Sqlite" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.OpenIdConnectServer" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Kubernetes" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Docker" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.ArangoDb" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Solr" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Elasticsearch" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Publisher.ApplicationInsights" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Publisher.CloudWatch" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Publisher.Datadog" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Publisher.Seq" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Publisher.Prometheus" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.InfluxDB" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.RavenDB" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Nats" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.SignalR" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Hangfire" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Dapr" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Consul" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Hazelcast" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.IbmMQ" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.SurrealDb" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.PubSub" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.SendGrid" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Mailgun" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Smtp" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Ssl" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Dns" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Ftp" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.NcQuery" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Vault" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Milvus" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Qdrant" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Weaviate" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Pinecone" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.AlloyDb" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Spanner" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.BigQuery" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.CloudFirestore" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Datastore" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.DynamoDB" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.SystemsManager" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.ElastiCache" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.RDS" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Redshift" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Lambda" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.EC2" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.ECS" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.EKS" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.IAM" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.KMS" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.CloudFormation" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.CloudWatch" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.CloudTrail" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Config" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Glacier" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Glue" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Athena" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.EMR" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Kinesis" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.LakeFormation" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Lex" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.MQ" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.MSK" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Neptune" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.OpsWorks" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Quicksight" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Sagemaker" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.ServiceCatalog" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.SES" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.SFN" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.SMS" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Snowball" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.SSM" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.SWF" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Textract" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Timestream" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.Transfer" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.WAF" Version="8.0.1" />
+    <PackageVersion Include="AspNetCore.HealthChecks.Aws.XRay" Version="8.0.1" />
+    <!-- Testcontainers -->
+    <PackageVersion Include="Testcontainers" Version="4.1.0" />
+    <PackageVersion Include="Testcontainers.MsSql" Version="4.1.0" />
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.1.0" />
+    <PackageVersion Include="Testcontainers.Redis" Version="4.1.0" />
+    <!-- Benchmarking -->
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
+    <!-- Testing -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.0" />
+    <PackageVersion Include="Moq" Version="4.20.70" />
+    <PackageVersion Include="NSubstitute" Version="5.3.0" />
+    <PackageVersion Include="FluentAssertions" Version="7.0.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    <PackageVersion Include="Bogus" Version="35.2.0" />
+    <!-- Export -->
+    <PackageVersion Include="QuestPDF" Version="2024.12.0" />
+    <PackageVersion Include="ClosedXML" Version="0.104.2" />
+    <!-- Security -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />
+    <PackageVersion Include="Dapper" Version="2.1.24" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="7.0.3" />
+    <PackageVersion Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageVersion Include="QRCoder" Version="1.4.3" />
+    <PackageVersion Include="Otp.NET" Version="1.4.0" />
+    <!-- MiniProfiler -->
+    <PackageVersion Include="MiniProfiler.AspNetCore" Version="4.3.8" />
+    <PackageVersion Include="MiniProfiler.EntityFrameworkCore" Version="4.3.8" />
+    <!-- GraphQL (HotChocolate) -->
+    <PackageVersion Include="HotChocolate.AspNetCore" Version="14.3.0" />
+    <PackageVersion Include="HotChocolate.Data.EntityFramework" Version="14.3.0" />
+    <!-- gRPC -->
+    <PackageVersion Include="Grpc.AspNetCore" Version="2.60.0" />
+    <!-- Dapr -->
+    <PackageVersion Include="Dapr.Client" Version="1.14.0" />
+    <!-- Aspire & Service Discovery -->
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.0.0" />
+    <!-- Swagger -->
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.ReDoc" Version="6.5.0" />
+    <!-- Memory Streams -->
+    <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
+    <!-- CLI Tools -->
+    <PackageVersion Include="Scriban" Version="5.9.0" />
+    <PackageVersion Include="Spectre.Console" Version="0.48.0" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageVersion Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+</Project>
