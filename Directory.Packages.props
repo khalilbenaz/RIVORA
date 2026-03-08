@@ -19,6 +19,11 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
     
+    <!-- Database Providers -->
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+    <PackageVersion Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
+    
     <!-- MediatR -->
     <PackageVersion Include="MediatR" Version="12.2.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
@@ -36,6 +41,12 @@
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
     
     <!-- Serilog -->
     <PackageVersion Include="Serilog" Version="3.1.1" />
@@ -62,14 +73,24 @@
     <PackageVersion Include="MassTransit" Version="8.1.2" />
     <PackageVersion Include="MassTransit.RabbitMQ" Version="8.1.2" />
     
+    <!-- Job Scheduling -->
+    <PackageVersion Include="Hangfire.Core" Version="1.8.14" />
+    <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.14" />
+    <PackageVersion Include="Hangfire.SqlServer" Version="1.8.14" />
+    <PackageVersion Include="Quartz" Version="3.13.0" />
+    <PackageVersion Include="Quartz.Extensions.Hosting" Version="3.13.0" />
+    <PackageVersion Include="Quartz.Extensions.DependencyInjection" Version="3.13.0" />
+    <PackageVersion Include="Quartz.Serialization.Json" Version="3.13.0" />
+    <PackageVersion Include="Quartz.Plugins.TimeZoneConverter" Version="3.13.0" />
+    
     <!-- Testing -->
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageVersion Include="xunit" Version="2.6.2" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.4" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.0" />
     <PackageVersion Include="Moq" Version="4.20.70" />
-    <PackageVersion Include="NSubstitute" Version="5.1.0" />
-    <PackageVersion Include="FluentAssertions" Version="6.12.0" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+    <PackageVersion Include="NSubstitute" Version="5.3.0" />
+    <PackageVersion Include="FluentAssertions" Version="7.0.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="Bogus" Version="35.2.0" />
     
     <!-- Security -->

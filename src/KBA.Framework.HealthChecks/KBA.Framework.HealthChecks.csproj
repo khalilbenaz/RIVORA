@@ -1,0 +1,140 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);NU1903</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Health Checks packages -->
+    <PackageReference Include="AspNetCore.HealthChecks.UI" Version="8.0.2" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Core" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="8.0.2" />
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.RabbitMQ" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.AzureServiceBus" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Kafka" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Gcp.CloudFirestore" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.MySql" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="8.1.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.Gremlin" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.DynamoDb" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.S3" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SecretsManager" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Sqs" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Sns" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Azure.Storage.Blobs" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Azure.Storage.Files.Shares" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Azure.Storage.Queues" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Azure.KeyVault.Secrets" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Azure.IoTHub" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.ApplicationStatus" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Network" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Prometheus.Metrics" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.System" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.EventStore" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.EventStore.gRPC" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.CosmosDb" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Oracle" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Sqlite" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.OpenIdConnectServer" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Kubernetes" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Docker" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.ArangoDb" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Solr" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Publisher.ApplicationInsights" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Publisher.CloudWatch" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Publisher.Datadog" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Publisher.Seq" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Publisher.Prometheus" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.InfluxDB" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.RavenDB" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Nats" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.SignalR" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Hangfire" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Dapr" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Consul" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Hazelcast" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.IbmMQ" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.SurrealDb" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.PubSub" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.SendGrid" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Mailgun" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Smtp" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Ssl" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Dns" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Ftp" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.NcQuery" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Vault" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Milvus" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Qdrant" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Weaviate" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Pinecone" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.AlloyDb" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Spanner" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.BigQuery" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.CloudFirestore" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Datastore" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.PubSub" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.S3" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.DynamoDB" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SQS" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SNS" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SecretsManager" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SystemsManager" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.ElastiCache" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.RDS" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Redshift" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Lambda" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.EC2" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.ECS" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.EKS" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.IAM" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.KMS" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.CloudFormation" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.CloudWatch" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.CloudTrail" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Config" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Glacier" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Glue" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Athena" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.EMR" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Kinesis" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.LakeFormation" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Lex" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.MQ" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.MSK" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Neptune" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.OpsWorks" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Quicksight" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Sagemaker" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SecretsManager" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.ServiceCatalog" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SES" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SFN" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SMS" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Snowball" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SSM" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.SWF" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Textract" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Timestream" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.Transfer" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.WAF" Version="8.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Aws.XRay" Version="8.0.1" />
+  </ItemGroup>
+
+</Project>
