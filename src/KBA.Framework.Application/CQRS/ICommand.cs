@@ -13,6 +13,6 @@ public interface ICommand : IRequest<Unit>
 /// Marker interface for commands that return a result.
 /// </summary>
 /// <typeparam name="TResponse">The type of response the command returns.</typeparam>
-public interface ICommand<ot TResponse> : IRequest<TResponse>
+public interface ICommand<TResponse> : IRequest<TResponse>
 {
 }

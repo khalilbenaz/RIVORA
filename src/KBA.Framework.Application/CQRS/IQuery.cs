@@ -7,6 +7,6 @@ using MediatR;
 /// A query represents a request for data and should not cause any side effects.
 /// </summary>
 /// <typeparam name="TResponse">The type of response the query returns.</typeparam>
-public interface IQuery<ot TResponse> : IRequest<TResponse>
+public interface IQuery<TResponse> : IRequest<TResponse>
 {
 }

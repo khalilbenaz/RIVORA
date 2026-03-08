@@ -75,41 +75,25 @@ try
                 .AddHttpClientInstrumentation(options =>
                 {
                     options.RecordException = true;
-                    options.SetHttpFlavor = true;
                 })
-                .AddSqlClientInstrumentation(options =>
-                {
-                    options.SetDbStatementForText = true;
-                    options.SetDbStatementForStoredProcedure = true;
-                })
+
                 .AddOtlpExporter(otlpOptions =>
                 {
                     otlpOptions.Endpoint = new Uri(otlpEndpoint);
                     otlpOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
-                })
-                .AddConsoleExporter(); // Pour le débogage en développement
+                });
         })
         .WithMetrics(metrics =>
         {
             metrics
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
-                .AddRuntimeInstrumentation(options =>
-                {
-                    options.GcCountEnabled = true;
-                    options.GcPauseDurationEnabled = true;
-                    options.ThreadPoolCompletedWorkItemsCountEnabled = true;
-                    options.ThreadPoolQueueLengthEnabled = true;
-                    options.ThreadPoolThreadsCountEnabled = true;
-                    options.ThreadPoolPendingWorkItemsCountEnabled = true;
-                })
-                .AddProcessInstrumentation()
+                .AddRuntimeInstrumentation()
                 .AddOtlpExporter(otlpOptions =>
                 {
                     otlpOptions.Endpoint = new Uri(otlpEndpoint);
                     otlpOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
-                })
-                .AddPrometheusExporter(); // Pour exposition des métriques
+                });
         });
 
     // Configuration de la base de données optimisée
@@ -300,7 +284,6 @@ try
     });
 
     // Exposition des métriques Prometheus
-    app.MapPrometheusScrapingEndpoint();
 
     // Utiliser Serilog pour les requêtes HTTP
     app.UseSerilogRequestLogging(options =>
