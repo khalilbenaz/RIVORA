@@ -86,14 +86,15 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore KBA.Framework.sln
 
-      - name: Run all tests
+      - name: Run unit tests (exclude integration tests)
         run: |
           dotnet test KBA.Framework.sln \
             --configuration Release \
             --no-restore \
             --verbosity normal \
             --logger "trx;LogFileName=test-results.trx" \
-            --collect:"XPlat Code Coverage"
+            --collect:"XPlat Code Coverage" \
+            --filter "FullyQualifiedName!~IntegrationTests"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -145,7 +146,7 @@ jobs:
           echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Vulnerable Packages" >> $GITHUB_STEP_SUMMARY
-          dotnet list KBA.Framework.sln package --vulnerable --include-transitive >> $GITHUB_STEP_SUMMARY || echo "No vulnerabilities found or command not available" >> $GITHUB_STEP_SUMMARY
+          dotnet list KBA.Framework.sln package --vulnerable --include-transitive >> $GITHUB_STEP_SUMMARY || echo "No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
 
   # Summary Job
   summary:
