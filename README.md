@@ -199,9 +199,7 @@ Nous acceptons les contributions de la communauté ! Consultez notre guide :
 
 1. Fork le repository
 2. Créez une branche feature (`git checkout -b feature/amazing-feature`)
-3. Committez vos changements (`git commit -m 'Add amazing feature
-
-Co-authored-by: Qwen-Coder
+3. Committez vos changements (`git commit -m 'Add amazing feature`)
 4. Push vers la branche (`git push origin feature/amazing-feature`)
 5. Ouvrez une Pull Request
 
