@@ -3,8 +3,16 @@ using System.Diagnostics;
 
 namespace KBA.CLI.Commands;
 
+/// <summary>
+/// Provides development server functionality.
+/// </summary>
 public static class DevCommand
 {
+    /// <summary>
+    /// Executes the dev command to start the development server.
+    /// </summary>
+    /// <param name="watch">Enable file watching.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public static async Task ExecuteAsync(bool watch)
     {
         AnsiConsole.MarkupLine("[bold blue]Starting development server...[/]");
@@ -21,8 +29,15 @@ public static class DevCommand
     }
 }
 
+/// <summary>
+/// Provides database migration functionality.
+/// </summary>
 public static class MigrateCommand
 {
+    /// <summary>
+    /// Executes the migrate command to apply database migrations.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public static async Task ExecuteAsync()
     {
         AnsiConsole.MarkupLine("[bold blue]Applying migrations...[/]");
@@ -37,8 +52,15 @@ public static class MigrateCommand
     }
 }
 
+/// <summary>
+/// Provides database seeding functionality.
+/// </summary>
 public static class SeedCommand
 {
+    /// <summary>
+    /// Executes the seed command to populate database with demo data.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public static async Task ExecuteAsync()
     {
         AnsiConsole.MarkupLine("[bold blue]Seeding demo data...[/]");
@@ -46,36 +68,6 @@ public static class SeedCommand
         AnsiConsole.MarkupLine("[green]  ✓ Created sample tenant[/]");
         AnsiConsole.MarkupLine("[green]  ✓ Created demo products[/]");
         AnsiConsole.MarkupLine("[bold green]✓ Data seeded successfully![/]");
-        await Task.CompletedTask;
-    }
-}
-
-public static class DoctorCommand
-{
-    public static async Task ExecuteAsync()
-    {
-        AnsiConsole.MarkupLine("[bold blue]Diagnosing project...[/]");
-        
-        var checks = new[]
-        {
-            (".NET SDK", true, "8.0.x"),
-            ("Solution file", true, "Found"),
-            ("Core project", true, "OK"),
-            ("Application project", true, "OK"),
-            ("Infrastructure project", true, "OK"),
-            ("API project", true, "OK"),
-            ("Tests project", true, "OK"),
-            ("docker-compose.dev.yml", true, "Found"),
-            ("GitHub Actions", true, "Configured")
-        };
-        
-        foreach (var (name, ok, status) in checks)
-        {
-            var icon = ok ? "[green]✓[/]" : "[red]✗[/]";
-            AnsiConsole.MarkupLine("{0} {1,-30} {2}", icon, name, status);
-        }
-        
-        AnsiConsole.MarkupLine("[bold green]All checks passed![/]");
         await Task.CompletedTask;
     }
 }
