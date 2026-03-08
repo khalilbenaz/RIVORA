@@ -1,6 +1,6 @@
 # KBA.CLI
 
-**KBA Framework CLI** - Outil en ligne de commande pour KBA.Framework 2.0
+**KBA Framework CLI** - Outil en ligne de commande pour KBA.Framework 2.0.1
 
 ## 📦 Installation
 
@@ -59,6 +59,12 @@ kba completion bash >> ~/.bashrc
 kba completion zsh >> ~/.zshrc
 kba completion powershell >> $PROFILE
 ```
+
+## 🔗 Liens
+
+- **Repository**: https://github.com/khalilbenaz/KBA.Framework
+- **Issues**: https://github.com/khalilbenaz/KBA.Framework/issues
+- **Releases**: https://github.com/khalilbenaz/KBA.Framework/releases
 
 ## 📖 Documentation
 

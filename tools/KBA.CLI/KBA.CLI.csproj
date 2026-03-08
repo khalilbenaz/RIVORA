@@ -8,12 +8,16 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>kba</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <Authors>KBA.Framework</Authors>
     <Description>KBA Framework CLI v2.0 - Wave 5 Edition with AI commands, module scaffolding, and load testing</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/khalilbenaz/KBA.Framework</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/khalilbenaz/KBA.Framework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>https://github.com/khalilbenaz/KBA.Framework/releases/tag/v2.0.0</PackageReleaseNotes>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageTags>kba framework dotnet cli tool generator scaffolding</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -27,5 +31,6 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
