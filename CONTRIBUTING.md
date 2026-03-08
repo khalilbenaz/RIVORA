@@ -538,7 +538,6 @@ Pour les nouvelles features, mettez à jour :
 
 ## 📞 Questions ?
 
-- 📧 Email: support@kba-framework.com
 - 💬 Discussions: [GitHub Discussions](https://github.com/khalilbenaz/KBA.Framework/discussions)
 - 🐛 Issues: [GitHub Issues](https://github.com/khalilbenaz/KBA.Framework/issues)
 
