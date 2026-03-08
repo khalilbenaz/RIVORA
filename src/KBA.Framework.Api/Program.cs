@@ -9,6 +9,10 @@ using KBA.Framework.Infrastructure.Repositories;
 using KBA.Framework.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
 
 // Configuration de Serilog
@@ -26,6 +30,87 @@ try
 
     // Utiliser Serilog
     builder.Host.UseSerilog();
+
+    // Configuration d'OpenTelemetry pour le Tracing et les Metrics
+    var otlpEndpoint = builder.Configuration["OpenTelemetry:ExporterEndpoint"] ?? "http://localhost:4317";
+    var serviceName = builder.Configuration["OpenTelemetry:ServiceName"] ?? "kba-framework";
+    var serviceVersion = builder.Configuration["OpenTelemetry:ServiceVersion"] ?? "1.0.0";
+
+    // Configuration du Tracing
+    builder.Services.AddOpenTelemetry()
+        .ConfigureResource(resource => resource
+            .AddService(serviceName: serviceName,
+                       serviceVersion: serviceVersion,
+                       serviceInstanceId: Environment.MachineName)
+            .AddAttributes(new Dictionary<string, object>
+            {
+                ["deployment.environment"] = builder.Environment.EnvironmentName,
+                ["host.name"] = Environment.MachineName,
+                ["os.type"] = Environment.OSVersion.Platform.ToString()
+            }))
+        .WithTracing(tracing =>
+        {
+            tracing
+                .AddAspNetCoreInstrumentation(options =>
+                {
+                    options.EnrichWithHttpRequest = (activity, request) =>
+                    {
+                        activity.SetTag("request.route", request.Path);
+                        activity.SetTag("request.method", request.Method);
+                    };
+                    options.EnrichWithHttpResponse = (activity, response) =>
+                    {
+                        activity.SetTag("response.status", response.StatusCode);
+                    };
+                    options.RecordException = true;
+                    options.Filter = (context) =>
+                    {
+                        // Exclure les endpoints de santé et de métriques
+                        var path = context.Request.Path;
+                        return !path.StartsWithSegments("/health") &&
+                               !path.StartsWithSegments("/metrics") &&
+                               !path.StartsWithSegments("/swagger");
+                    };
+                })
+                .AddHttpClientInstrumentation(options =>
+                {
+                    options.RecordException = true;
+                    options.SetHttpFlavor = true;
+                })
+                .AddSqlClientInstrumentation(options =>
+                {
+                    options.SetDbStatementForText = true;
+                    options.SetDbStatementForStoredProcedure = true;
+                })
+                .AddOtlpExporter(otlpOptions =>
+                {
+                    otlpOptions.Endpoint = new Uri(otlpEndpoint);
+                    otlpOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+                })
+                .AddConsoleExporter(); // Pour le débogage en développement
+        })
+        .WithMetrics(metrics =>
+        {
+            metrics
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation(options =>
+                {
+                    options.GcCountEnabled = true;
+                    options.GcPauseDurationEnabled = true;
+                    options.ThreadPoolCompletedWorkItemsCountEnabled = true;
+                    options.ThreadPoolQueueLengthEnabled = true;
+                    options.ThreadPoolThreadsCountEnabled = true;
+                    options.ThreadPoolPendingWorkItemsCountEnabled = true;
+                })
+                .AddProcessInstrumentation()
+                .AddOtlpExporter(otlpOptions =>
+                {
+                    otlpOptions.Endpoint = new Uri(otlpEndpoint);
+                    otlpOptions.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+                })
+                .AddPrometheusExporter(); // Pour exposition des métriques
+        });
 
     // Configuration de la base de données optimisée
     builder.Services.AddOptimizedDbContext(builder.Configuration);
@@ -137,9 +222,6 @@ try
             }
         });
 
-        // Les tags sont maintenant définis directement via [Tags] sur les contrôleurs
-        // Pas besoin de TagActionsBy personnalisé
-        
         // Configurer l'inclusion de tous les endpoints
         options.DocInclusionPredicate((docName, apiDesc) => true);
 
@@ -162,6 +244,10 @@ try
                   .AllowAnyHeader();
         });
     });
+
+    // Health checks
+    builder.Services.AddHealthChecks()
+        .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
 
     var app = builder.Build();
 
@@ -202,8 +288,31 @@ try
         });
     }
 
+    // Endpoints de santé et métriques
+    app.MapHealthChecks("/health");
+    app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+    {
+        Predicate = _ => false // Liveness check basique
+    });
+    app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+    {
+        Predicate = check => check.Name != "self" // Readiness check avec dépendances
+    });
+
+    // Exposition des métriques Prometheus
+    app.MapPrometheusScrapingEndpoint();
+
     // Utiliser Serilog pour les requêtes HTTP
-    app.UseSerilogRequestLogging();
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000}ms";
+        options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        {
+            diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+            diagnosticContext.Set("UserAgent", httpContext.Request.Headers["User-Agent"].FirstOrDefault() ?? "unknown");
+            diagnosticContext.Set("RequestId", httpContext.TraceIdentifier);
+        };
+    });
     
     app.UseHttpsRedirection();
     app.UseCors("AllowAll");

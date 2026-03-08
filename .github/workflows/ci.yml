@@ -1,0 +1,316 @@
+# GitHub Actions CI Pipeline for KBA Framework
+# Wave 1: Build, Test, Coverage with 80% threshold
+
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feat/*'
+      - 'bugfix/*'
+      - 'hotfix/*'
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_QUALITY: 'preview'
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+  COVERAGE_THRESHOLD: 80
+
+jobs:
+  # Job 1: Build Matrix
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        configuration: [Debug, Release]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore KBA.Framework.sln
+
+      - name: Build
+        run: dotnet build KBA.Framework.sln --configuration ${{ matrix.configuration }} --no-restore --verbosity minimal
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}-${{ matrix.configuration }}
+          path: |
+            **/bin/**
+            **/obj/**
+          retention-days: 7
+        if: matrix.os == 'ubuntu-latest' && matrix.configuration == 'Release'
+
+  # Job 2: Run Tests with Coverage
+  test:
+    name: Test & Coverage
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Install coverage tools
+        run: |
+          dotnet tool install --global coverlet.console
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: Run tests with coverage
+        run: |
+          mkdir -p TestResults
+          dotnet test tests/KBA.Framework.Tests/KBA.Framework.Tests.csproj \
+            --configuration Release \
+            --no-restore \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults \
+            --logger "trx;LogFileName=test-results.trx" \
+            --logger "html;LogFileName=test-results.html" \
+            -- /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=./TestResults/coverage.cobertura.xml \
+            /p:ExcludeByFile="**/*.g.cs,**/*.g.i.cs,**/obj/**,**/Generated/**" \
+            /p:Exclude=\"[*]*.Program,<*>*<.g.*,[KBA.Framework.Api]*Program\" \
+            /p:Include=\"[KBA.Framework.*]*\"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            TestResults/*.trx
+            TestResults/*.html
+          retention-days: 14
+
+      - name: Generate coverage report
+        run: |
+          reportgenerator \
+            -reports:./TestResults/coverage.cobertura.xml \
+            -targetdir:./CoverageReport \
+            -reporttypes:HtmlSummary;Cobertura;JsonSummary
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: CoverageReport/
+          retention-days: 14
+
+      - name: Parse coverage percentage
+        id: coverage
+        run: |
+          COVERAGE=$(cat CoverageReport/SummaryJson/summary.json | \
+            python3 -c "import sys, json; data=json.load(sys.stdin); \
+            print(f\"{data.get('lineCoverage', 0):.2f}\")" 2>/dev/null || echo "0")
+          echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
+          echo "Coverage: $COVERAGE%"
+
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=${{ steps.coverage.outputs.percentage }}
+          THRESHOLD=${{ env.COVERAGE_THRESHOLD }}
+          
+          # Remove decimal point for comparison
+          COVERAGE_INT=$(echo $COVERAGE | cut -d. -f1)
+          
+          if (( $(echo "$COVERAGE >= $THRESHOLD" | bc -l) )); then
+            echo "✓ Coverage $COVERAGE% meets threshold of $THRESHOLD%"
+          else
+            echo "✗ Coverage $COVERAGE% is below threshold of $THRESHOLD%"
+            exit 1
+          fi
+
+      - name: Publish coverage to GitHub
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: CoverageReport/Cobertura.xml
+          badge: true
+          fail_below_min: true
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: false
+          indicators: true
+          output: both
+          thresholds: '${{ env.COVERAGE_THRESHOLD }} 90'
+
+      - name: Upload coverage badge
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: code-coverage-results.md
+          retention-days: 7
+
+  # Job 3: Code Quality Analysis
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Run dotnet format analyzer
+        run: |
+          dotnet format KBA.Framework.sln --verify-no-changes --verbosity diagnostic || {
+            echo "::warning::Code formatting issues detected. Run 'dotnet format' to fix."
+          }
+
+      - name: Run Roslyn analyzers
+        run: |
+          dotnet build KBA.Framework.sln --configuration Release \
+            -p:EnforceCodeStyleInBuild=true \
+            -p:AnalysisMode=All \
+            --verbosity normal
+
+  # Job 4: Security Scan
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Run NuGet audit
+        run: dotnet nuget audit KBA.Framework.sln
+
+      - name: Run dotnet list vulnerabilities
+        run: |
+          dotnet list KBA.Framework.sln package --vulnerable --include-transitive || true
+
+  # Job 5: Integration Tests (optional, runs on main branch)
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [test, code-quality]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: Test@Passw0rd!
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Test@Passw0rd! -Q 'SELECT 1' || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Run integration tests
+        env:
+          ConnectionStrings__TestConnection: "Server=localhost,1433;Database=KBATestDb;User Id=sa;Password=Test@Passw0rd!;TrustServerCertificate=true"
+        run: |
+          dotnet test tests/KBA.Framework.IntegrationTests/KBA.Framework.IntegrationTests.csproj \
+            --configuration Release \
+            --verbosity normal \
+            --logger "trx;LogFileName=integration-results.trx"
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: tests/KBA.Framework.IntegrationTests/TestResults/*.trx
+          retention-days: 14
+
+  # Summary Job
+  summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [test, code-quality, security]
+    if: always()
+    
+    steps:
+      - name: Download coverage badge
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-badge
+        continue-on-error: true
+
+      - name: Create Summary
+        run: |
+          echo "## CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests & Coverage | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Quality | ${{ needs.code-quality.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f code-coverage-results.md ]; then
+            echo "### Coverage Report" >> $GITHUB_STEP_SUMMARY
+            cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+          fi

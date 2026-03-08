@@ -1,0 +1,45 @@
+# Prometheus Configuration for KBA Framework
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'kba-framework'
+    environment: 'development'
+
+# Alertmanager configuration (optional, for future use)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Rule files for recording rules and alerts
+rule_files:
+  - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: /metrics
+    scheme: http
+
+  # OpenTelemetry Collector metrics
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8888']
+    metrics_path: /metrics
+    scheme: http
+
+  # Application metrics via OTLP
+  - job_name: 'kba-applications'
+    static_configs:
+      - targets: ['otel-collector:8889']
+    metrics_path: /metrics
+    scheme: http
+
+  # Node Exporter (system metrics - optional, add when needed)
+  # - job_name: 'node-exporter'
+  #   static_configs:
+  #     - targets: ['node-exporter:9100']
