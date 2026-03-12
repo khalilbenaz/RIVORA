@@ -85,15 +85,13 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Tutorial',
+          label: 'Documentation',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/khalilbenaz/KBA.Framework',
           label: 'GitHub',
           position: 'right',
-        },
-      ],
+        },      ],
     },
     footer: {
       style: 'dark',
@@ -128,12 +126,8 @@ const config: Config = {
           title: 'More',
           items: [
             {
-              label: 'Blog',
-              to: '/blog',
-            },
-            {
               label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              href: 'https://github.com/khalilbenaz/KBA.Framework',
             },
           ],
         },
