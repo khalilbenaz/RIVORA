@@ -122,10 +122,18 @@
                         </ul>
                     </div>
                     <div class="card-body bg-light">
-                        @if (ActiveTab == "domain") { <pre><code>@GeneratedEntityCode</code></pre> }
-                        @else if (ActiveTab == "efcore") { <pre><code>@GeneratedEfCoreCode</code></pre> }
-                        @else if (ActiveTab == "dtos") { <pre><code>@GeneratedDtosCode</code></pre> }
-                        @else if (ActiveTab == "api") { <pre><code>@GeneratedApiCode</code></pre> }
+                        @if (ActiveTab == "domain") { 
+                            <pre><code>@GeneratedEntityCode</code></pre> 
+                        }
+                        else if (ActiveTab == "efcore") { 
+                            <pre><code>@GeneratedEfCoreCode</code></pre> 
+                        }
+                        else if (ActiveTab == "dtos") { 
+                            <pre><code>@GeneratedDtosCode</code></pre> 
+                        }
+                        else if (ActiveTab == "api") { 
+                            <pre><code>@GeneratedApiCode</code></pre> 
+                        }
                     </div>
                 </div>
             </div>
