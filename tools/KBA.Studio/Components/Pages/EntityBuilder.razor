@@ -1,0 +1,370 @@
+@page "/entity-builder"
+@rendermode InteractiveServer
+
+<PageTitle>KBA Studio - Entity Builder</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>🛠️ Visual Entity Builder (Full-Stack)</h2>
+            <p class="text-muted">Générez l'Entité, la Configuration EF Core, les DTOs et le Controller API en un clic.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Configuration de base -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">1. Propriétés de l'Entité</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom de l'Entité (ex: Invoice)</label>
+                        <input type="text" class="form-control" @bind="EntityName" placeholder="Ex: Customer" />
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isAggregateRoot" @bind="IsAggregateRoot">
+                        <label class="form-check-label" for="isAggregateRoot">C'est une Aggregate Root</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isMultitenant" @bind="IsMultitenant">
+                        <label class="form-check-label" for="isMultitenant">Support Multitenant (IMustHaveTenant)</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="hasAuditLog" @bind="HasAuditLog">
+                        <label class="form-check-label" for="hasAuditLog">Tracer les modifications (IAuditableEntity)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attributs -->
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">2. Champs de l'Entité</h5>
+                    <button class="btn btn-sm btn-light" @onclick="AddField">+ Ajouter un champ</button>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nom</th>
+                                <th>Type</th>
+                                <th>Max Length (String)</th>
+                                <th>Requis</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var field in Fields)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" @bind="field.Name" />
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm" @bind="field.Type">
+                                            <option value="string">string</option>
+                                            <option value="int">int</option>
+                                            <option value="decimal">decimal</option>
+                                            <option value="bool">bool</option>
+                                            <option value="DateTime">DateTime</option>
+                                            <option value="Guid">Guid</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm" @bind="field.MaxLength" disabled="@(field.Type != "string")" />
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="form-check-input" @bind="field.IsRequired" />
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveField(field)">🗑️</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 text-end">
+            <button class="btn btn-success btn-lg" @onclick="GenerateCode" disabled="@(string.IsNullOrWhiteSpace(EntityName))">
+                🚀 Générer le Code
+            </button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(GeneratedEntityCode))
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white p-0">
+                        <ul class="nav nav-tabs card-header-tabs m-0 ms-2" style="border-bottom: none; margin-top: 8px !important;">
+                            <li class="nav-item">
+                                <a class="nav-link @(ActiveTab == "domain" ? "active bg-light text-dark" : "text-light")" href="#" @onclick:preventDefault @onclick="@(() => ActiveTab = "domain")">Domain Entity</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ActiveTab == "efcore" ? "active bg-light text-dark" : "text-light")" href="#" @onclick:preventDefault @onclick="@(() => ActiveTab = "efcore")">EF Core Config</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ActiveTab == "dtos" ? "active bg-light text-dark" : "text-light")" href="#" @onclick:preventDefault @onclick="@(() => ActiveTab = "dtos")">DTOs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ActiveTab == "api" ? "active bg-light text-dark" : "text-light")" href="#" @onclick:preventDefault @onclick="@(() => ActiveTab = "api")">API Controller</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body bg-light">
+                        @if (ActiveTab == "domain") { <pre><code>@GeneratedEntityCode</code></pre> }
+                        @else if (ActiveTab == "efcore") { <pre><code>@GeneratedEfCoreCode</code></pre> }
+                        @else if (ActiveTab == "dtos") { <pre><code>@GeneratedDtosCode</code></pre> }
+                        @else if (ActiveTab == "api") { <pre><code>@GeneratedApiCode</code></pre> }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string EntityName { get; set; } = "Invoice";
+    private bool IsAggregateRoot { get; set; } = true;
+    private bool IsMultitenant { get; set; } = true;
+    private bool HasAuditLog { get; set; } = true;
+    
+    private string ActiveTab { get; set; } = "domain";
+    
+    private List<EntityField> Fields { get; set; } = new()
+    {
+        new EntityField { Name = "Reference", Type = "string", IsRequired = true, MaxLength = 50 },
+        new EntityField { Name = "Amount", Type = "decimal", IsRequired = true },
+        new EntityField { Name = "IssueDate", Type = "DateTime", IsRequired = true }
+    };
+    
+    private string GeneratedEntityCode { get; set; } = "";
+    private string GeneratedEfCoreCode { get; set; } = "";
+    private string GeneratedDtosCode { get; set; } = "";
+    private string GeneratedApiCode { get; set; } = "";
+
+    private void AddField() => Fields.Add(new EntityField { Name = "NewField", Type = "string", IsRequired = false, MaxLength = 255 });
+    private void RemoveField(EntityField field) => Fields.Remove(field);
+
+    private void GenerateCode()
+    {
+        GenerateDomainCode();
+        GenerateEfCoreCode();
+        GenerateDtosCode();
+        GenerateApiCode();
+    }
+
+    private void GenerateDomainCode()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("using KBA.Framework.Domain.Entities;");
+        sb.AppendLine("using System;");
+        sb.AppendLine();
+        sb.AppendLine("namespace MyProject.Domain.Entities;");
+        sb.AppendLine();
+        
+        var baseClass = IsAggregateRoot ? "AggregateRoot<Guid>" : "Entity<Guid>";
+        var interfaces = new List<string>();
+        if (IsMultitenant) interfaces.Add("IMustHaveTenant");
+        if (HasAuditLog) interfaces.Add("IAuditableEntity");
+
+        var inheritance = baseClass + (interfaces.Any() ? ", " + string.Join(", ", interfaces) : "");
+
+        sb.AppendLine($"public class {EntityName} : {inheritance}");
+        sb.AppendLine("{");
+
+        foreach (var field in Fields)
+        {
+            var nullable = field.IsRequired || field.Type == "string" ? "" : "?";
+            if (field.Type == "string" && !field.IsRequired) nullable = "?";
+            sb.AppendLine($"    public {field.Type}{nullable} {field.Name} {{ get; private set; }}");
+        }
+        
+        if (IsMultitenant)
+        {
+            sb.AppendLine();
+            sb.AppendLine("    public string TenantId { get; set; }");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine($"    protected {EntityName}() {{ }} // Pour EF Core");
+        sb.AppendLine();
+        
+        var constructorParams = string.Join(", ", Fields.Where(f => f.IsRequired).Select(f => $"{f.Type} {f.Name.ToLower()}"));
+        sb.AppendLine($"    public {EntityName}({constructorParams})");
+        sb.AppendLine("    {");
+        foreach(var field in Fields.Where(f => f.IsRequired))
+        {
+            sb.AppendLine($"        {field.Name} = {field.Name.ToLower()};");
+        }
+        sb.AppendLine("    }");
+        
+        sb.AppendLine("    ");
+        sb.AppendLine($"    public void Update({constructorParams})");
+        sb.AppendLine("    {");
+        foreach(var field in Fields.Where(f => f.IsRequired))
+        {
+            sb.AppendLine($"        {field.Name} = {field.Name.ToLower()};");
+        }
+        sb.AppendLine("    }");
+
+        sb.AppendLine("}");
+        GeneratedEntityCode = sb.ToString();
+    }
+
+    private void GenerateEfCoreCode()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("using Microsoft.EntityFrameworkCore;");
+        sb.AppendLine("using Microsoft.EntityFrameworkCore.Metadata.Builders;");
+        sb.AppendLine("using MyProject.Domain.Entities;");
+        sb.AppendLine();
+        sb.AppendLine("namespace MyProject.Infrastructure.Data.Configurations;");
+        sb.AppendLine();
+        sb.AppendLine($"public class {EntityName}Configuration : IEntityTypeConfiguration<{EntityName}>");
+        sb.AppendLine("{");
+        sb.AppendLine($"    public void Configure(EntityTypeBuilder<{EntityName}> builder)");
+        sb.AppendLine("    {");
+        sb.AppendLine($"        builder.ToTable(\"{EntityName}s\");");
+        sb.AppendLine($"        builder.HasKey(x => x.Id);");
+        sb.AppendLine();
+        foreach (var field in Fields)
+        {
+            sb.Append($"        builder.Property(x => x.{field.Name})");
+            if (field.IsRequired) sb.Append(".IsRequired()");
+            if (field.Type == "string" && field.MaxLength > 0) sb.Append($".HasMaxLength({field.MaxLength})");
+            if (field.Type == "decimal") sb.Append(".HasColumnType(\"decimal(18,2)\")");
+            sb.AppendLine(";");
+        }
+        
+        if (IsMultitenant)
+        {
+            sb.AppendLine();
+            sb.AppendLine($"        // Filtre Multitenant global");
+            sb.AppendLine($"        builder.HasQueryFilter(x => EF.Property<string>(x, \"TenantId\") == _tenantService.GetCurrentTenantId());");
+        }
+
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+        GeneratedEfCoreCode = sb.ToString();
+    }
+
+    private void GenerateDtosCode()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("using System;");
+        sb.AppendLine("using System.ComponentModel.DataAnnotations;");
+        sb.AppendLine();
+        sb.AppendLine("namespace MyProject.Application.Dtos;");
+        sb.AppendLine();
+        
+        // Response DTO
+        sb.AppendLine($"public class {EntityName}Dto");
+        sb.AppendLine("{");
+        sb.AppendLine("    public Guid Id { get; set; }");
+        foreach (var field in Fields) sb.AppendLine($"    public {field.Type} {field.Name} {{ get; set; }}");
+        sb.AppendLine("}");
+        sb.AppendLine();
+        
+        // Create DTO
+        sb.AppendLine($"public class Create{EntityName}Dto");
+        sb.AppendLine("{");
+        foreach (var field in Fields)
+        {
+            if (field.IsRequired) sb.AppendLine("    [Required]");
+            if (field.Type == "string" && field.MaxLength > 0) sb.AppendLine($"    [MaxLength({field.MaxLength})]");
+            sb.AppendLine($"    public {field.Type} {field.Name} {{ get; set; }}");
+        }
+        sb.AppendLine("}");
+        sb.AppendLine();
+
+        // Update DTO
+        sb.AppendLine($"public class Update{EntityName}Dto");
+        sb.AppendLine("{");
+        foreach (var field in Fields)
+        {
+            if (field.IsRequired) sb.AppendLine("    [Required]");
+            if (field.Type == "string" && field.MaxLength > 0) sb.AppendLine($"    [MaxLength({field.MaxLength})]");
+            sb.AppendLine($"    public {field.Type} {field.Name} {{ get; set; }}");
+        }
+        sb.AppendLine("}");
+
+        GeneratedDtosCode = sb.ToString();
+    }
+
+    private void GenerateApiCode()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("using Microsoft.AspNetCore.Mvc;");
+        sb.AppendLine("using MyProject.Application.Dtos;");
+        sb.AppendLine("using System;");
+        sb.AppendLine("using System.Threading.Tasks;");
+        sb.AppendLine();
+        sb.AppendLine("namespace MyProject.Api.Controllers;");
+        sb.AppendLine();
+        sb.AppendLine("[ApiController]");
+        sb.AppendLine($"[Route(\"api/[controller]\")]");
+        sb.AppendLine($"public class {EntityName}sController : ControllerBase");
+        sb.AppendLine("{");
+        sb.AppendLine($"    private readonly I{EntityName}Service _service;");
+        sb.AppendLine();
+        sb.AppendLine($"    public {EntityName}sController(I{EntityName}Service service)");
+        sb.AppendLine("    {");
+        sb.AppendLine("        _service = service;");
+        sb.AppendLine("    }");
+        sb.AppendLine();
+        sb.AppendLine("    [HttpGet]");
+        sb.AppendLine($"    public async Task<IActionResult> GetAll()");
+        sb.AppendLine("    {");
+        sb.AppendLine($"        return Ok(await _service.GetAllAsync());");
+        sb.AppendLine("    }");
+        sb.AppendLine();
+        sb.AppendLine("    [HttpGet(\"{id}\")]");
+        sb.AppendLine($"    public async Task<IActionResult> GetById(Guid id)");
+        sb.AppendLine("    {");
+        sb.AppendLine($"        return Ok(await _service.GetByIdAsync(id));");
+        sb.AppendLine("    }");
+        sb.AppendLine();
+        sb.AppendLine("    [HttpPost]");
+        sb.AppendLine($"    public async Task<IActionResult> Create(Create{EntityName}Dto dto)");
+        sb.AppendLine("    {");
+        sb.AppendLine($"        var id = await _service.CreateAsync(dto);");
+        sb.AppendLine($"        return CreatedAtAction(nameof(GetById), new {{ id }}, dto);");
+        sb.AppendLine("    }");
+        sb.AppendLine();
+        sb.AppendLine("    [HttpPut(\"{id}\")]");
+        sb.AppendLine($"    public async Task<IActionResult> Update(Guid id, Update{EntityName}Dto dto)");
+        sb.AppendLine("    {");
+        sb.AppendLine($"        await _service.UpdateAsync(id, dto);");
+        sb.AppendLine($"        return NoContent();");
+        sb.AppendLine("    }");
+        sb.AppendLine();
+        sb.AppendLine("    [HttpDelete(\"{id}\")]");
+        sb.AppendLine($"    public async Task<IActionResult> Delete(Guid id)");
+        sb.AppendLine("    {");
+        sb.AppendLine($"        await _service.DeleteAsync(id);");
+        sb.AppendLine($"        return NoContent();");
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+        
+        GeneratedApiCode = sb.ToString();
+    }
+
+    public class EntityField
+    {
+        public string Name { get; set; } = "";
+        public string Type { get; set; } = "string";
+        public bool IsRequired { get; set; } = true;
+        public int? MaxLength { get; set; }
+    }
+}
