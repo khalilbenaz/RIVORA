@@ -46,6 +46,27 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Migrations Database -->
+            <div class="card shadow-sm mb-4 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">3. Database Migrations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nom de la Migration</label>
+                        <input type="text" class="form-control" @bind="MigrationName" placeholder="Add_New_Entity" />
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-warning" @onclick="CreateMigration" disabled="@IsBusy">
+                            @(IsBusy ? "⚙️ Exécution..." : "➕ Créer la Migration")
+                        </button>
+                        <button class="btn btn-warning" @onclick="UpdateDatabase" disabled="@IsBusy">
+                            @(IsBusy ? "⚙️ Exécution..." : "🔄 Mettre à jour la DB")
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Attributs -->
@@ -158,6 +179,9 @@
     private bool IsAggregateRoot { get; set; } = true;
     private bool IsMultitenant { get; set; } = true;
     private bool HasAuditLog { get; set; } = true;
+    
+    private string MigrationName { get; set; } = "";
+    private bool IsBusy { get; set; } = false;
     
     private string ActiveTab { get; set; } = "domain";
     private string GenerationMessage { get; set; } = "";
@@ -439,6 +463,96 @@
         {
             GenerationMessage = $"❌ <b>Erreur :</b> {ex.Message}";
         }
+    }
+
+    private async Task CreateMigration()
+    {
+        if (string.IsNullOrWhiteSpace(MigrationName))
+        {
+            GenerationMessage = "⚠️ Veuillez saisir un nom pour la migration.";
+            return;
+        }
+
+        var projectName = "src/KBA.Framework.Infrastructure";
+        var startupProject = "src/KBA.Framework.Api";
+        var cmd = $"dotnet ef migrations add {MigrationName} --project {projectName} --startup-project {startupProject}";
+        
+        await RunCommandAsync(cmd, "Création de la migration");
+    }
+
+    private async Task UpdateDatabase()
+    {
+        var projectName = "src/KBA.Framework.Infrastructure";
+        var startupProject = "src/KBA.Framework.Api";
+        var cmd = $"dotnet ef database update --project {projectName} --startup-project {startupProject}";
+        
+        await RunCommandAsync(cmd, "Mise à jour de la base de données");
+    }
+
+    private async Task RunCommandAsync(string command, string taskName)
+    {
+        IsBusy = true;
+        GenerationMessage = $"⚙️ <b>{taskName}...</b> en cours d'exécution.";
+        StateHasChanged();
+
+        try
+        {
+            var basePath = GetSolutionRoot();
+            if (string.IsNullOrEmpty(basePath)) return;
+
+            var process = new System.Diagnostics.Process
+            {
+                StartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c {command}",
+                    WorkingDirectory = basePath,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            process.Start();
+            var output = await process.StandardOutput.ReadToEndAsync();
+            var error = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode == 0)
+            {
+                GenerationMessage = $"✅ <b>{taskName} réussie !</b><br/><pre style='font-size: 0.8em; max-height: 200px; overflow: auto;'>{output}</pre>";
+            }
+            else
+            {
+                GenerationMessage = $"❌ <b>{taskName} a échoué :</b><br/><pre style='color: red; font-size: 0.8em; max-height: 200px; overflow: auto;'>{error}{output}</pre>";
+            }
+        }
+        catch (Exception ex)
+        {
+            GenerationMessage = $"❌ <b>Erreur système :</b> {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetSolutionRoot()
+    {
+        var currentDir = AppContext.BaseDirectory;
+        while (!string.IsNullOrEmpty(currentDir) && !Directory.Exists(Path.Combine(currentDir, "src")))
+        {
+            currentDir = Path.GetDirectoryName(currentDir);
+        }
+        
+        if (string.IsNullOrEmpty(currentDir))
+        {
+            GenerationMessage = "❌ Impossible de localiser le dossier 'src' de la solution.";
+            return "";
+        }
+        return currentDir;
     }
 
     private string Pluralize(string name)

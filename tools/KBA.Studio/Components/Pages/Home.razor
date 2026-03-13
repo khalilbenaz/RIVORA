@@ -1,7 +1,76 @@
-﻿@page "/"
+@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>KBA Studio - Dashboard</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container-fluid mt-4">
+    <div class="row mb-5 text-center">
+        <div class="col-12">
+            <h1 class="display-4 fw-bold text-primary">KBA Studio</h1>
+            <p class="lead text-muted">La plateforme de développement accéléré pour vos applications .NET 8</p>
+        </div>
+    </div>
 
-Welcome to your new app.
+    <div class="row g-4">
+        <!-- Solution Creator Card -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                            <span class="fs-1">🚀</span>
+                        </div>
+                        <h2 class="card-title h3 mb-0">Solution Creator</h2>
+                    </div>
+                    <p class="card-text text-muted mb-4">
+                        Démarrez un nouveau projet en quelques secondes. Choisissez entre une architecture monolithe modulaire 
+                        ou une structure microservices cloud-native.
+                    </p>
+                    <ul class="list-unstyled mb-4">
+                        <li>✅ Templates Clean Architecture</li>
+                        <li>✅ Support Microservices & Gateway</li>
+                        <li>✅ Configuration Multitenant automatique</li>
+                    </ul>
+                    <a href="solution-creator" class="btn btn-primary w-100 py-2 fw-bold">Créer une Solution</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Entity Builder Card -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+                            <span class="fs-1">🛠️</span>
+                        </div>
+                        <h2 class="card-title h3 mb-0">Entity Builder</h2>
+                    </div>
+                    <p class="card-text text-muted mb-4">
+                        Générez vos entités métier graphiquement. Studio écrit physiquement le code dans vos couches 
+                        Domain, Application et API, et gère vos migrations.
+                    </p>
+                    <ul class="list-unstyled mb-4">
+                        <li>✅ Génération Full-Stack (C#, DTOs, API)</li>
+                        <li>✅ Gestion des migrations EF Core</li>
+                        <li>✅ Support Audit & Multi-tenancy</li>
+                    </ul>
+                    <a href="entity-builder" class="btn btn-success w-100 py-2 fw-bold">Générer une Entité</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="alert alert-info border-0 shadow-sm">
+                <h5 class="alert-heading fw-bold">💡 Astuce</h5>
+                <p class="mb-0">KBA Studio utilise le <b>KBA CLI</b> en arrière-plan pour garantir que tout le code généré suit strictement les standards du framework.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card { transition: transform 0.2s, box-shadow 0.2s; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; }
+</style>
