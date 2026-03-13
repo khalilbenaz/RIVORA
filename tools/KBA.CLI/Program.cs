@@ -54,6 +54,12 @@ queryCommand.AddArgument(queryNameArg);
 queryCommand.SetHandler(async (name) => await GenerateCommand.GenerateQueryAsync(name), queryNameArg);
 generateCommand.AddCommand(queryCommand);
 
+var dockerCommand = new Command("docker", "Generate Dockerfile and docker-compose.yml");
+var dockerDbOption = new Option<string>("--database", () => "postgresql", "Database provider to use (postgresql, sqlserver)");
+dockerCommand.AddOption(dockerDbOption);
+dockerCommand.SetHandler(async (database) => await DockerCommand.ExecuteAsync(database), dockerDbOption);
+generateCommand.AddCommand(dockerCommand);
+
 // === AI COMMAND GROUP ===
 var aiCommand = new Command("ai", "AI-powered commands (chat, generate, review)");
 

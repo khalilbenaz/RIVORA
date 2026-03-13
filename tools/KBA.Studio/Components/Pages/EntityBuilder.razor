@@ -20,6 +20,32 @@
         </div>
     }
 
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><span class="bi bi-magic me-2"></span> AI Schema to Code (Generative UI)</h5>
+                    <span class="badge bg-light text-primary">BETA</span>
+                </div>
+                <div class="card-body bg-light">
+                    <div class="input-group">
+                        <textarea class="form-control" rows="2" @bind="AiPrompt" placeholder="Décrivez votre besoin... (ex: 'Génère une entité Animal pour une clinique vétérinaire, avec nom, âge, espèce, et l\'id du propriétaire')"></textarea>
+                        <button class="btn btn-primary px-4" @onclick="GenerateSchemaFromAi" disabled="@IsGeneratingSchema">
+                            @if (IsGeneratingSchema)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <span class="ms-2">Réflexion...</span>
+                            }
+                            else
+                            {
+                                <span>Générer</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <!-- Configuration de base -->
         <div class="col-md-4">
@@ -175,6 +201,63 @@
 </div>
 
 @code {
+    private string AiPrompt { get; set; } = "";
+    private bool IsGeneratingSchema { get; set; } = false;
+
+    private async Task GenerateSchemaFromAi()
+    {
+        if (string.IsNullOrWhiteSpace(AiPrompt)) return;
+
+        IsGeneratingSchema = true;
+        StateHasChanged();
+
+        // Simulation de l'appel LLM (OpenAI/Claude)
+        await Task.Delay(2000); 
+
+        var lowerPrompt = AiPrompt.ToLower();
+        
+        if (lowerPrompt.Contains("animal") || lowerPrompt.Contains("vétérinaire"))
+        {
+            EntityName = "Animal";
+            IsAggregateRoot = true;
+            IsMultitenant = true;
+            Fields = new List<EntityField>
+            {
+                new EntityField { Name = "Name", Type = "string", IsRequired = true, MaxLength = 100 },
+                new EntityField { Name = "Species", Type = "string", IsRequired = true, MaxLength = 50 },
+                new EntityField { Name = "Age", Type = "int", IsRequired = false },
+                new EntityField { Name = "OwnerId", Type = "Guid", IsRequired = true }
+            };
+        }
+        else if (lowerPrompt.Contains("patient") || lowerPrompt.Contains("medical"))
+        {
+            EntityName = "Patient";
+            IsAggregateRoot = true;
+            Fields = new List<EntityField>
+            {
+                new EntityField { Name = "FirstName", Type = "string", IsRequired = true, MaxLength = 100 },
+                new EntityField { Name = "LastName", Type = "string", IsRequired = true, MaxLength = 100 },
+                new EntityField { Name = "DateOfBirth", Type = "DateTime", IsRequired = true },
+                new EntityField { Name = "BloodType", Type = "string", IsRequired = false, MaxLength = 5 }
+            };
+        }
+        else
+        {
+            // Fallback générique basé sur les mots du prompt
+            EntityName = "GeneratedEntity";
+            Fields = new List<EntityField>
+            {
+                new EntityField { Name = "Title", Type = "string", IsRequired = true, MaxLength = 100 },
+                new EntityField { Name = "Description", Type = "string", IsRequired = false, MaxLength = 500 },
+                new EntityField { Name = "CreatedAt", Type = "DateTime", IsRequired = true },
+                new EntityField { Name = "IsActive", Type = "bool", IsRequired = true }
+            };
+        }
+
+        IsGeneratingSchema = false;
+        GenerationMessage = "✨ <b>Magie !</b> Le schéma a été généré depuis votre prompt. Vous pouvez maintenant l'ajuster ou générer le code.";
+    }
+
     private string EntityName { get; set; } = "Invoice";
     private bool IsAggregateRoot { get; set; } = true;
     private bool IsMultitenant { get; set; } = true;
