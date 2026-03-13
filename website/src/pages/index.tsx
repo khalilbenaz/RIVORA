@@ -33,8 +33,8 @@ function HomepageHeader() {
             Tutoriel 10 min ⏱️
           </Link>
         </div>
-        <div className="margin-top--lg" style={{fontSize: '0.9rem', opacity: 0.8}}>
-          <code>dotnet tool install -g KBA.CLI</code>
+        <div className="margin-top--lg">
+          <code className="hero-code">dotnet tool install -g KBA.CLI</code>
         </div>
       </div>
     </header>
