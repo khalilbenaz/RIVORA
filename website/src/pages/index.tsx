@@ -13,7 +13,7 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
-        <div className="badge badge--secondary margin-bottom--md">🚀 Version 2.1.0 Disponible</div>
+        <div class="badge badge--secondary margin-bottom--md">🚀 Version 2.2.0 Disponible</div>
         <Heading as="h1" className="hero__title">
           {siteConfig.title}
         </Heading>
