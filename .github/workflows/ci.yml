@@ -183,6 +183,9 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [test, code-quality, security]
+    permissions:
+      contents: read
+      packages: write
     
     steps:
       - name: Checkout code
