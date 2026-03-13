@@ -6,7 +6,10 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Démarrage Rapide',
-      items: ['getting-started/quick-start'],
+      items: [
+        'getting-started/quick-start',
+        'getting-started/first-steps'
+      ],
     },
     {
       type: 'category',

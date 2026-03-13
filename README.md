@@ -411,6 +411,7 @@ kba doctor
 | Document | Description |
 |----------|-------------|
 | [Quickstart](docs/quickstart.md) | Installation et premier endpoint en 5 minutes |
+| [Guide Pas-à-Pas](docs/TUTORIAL-STEP-BY-STEP.md) | Créez votre premier module avec KBA Studio (10 min) |
 | [Guide Complet](docs/GUIDE-COMPLET.md) | Documentation approfondie du framework |
 | [Initialization](docs/INITIALIZATION-GUIDE.md) | Configuration initiale et premier admin |
 
