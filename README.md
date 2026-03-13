@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)
 ![Coverage](https://img.shields.io/badge/coverage-85%25-success?style=flat-square)
-![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.1.0-blue?style=flat-square)
 
 **Framework d'entreprise .NET 8 basé sur Clean Architecture, DDD et multi-tenancy pour applications SaaS professionnelles.**
 
@@ -15,6 +15,7 @@
 - [Démarrage Rapide](#-démarrage-rapide)
 - [Architecture](#-architecture)
 - [Features Waves 1-5](#-features-waves-1-5)
+- [KBA Studio (UI Tools)](#-kba-studio-ui-tools)
 - [Modules](#-modules)
 - [CLI KBA](#-cli-kba)
 - [Documentation](#-documentation)
@@ -89,6 +90,23 @@ curl -X POST http://localhost:5220/api/auth/login \
 ```
 
 📖 **Guide complet** → [docs/quickstart.md](docs/quickstart.md)
+
+---
+
+## 🛠️ KBA Studio (UI Tools)
+
+KBA Studio est une interface web de gestion pour les développeurs utilisant le framework.
+
+### Visual Entity Builder (Full-Stack)
+
+Le **Visual Entity Builder** permet de concevoir vos entités de domaine graphiquement et de générer l'intégralité du code source nécessaire :
+
+- **Domain** : Entité riche (AggregateRoot), support Audit & Multitenant.
+- **Infrastructure** : Configuration EF Core (Fluent API).
+- **Application** : DTOs de requête et réponse.
+- **API** : Controller REST prêt à l'emploi.
+
+🚀 **Nouveau** : Génération **physique** des fichiers directement dans votre solution `src/` en un clic.
 
 ---
 

@@ -7,6 +7,21 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [2.1.0] - 2026-03-12
+
+### 🛠️ Developer Experience (KBA Studio)
+
+#### Added
+- **Visual Entity Builder (Full-Stack)** - Nouvel outil visuel dans KBA Studio pour générer des entités complètes.
+  - **Génération Physique** - Création automatique des fichiers `.cs` directement dans les dossiers de la solution (`src/`).
+  - **Domain Layer** - Génération de l'entité (AggregateRoot/Entity) avec support Multitenant et Audit.
+  - **Infrastructure Layer** - Génération de la configuration EF Core Fluent API.
+  - **Application Layer** - Génération des DTOs (Request/Response) dans des dossiers pluralisés.
+  - **API Layer** - Génération du Controller REST complet avec injection de service.
+  - **Pluralisation automatique** - Gestion intelligente des noms de dossiers et de contrôleurs.
+
+---
+
 ## [2.0.0] - 2025-03-08
 
 ### 🎉 Wave 1 - Documentation & Foundation
@@ -358,6 +373,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 | Version | Date | Description |
 |---------|------|-------------|
+| [2.1.0](#210---2026-03-12) | 2026-03-12 | KBA Studio - Visual Entity Builder (Full-Stack) with physical file generation |
 | [2.0.0](#200---2025-03-08) | 2025-03-08 | Waves 1-5 - Documentation, Features, Jobs, Security, AI/CLI |
 | [1.0.0](#100---2024-10-15) | 2024-10-15 | Initial Release |
 

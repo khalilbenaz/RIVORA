@@ -1,4 +1,5 @@
 @page "/entity-builder"
+@using System.IO
 @rendermode InteractiveServer
 
 <PageTitle>KBA Studio - Entity Builder</PageTitle>
@@ -10,6 +11,14 @@
             <p class="text-muted">Générez l'Entité, la Configuration EF Core, les DTOs et le Controller API en un clic.</p>
         </div>
     </div>
+
+    @if (!string.IsNullOrEmpty(GenerationMessage))
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @((MarkupString)GenerationMessage)
+            <button type="button" class="btn-close" @onclick="@(() => GenerationMessage = "")"></button>
+        </div>
+    }
 
     <div class="row">
         <!-- Configuration de base -->
@@ -94,8 +103,11 @@
 
     <div class="row">
         <div class="col-12 text-end">
-            <button class="btn btn-success btn-lg" @onclick="GenerateCode" disabled="@(string.IsNullOrWhiteSpace(EntityName))">
-                🚀 Générer le Code
+            <button class="btn btn-outline-secondary btn-lg me-2" @onclick="GenerateCode" disabled="@(string.IsNullOrWhiteSpace(EntityName))">
+                🔍 Prévisualiser
+            </button>
+            <button class="btn btn-success btn-lg" @onclick="SaveFilesToDisk" disabled="@(string.IsNullOrWhiteSpace(EntityName))">
+                💾 Générer PHYSIQUEMENT les fichiers
             </button>
         </div>
     </div>
@@ -148,6 +160,7 @@
     private bool HasAuditLog { get; set; } = true;
     
     private string ActiveTab { get; set; } = "domain";
+    private string GenerationMessage { get; set; } = "";
     
     private List<EntityField> Fields { get; set; } = new()
     {
@@ -178,7 +191,7 @@
         sb.AppendLine("using KBA.Framework.Domain.Entities;");
         sb.AppendLine("using System;");
         sb.AppendLine();
-        sb.AppendLine("namespace MyProject.Domain.Entities;");
+        sb.AppendLine("namespace KBA.Framework.Domain.Entities;");
         sb.AppendLine();
         
         var baseClass = IsAggregateRoot ? "AggregateRoot<Guid>" : "Entity<Guid>";
@@ -235,9 +248,9 @@
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("using Microsoft.EntityFrameworkCore;");
         sb.AppendLine("using Microsoft.EntityFrameworkCore.Metadata.Builders;");
-        sb.AppendLine("using MyProject.Domain.Entities;");
+        sb.AppendLine("using KBA.Framework.Domain.Entities;");
         sb.AppendLine();
-        sb.AppendLine("namespace MyProject.Infrastructure.Data.Configurations;");
+        sb.AppendLine("namespace KBA.Framework.Infrastructure.Data.Configurations;");
         sb.AppendLine();
         sb.AppendLine($"public class {EntityName}Configuration : IEntityTypeConfiguration<{EntityName}>");
         sb.AppendLine("{");
@@ -273,7 +286,7 @@
         sb.AppendLine("using System;");
         sb.AppendLine("using System.ComponentModel.DataAnnotations;");
         sb.AppendLine();
-        sb.AppendLine("namespace MyProject.Application.Dtos;");
+        sb.AppendLine($"namespace KBA.Framework.Application.DTOs.{Pluralize(EntityName)};");
         sb.AppendLine();
         
         // Response DTO
@@ -314,19 +327,19 @@
     {
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("using Microsoft.AspNetCore.Mvc;");
-        sb.AppendLine("using MyProject.Application.Dtos;");
+        sb.AppendLine($"using KBA.Framework.Application.DTOs.{Pluralize(EntityName)};");
         sb.AppendLine("using System;");
         sb.AppendLine("using System.Threading.Tasks;");
         sb.AppendLine();
-        sb.AppendLine("namespace MyProject.Api.Controllers;");
+        sb.AppendLine("namespace KBA.Framework.Api.Controllers;");
         sb.AppendLine();
         sb.AppendLine("[ApiController]");
         sb.AppendLine($"[Route(\"api/[controller]\")]");
-        sb.AppendLine($"public class {EntityName}sController : ControllerBase");
+        sb.AppendLine($"public class {Pluralize(EntityName)}Controller : ControllerBase");
         sb.AppendLine("{");
         sb.AppendLine($"    private readonly I{EntityName}Service _service;");
         sb.AppendLine();
-        sb.AppendLine($"    public {EntityName}sController(I{EntityName}Service service)");
+        sb.AppendLine($"    public {Pluralize(EntityName)}Controller(I{EntityName}Service service)");
         sb.AppendLine("    {");
         sb.AppendLine("        _service = service;");
         sb.AppendLine("    }");
@@ -366,6 +379,73 @@
         sb.AppendLine("}");
         
         GeneratedApiCode = sb.ToString();
+    }
+
+    private async Task SaveFilesToDisk()
+    {
+        try
+        {
+            GenerateCode();
+            
+            // On remonte au dossier racine de la solution (depuis tools/KBA.Studio/bin/...)
+            // Ou on utilise un chemin relatif par rapport au projet en développement.
+            // Pour être sûr, on va utiliser le chemin que l'utilisateur a indiqué.
+            var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../"));
+            
+            // Si on tourne en dev mode avec dotnet run, le BaseDirectory peut varier.
+            // On peut aussi essayer de localiser le dossier "src" en remontant.
+            var currentDir = AppContext.BaseDirectory;
+            while (!string.IsNullOrEmpty(currentDir) && !Directory.Exists(Path.Combine(currentDir, "src")))
+            {
+                currentDir = Path.GetDirectoryName(currentDir);
+            }
+            
+            if (string.IsNullOrEmpty(currentDir))
+            {
+                GenerationMessage = "❌ Impossible de localiser le dossier 'src' de la solution.";
+                return;
+            }
+
+            basePath = currentDir;
+            var pluralEntity = Pluralize(EntityName);
+            
+            // 1. Domain
+            var domainPath = Path.Combine(basePath, "src", "KBA.Framework.Domain", "Entities", pluralEntity);
+            Directory.CreateDirectory(domainPath);
+            await File.WriteAllTextAsync(Path.Combine(domainPath, $"{EntityName}.cs"), GeneratedEntityCode);
+            
+            // 2. Infrastructure (EF Core Config)
+            var infraPath = Path.Combine(basePath, "src", "KBA.Framework.Infrastructure", "Data", "Configurations");
+            Directory.CreateDirectory(infraPath);
+            await File.WriteAllTextAsync(Path.Combine(infraPath, $"{EntityName}Configuration.cs"), GeneratedEfCoreCode);
+            
+            // 3. Application (DTOs)
+            var appPath = Path.Combine(basePath, "src", "KBA.Framework.Application", "DTOs", pluralEntity);
+            Directory.CreateDirectory(appPath);
+            await File.WriteAllTextAsync(Path.Combine(appPath, $"{EntityName}Dtos.cs"), GeneratedDtosCode);
+            
+            // 4. API (Controller)
+            var apiPath = Path.Combine(basePath, "src", "KBA.Framework.Api", "Controllers");
+            Directory.CreateDirectory(apiPath);
+            await File.WriteAllTextAsync(Path.Combine(apiPath, $"{pluralEntity}Controller.cs"), GeneratedApiCode);
+            
+            GenerationMessage = $"✅ <b>Succès !</b> Les fichiers pour l'entité <b>{EntityName}</b> ont été générés dans :<br/>" +
+                               $"- {domainPath}<br/>" +
+                               $"- {infraPath}<br/>" +
+                               $"- {appPath}<br/>" +
+                               $"- {apiPath}";
+        }
+        catch (Exception ex)
+        {
+            GenerationMessage = $"❌ <b>Erreur :</b> {ex.Message}";
+        }
+    }
+
+    private string Pluralize(string name)
+    {
+        if (name.EndsWith("y")) return name.Substring(0, name.Length - 1) + "ies";
+        if (name.EndsWith("s")) return name;
+        return name + "s";
     }
 
     public class EntityField

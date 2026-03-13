@@ -11,32 +11,32 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: 'Clean Architecture',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Structure robuste basée sur les principes de Clean Architecture et DDD, 
+        séparant strictement le Domaine, l&apos;Application et l&apos;Infrastructure.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Multi-Tenancy Natif',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Isolation complète des données par tenant, supportant plusieurs stratégies 
+        (row-level, schema, database) pour vos applications SaaS.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Visual Entity Builder',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Générez physiquement votre code (Entités, DTOs, Controllers) en quelques 
+        clics via KBA Studio pour une productivité décuplée.
       </>
     ),
   },

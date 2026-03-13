@@ -734,4 +734,40 @@ dotnet watch run --project src/KBA.Framework.Api
 
 ---
 
-**KBA Framework** - Guide Complet v1.0
+## 9. Génération de Code (KBA Studio)
+
+KBA Studio est une suite d'outils graphiques intégrée pour accélérer le développement.
+
+### 9.1 Visual Entity Builder (Full-Stack)
+
+Le Visual Entity Builder permet de définir une entité et ses propriétés, puis de générer physiquement tous les fichiers nécessaires au bon fonctionnement du framework.
+
+#### Fonctionnalités principales :
+- **Définition visuelle** : Ajout de champs avec types C# (string, int, decimal, bool, DateTime, Guid).
+- **Options d'architecture** : 
+    - Choix entre `AggregateRoot` ou `Entity`.
+    - Support natif du Multi-Tenancy (`IMustHaveTenant`).
+    - Support natif de l'Audit (`IAuditableEntity`).
+- **Génération Physique** : Les fichiers sont écrits directement dans les projets correspondants de la solution `src/`.
+
+#### Fichiers générés :
+1. **Domain** (`src/KBA.Framework.Domain/Entities/{Entity}s/`) :
+    - Classe de l'entité avec constructeurs (privé pour EF, public pour la création) et méthode `Update`.
+2. **Infrastructure** (`src/KBA.Framework.Infrastructure/Data/Configurations/`) :
+    - Classe de configuration Fluent API (`IEntityTypeConfiguration`).
+3. **Application** (`src/KBA.Framework.Application/DTOs/{Entity}s/`) :
+    - DTOs de réponse, création et mise à jour.
+4. **API** (`src/KBA.Framework.Api/Controllers/`) :
+    - Controller REST complet injectant le service correspondant.
+
+### 9.2 Workflow de génération
+1. Lancer **KBA Studio**.
+2. Accéder à la page **Entity Builder**.
+3. Saisir le nom de l'entité et ajouter les champs.
+4. Cliquer sur **Prévisualiser** pour vérifier le code généré.
+5. Cliquer sur **Générer PHYSIQUEMENT les fichiers** pour finaliser.
+6. (Optionnel) Créer une migration EF Core pour mettre à jour la base de données.
+
+---
+
+**KBA Framework** - Guide Complet v1.1

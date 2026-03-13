@@ -1,19 +1,33 @@
----
-sidebar_position: 1
----
+# Introduction
 
-# 🚀 Introduction à KBA.Framework
+Bienvenue dans la documentation officielle de **KBA Framework**.
 
-Bienvenue dans la documentation officielle de **KBA.Framework**. 
+KBA Framework est un framework d'entreprise complet pour .NET 8, conçu pour accélérer le développement d'applications SaaS professionnelles. Il repose sur les principes de la **Clean Architecture** et du **Domain-Driven Design (DDD)**.
 
-**KBA.Framework** est une plateforme de développement (Enterprise-ready) pour **.NET 8+** conçue pour construire des applications SaaS professionnelles. Il s'appuie sur la **Clean Architecture**, le **Domain-Driven Design (DDD)**, et le **Multi-tenancy**.
+## Pourquoi KBA Framework ?
 
-## 🎯 Notre Objectif : 200% Plus Simple que la Concurrence
+Développer des applications d'entreprise robustes nécessite souvent de réimplémenter les mêmes concepts (authentification, audit, multi-tenancy, validation). KBA Framework fournit ces fondations prêtes à l'emploi.
 
-Nous avons conçu ce framework comme l'alternative ultime à ABP Framework. Là où les autres frameworks vous forcent à utiliser des centaines d'interfaces et de configurations manuelles, KBA mise sur le principe du **"Convention over Configuration"**.
+## Fonctionnalités Clés
 
-*   **Moins de Boilerplate** : Démarrage rapide, auto-découverte des modules.
-*   **KBA Studio** : Un outil visuel pour générer vos entités, vos API et votre code Front-end en un clic.
-*   **Modularité "Plug & Play"** : Ajoutez des fonctionnalités (Identité, Multitenancy, Auditing) sans friction.
+- **Clean Architecture** : Séparation stricte des responsabilités.
+- **Multi-Tenancy** : Isolation native des données.
+- **Sécurité** : JWT, RBAC, 2FA, Rate Limiting.
+- **Audit Logging** : Traçabilité automatique des modifications.
+- **KBA Studio** : Outils visuels comme le **Visual Entity Builder**.
 
-Plongez dans le [Démarrage Rapide](./getting-started/quick-start.md) pour créer votre première application en moins de 5 minutes !
+## Démarrer en 5 minutes
+
+Le moyen le plus rapide de démarrer est d'utiliser notre guide de [Démarrage Rapide](./getting-started/quick-start.md).
+
+```bash
+dotnet tool install -g KBA.CLI
+kba new MyProject --template saas-starter
+```
+
+## Structure de la Documentation
+
+- **Architecture** : Comprendre les couches du framework.
+- **Modules** : Détails sur le Caching, les Jobs, la Sécurité, etc.
+- **CLI** : Guide complet sur les commandes `kba`.
+- **KBA Studio** : Utilisation des outils visuels.
