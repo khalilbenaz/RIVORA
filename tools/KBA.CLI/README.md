@@ -1,6 +1,8 @@
-# KBA.CLI
+# KBA.CLI v2.1.0 - Studio Integration Edition
 
-**KBA Framework CLI** - Outil en ligne de commande pour KBA.Framework 2.0.1
+**KBA Framework CLI** - Outil en ligne de commande pour KBA.Framework 2.1.0.
+
+Le compagnon indispensable pour le développement avec le **KBA Framework**, désormais intégré avec **KBA Studio**.
 
 ## 📦 Installation
 
@@ -8,16 +10,24 @@
 dotnet tool install --global KBA.CLI
 ```
 
-## 🚀 Commandes disponibles
+## 🚀 Nouveautés v2.1.0
+- **Intégration Studio** : Support complet des commandes pour le KBA Studio.
+- **Scaffolding Physique** : Amélioration de la génération de fichiers directement dans les couches Clean Architecture.
+- **Enhanced Templates** : Mise à jour des templates pour le mode Monolithe et Microservices.
 
-### Créer un projet
+## 📋 Commandes disponibles
+
+### Créer une solution complète
 
 ```bash
-kba new MyProject --template minimal
-kba new MySaaS --template saas-starter --tenancy row
+# Monolithe Standard
+kba new MyProject --template saas-starter --tenancy row
+
+# Microservices Cloud-Native
+kba new MyCloudApp --template microservices-base
 ```
 
-### Générer du code
+### Générer du code (Scaffolding)
 
 ```bash
 kba generate aggregate Product Catalog
@@ -31,45 +41,23 @@ kba generate query GetProductById
 ```bash
 kba ai chat --provider openai "How to implement CQRS?"
 kba ai generate "Create a service for sending emails"
-kba ai review ./src "Check for security issues"
+kba ai review ./src --focus security
 ```
 
-### Ajouter un module
+### Diagnostics et Utilitaires
 
 ```bash
-kba add-module Product --api --tests
-```
-
-### Load testing
-
-```bash
-kba benchmark http://localhost:5000 --scenario load
-```
-
-### Diagnostic
-
-```bash
-kba doctor
-```
-
-### Complétion shell
-
-```bash
-kba completion bash >> ~/.bashrc
-kba completion zsh >> ~/.zshrc
-kba completion powershell >> $PROFILE
+kba migrate    # Appliquer les migrations EF Core
+kba doctor     # Diagnostiquer la santé du projet
+kba benchmark  # Load testing avec k6
+kba dev        # Lancer le serveur de développement
 ```
 
 ## 🔗 Liens
 
+- **Site Web**: https://khalilbenaz.github.io/KBA.Framework/
 - **Repository**: https://github.com/khalilbenaz/KBA.Framework
-- **Issues**: https://github.com/khalilbenaz/KBA.Framework/issues
-- **Releases**: https://github.com/khalilbenaz/KBA.Framework/releases
-
-## 📖 Documentation
-
-- [CLI Documentation](https://github.com/khalilbenaz/KBA.Framework/blob/main/docs/cli/kba-new.md)
-- [KBA.Framework](https://github.com/khalilbenaz/KBA.Framework)
+- **Documentation**: https://github.com/khalilbenaz/KBA.Framework/docs/INDEX.md
 
 ## 🔧 Prérequis
 

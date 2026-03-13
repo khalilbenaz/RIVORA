@@ -6,7 +6,7 @@ using KBA.CLI.Commands;
 
 // Display welcome banner
 AnsiConsole.Write(new FigletText("KBA CLI").Color(Color.Blue));
-AnsiConsole.MarkupLine("[grey]KBA Framework CLI v2.0.0 - Wave 5 Edition[/]" + Environment.NewLine);
+AnsiConsole.MarkupLine("[grey]KBA Framework CLI v2.1.0 - Studio Integration Edition[/]" + Environment.NewLine);
 
 // Create root command
 var rootCommand = new RootCommand("KBA Framework CLI - Scaffolding and code generation for .NET applications");

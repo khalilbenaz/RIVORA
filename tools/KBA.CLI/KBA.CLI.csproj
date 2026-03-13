@@ -8,9 +8,9 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>kba</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
     <Authors>KBA.Framework</Authors>
-    <Description>KBA Framework CLI v2.0 - Wave 5 Edition with AI commands, module scaffolding, and load testing</Description>
+    <Description>KBA Framework CLI v2.1 - Studio Integration Edition with physical file generation and enhanced scaffolding</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/khalilbenaz/KBA.Framework</PackageProjectUrl>
