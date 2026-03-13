@@ -214,9 +214,6 @@ jobs:
           dotnet pack src/KBA.Framework.Notifications/KBA.Framework.Notifications.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
           dotnet pack tools/KBA.CLI/KBA.CLI.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
 
-      - name: Push to GitHub Packages
-        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate
-
       - name: Push to NuGet.org
         run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
