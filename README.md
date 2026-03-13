@@ -151,6 +151,8 @@ Le framework suit les principes de la Clean Architecture tout en intégrant des 
 | **DbContext Pooling** | Performance accrue par réutilisation des contextes | ✅ |
 | **Bulk Operations** | Traitements de masse (Insert/Update/Delete) ultra-rapides | ✅ |
 | **SignalR Real-Time** | Hub multi-tenant pour notifications temps réel | ✅ |
+| **DB-per-Tenant** | Isolation physique des données avec switching dynamique | ✅ |
+| **OIDC / SSO** | Support Single Sign-On (Azure AD, Auth0, Keycloak) | ✅ |
 | **API Keys** | Authentification par clé X-API-KEY avec cycle de vie | ✅ |
 | **Secret Rotation** | Gestion dynamique et sécurisée des secrets applicatifs | ✅ |
 | **Soft Delete** | Suppression logique automatisée avec filtres globaux | ✅ |
