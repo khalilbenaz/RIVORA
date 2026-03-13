@@ -283,7 +283,7 @@ KBA.Framework/
 | **KBA.CLI** | CLI de scaffolding et génération | ✅ |
 | **kba new** | Création de projets templates | ✅ |
 | **kba generate** | Génération de code (aggregate, CRUD, CQRS) | ✅ |
-| **kba ai chat** | Chat interactif avec LLM (OpenAI/Claude) | ✅ |
+| **kba ai chat** | Chat interactif avec LLM (OpenAI/Claude/Ollama/Kilo) | ✅ |
 | **kba ai generate** | Génération de code avec AI | ✅ |
 | **kba ai review** | Review de code avec AI | ✅ |
 | **kba benchmark** | Load testing avec k6 | ✅ |
@@ -394,8 +394,9 @@ kba generate crud User --props "Name:string,Email:string,Age:int"
 # Dockerisation One-Click
 kba generate docker --database postgresql
 
-# Chat AI
+# Chat AI (Cloud ou Local)
 kba ai chat --provider openai --model gpt-4o
+kba ai chat --provider ollama --model llama3
 
 # Générer code avec AI
 kba ai generate "Create a repository pattern for Product entity" --output ProductRepository.cs

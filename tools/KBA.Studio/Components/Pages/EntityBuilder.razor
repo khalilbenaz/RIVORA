@@ -220,6 +220,9 @@
 
         var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         var anthropicKey = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY");
+        var ollamaUrl = Environment.GetEnvironmentVariable("OLLAMA_API_URL") ?? "http://localhost:11434/v1";
+        var kiloUrl = Environment.GetEnvironmentVariable("KILO_API_URL") ?? "http://localhost:8080/v1";
+        var enableLocalAi = Environment.GetEnvironmentVariable("ENABLE_LOCAL_AI"); // "ollama" or "kilo"
         
         var systemPrompt = @"Tu es un générateur de schéma C# pour KBA.Framework. 
 L'utilisateur va te décrire une entité. Tu dois retourner UNIQUEMENT du JSON valide représentant cette entité. 
@@ -239,7 +242,23 @@ Format attendu:
         {
             string jsonResponse = "";
 
-            if (!string.IsNullOrEmpty(anthropicKey))
+            if (enableLocalAi == "ollama" || enableLocalAi == "kilo")
+            {
+                var endpoint = enableLocalAi == "ollama" ? ollamaUrl : kiloUrl;
+                var clientOptions = new OpenAIClientOptions { Endpoint = new Uri(endpoint) };
+                var model = enableLocalAi == "ollama" ? "llama3" : "kilo-model";
+                var client = new ChatClient(model, new ApiKeyCredential("local-dummy-key"), clientOptions);
+                var messages = new List<ChatMessage>
+                {
+                    new SystemChatMessage(systemPrompt),
+                    new UserChatMessage(AiPrompt)
+                };
+
+                var response = await client.CompleteChatAsync(messages);
+                jsonResponse = response.Value.Content[0].Text.Trim();
+                GenerationMessage = $"✨ <b>Magie IA !</b> Le schéma a été généré via <b>Local {enableLocalAi.ToUpper()}</b> depuis votre prompt.";
+            }
+            else if (!string.IsNullOrEmpty(anthropicKey))
             {
                 // Utilisation de Claude (Anthropic)
                 var client = new AnthropicClient(anthropicKey);
