@@ -200,6 +200,13 @@
     }
 </div>
 
+@using OpenAI.Chat
+@using Anthropic.SDK
+@using Anthropic.SDK.Constants
+@using Anthropic.SDK.Messaging
+@using System.ClientModel
+@using System.Text.Json
+
 @code {
     private string AiPrompt { get; set; } = "";
     private bool IsGeneratingSchema { get; set; } = false;
@@ -211,9 +218,105 @@
         IsGeneratingSchema = true;
         StateHasChanged();
 
-        // Simulation de l'appel LLM (OpenAI/Claude)
-        await Task.Delay(2000); 
+        var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+        var anthropicKey = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY");
+        
+        var systemPrompt = @"Tu es un générateur de schéma C# pour KBA.Framework. 
+L'utilisateur va te décrire une entité. Tu dois retourner UNIQUEMENT du JSON valide représentant cette entité. 
+Ne met pas de markdown ```json, renvoie uniquement le texte JSON brut.
+Format attendu:
+{
+  ""Name"": ""NomDeLEntiteSingulierEnAnglais"",
+  ""IsAggregateRoot"": true,
+  ""IsMultitenant"": true,
+  ""HasAuditLog"": true,
+  ""Fields"": [
+    { ""Name"": ""NomPropriete"", ""Type"": ""string|int|decimal|bool|DateTime|Guid"", ""IsRequired"": true, ""MaxLength"": 100 }
+  ]
+}";
 
+        try
+        {
+            string jsonResponse = "";
+
+            if (!string.IsNullOrEmpty(anthropicKey))
+            {
+                // Utilisation de Claude (Anthropic)
+                var client = new AnthropicClient(anthropicKey);
+                var parameters = new MessageParameters()
+                {
+                    Messages = new List<Message>()
+                    {
+                        new Message()
+                        {
+                            Role = RoleType.User,
+                            Content = new List<ContentBase>() { new TextContent() { Text = AiPrompt } }
+                        }
+                    },
+                    MaxTokens = 2048,
+                    Model = AnthropicModels.Claude35Sonnet,
+                    System = new List<SystemMessage>() { new SystemMessage(systemPrompt) }
+                };
+
+                var response = await client.Messages.GetClaudeMessageAsync(parameters);
+                var textContent = response.Message.Content[0] as TextContent;
+                jsonResponse = textContent?.Text?.Trim() ?? "";
+                GenerationMessage = "✨ <b>Magie IA !</b> Le schéma a été généré via <b>Claude (Anthropic)</b> depuis votre prompt.";
+            }
+            else if (!string.IsNullOrEmpty(openAiKey))
+            {
+                // Utilisation d'OpenAI
+                var client = new ChatClient("gpt-4o-mini", new ApiKeyCredential(openAiKey));
+                var messages = new List<ChatMessage>
+                {
+                    new SystemChatMessage(systemPrompt),
+                    new UserChatMessage(AiPrompt)
+                };
+
+                var response = await client.CompleteChatAsync(messages);
+                jsonResponse = response.Value.Content[0].Text.Trim();
+                GenerationMessage = "✨ <b>Magie IA !</b> Le schéma a été généré via <b>OpenAI</b> depuis votre prompt.";
+            }
+            else
+            {
+                // Pas de clé API = On joue la démo locale comme avant
+                await Task.Delay(1500);
+                RunLocalMock();
+                GenerationMessage = "✨ <b>Démo locale !</b> (Pour utiliser la vraie IA, ajoutez OPENAI_API_KEY ou ANTHROPIC_API_KEY dans vos variables d'environnement).";
+                IsGeneratingSchema = false;
+                StateHasChanged();
+                return;
+            }
+            
+            // Nettoyage du JSON si l'IA a mis des balises Markdown
+            if (jsonResponse.StartsWith("```json")) {
+                jsonResponse = jsonResponse.Replace("```json", "").Replace("```", "").Trim();
+            }
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var generatedSchema = JsonSerializer.Deserialize<GeneratedEntitySchema>(jsonResponse, options);
+
+            if (generatedSchema != null)
+            {
+                EntityName = generatedSchema.Name;
+                IsAggregateRoot = generatedSchema.IsAggregateRoot;
+                IsMultitenant = generatedSchema.IsMultitenant;
+                HasAuditLog = generatedSchema.HasAuditLog;
+                Fields = generatedSchema.Fields ?? new List<EntityField>();
+            }
+        }
+        catch (Exception ex)
+        {
+            GenerationMessage = $"❌ <b>Erreur IA :</b> {ex.Message} (Assurez-vous que le JSON renvoyé est valide). Fallback sur la démo locale activé.";
+            RunLocalMock();
+        }
+
+        IsGeneratingSchema = false;
+        StateHasChanged();
+    }
+
+    private void RunLocalMock()
+    {
         var lowerPrompt = AiPrompt.ToLower();
         
         if (lowerPrompt.Contains("animal") || lowerPrompt.Contains("vétérinaire"))
@@ -229,7 +332,7 @@
                 new EntityField { Name = "OwnerId", Type = "Guid", IsRequired = true }
             };
         }
-        else if (lowerPrompt.Contains("patient") || lowerPrompt.Contains("medical"))
+        else
         {
             EntityName = "Patient";
             IsAggregateRoot = true;
@@ -241,21 +344,15 @@
                 new EntityField { Name = "BloodType", Type = "string", IsRequired = false, MaxLength = 5 }
             };
         }
-        else
-        {
-            // Fallback générique basé sur les mots du prompt
-            EntityName = "GeneratedEntity";
-            Fields = new List<EntityField>
-            {
-                new EntityField { Name = "Title", Type = "string", IsRequired = true, MaxLength = 100 },
-                new EntityField { Name = "Description", Type = "string", IsRequired = false, MaxLength = 500 },
-                new EntityField { Name = "CreatedAt", Type = "DateTime", IsRequired = true },
-                new EntityField { Name = "IsActive", Type = "bool", IsRequired = true }
-            };
-        }
+    }
 
-        IsGeneratingSchema = false;
-        GenerationMessage = "✨ <b>Magie !</b> Le schéma a été généré depuis votre prompt. Vous pouvez maintenant l'ajuster ou générer le code.";
+    private class GeneratedEntitySchema
+    {
+        public string Name { get; set; } = "";
+        public bool IsAggregateRoot { get; set; }
+        public bool IsMultitenant { get; set; }
+        public bool HasAuditLog { get; set; }
+        public List<EntityField>? Fields { get; set; }
     }
 
     private string EntityName { get; set; } = "Invoice";
