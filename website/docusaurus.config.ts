@@ -23,7 +23,7 @@ const config: Config = {
   organizationName: 'khalilbenaz',
   projectName: 'KBA.Framework',
   deploymentBranch: 'gh-pages',
-  trailingSlash: false,
+  trailingSlash: true,
 
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
