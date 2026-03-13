@@ -16,23 +16,21 @@ const config: Config = {
 
   // Set the production url of your site here
   url: 'https://khalilbenaz.github.io',
-  // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/KBA.Framework/',
 
   // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'khalilbenaz', // Usually your GitHub org/user name.
-  projectName: 'KBA.Framework', // Usually your repo name.
+  organizationName: 'khalilbenaz',
+  projectName: 'KBA.Framework',
+  deploymentBranch: 'gh-pages',
+  trailingSlash: false,
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
+  onBrokenMarkdownLinks: 'warn',
 
-  // Even if you don't use internationalization, you can use this field to set
-  // useful metadata like html lang. For example, if your site is Chinese, you
-  // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'fr',
-    locales: ['fr', 'en'],
+    locales: ['fr'],
   },
 
   presets: [
@@ -41,25 +39,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/khalilbenaz/KBA.Framework/tree/main/website/',
-        },
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/khalilbenaz/KBA.Framework/tree/main/website/',
-          // Useful options to enforce blogging best practices
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
+          editUrl: 'https://github.com/khalilbenaz/KBA.Framework/tree/main/website/',
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -69,17 +49,17 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
-    colorMode: {
-      respectPrefersColorScheme: true,
-      defaultMode: 'dark',
-    },
+    metadata: [
+      {name: 'keywords', content: 'dotnet, clean architecture, ddd, multitenancy, framework, saas'},
+      {name: 'twitter:card', content: 'summary_large_image'},
+    ],
     navbar: {
       title: 'KBA Framework',
+      hideOnScroll: true,
       logo: {
         alt: 'KBA Logo',
         src: 'img/logo.svg',
+        srcDark: 'img/logo.svg',
       },
       items: [
         {
@@ -88,39 +68,36 @@ const config: Config = {
           position: 'left',
           label: 'Documentation',
         },
+        {to: '/docs/getting-started/first-steps', label: 'Tutoriel', position: 'left'},
         {
           href: 'https://github.com/khalilbenaz/KBA.Framework',
           label: 'GitHub',
           position: 'right',
-        },      ],
+        },
+      ],
     },
     footer: {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Apprendre',
           items: [
-            {
-              label: 'Introduction',
-              to: '/docs/intro',
-            },
-            {
-              label: 'Quick Start',
-              to: '/docs/getting-started/quick-start',
-            },
+            {label: 'Introduction', to: '/docs/intro'},
+            {label: 'Quick Start', to: '/docs/getting-started/quick-start'},
+            {label: 'Pas-à-Pas', to: '/docs/getting-started/first-steps'},
           ],
         },
         {
-          title: 'GitHub',
+          title: 'Architecture',
           items: [
-            {
-              label: 'Repository',
-              href: 'https://github.com/khalilbenaz/KBA.Framework',
-            },
-            {
-              label: 'Releases',
-              href: 'https://github.com/khalilbenaz/KBA.Framework/releases',
-            },
+            {label: 'Clean Architecture', to: '/docs/intro'},
+            {label: 'Multi-Tenancy', to: '/docs/intro'},
+          ],
+        },
+        {
+          title: 'Plus',
+          items: [
+            {label: 'GitHub', href: 'https://github.com/khalilbenaz/KBA.Framework'},
           ],
         },
       ],
@@ -129,7 +106,7 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
-      additionalLanguages: ['csharp', 'powershell', 'bash', 'json'],
+      additionalLanguages: ['csharp', 'powershell', 'bash', 'json', 'docker'],
     },
   } satisfies Preset.ThemeConfig,
 };
