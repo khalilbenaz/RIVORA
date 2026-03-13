@@ -141,16 +141,16 @@
                     <div class="card-header bg-dark text-white p-0">
                         <ul class="nav nav-tabs card-header-tabs m-0 ms-2" style="border-bottom: none; margin-top: 8px !important;">
                             <li class="nav-item">
-                                <a class="nav-link @(ActiveTab == "domain" ? "active bg-light text-dark" : "text-light")" href="#" @onclick:preventDefault @onclick="@(() => ActiveTab = "domain")">Domain Entity</a>
+                                <button type="button" class="nav-link border-0 @(ActiveTab == "domain" ? "active bg-light text-dark fw-bold" : "text-light bg-transparent")" @onclick="@(() => ActiveTab = "domain")">Domain Entity</button>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link @(ActiveTab == "efcore" ? "active bg-light text-dark" : "text-light")" href="#" @onclick:preventDefault @onclick="@(() => ActiveTab = "efcore")">EF Core Config</a>
+                                <button type="button" class="nav-link border-0 @(ActiveTab == "efcore" ? "active bg-light text-dark fw-bold" : "text-light bg-transparent")" @onclick="@(() => ActiveTab = "efcore")">EF Core Config</button>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link @(ActiveTab == "dtos" ? "active bg-light text-dark" : "text-light")" href="#" @onclick:preventDefault @onclick="@(() => ActiveTab = "dtos")">DTOs</a>
+                                <button type="button" class="nav-link border-0 @(ActiveTab == "dtos" ? "active bg-light text-dark fw-bold" : "text-light bg-transparent")" @onclick="@(() => ActiveTab = "dtos")">DTOs</button>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link @(ActiveTab == "api" ? "active bg-light text-dark" : "text-light")" href="#" @onclick:preventDefault @onclick="@(() => ActiveTab = "api")">API Controller</a>
+                                <button type="button" class="nav-link border-0 @(ActiveTab == "api" ? "active bg-light text-dark fw-bold" : "text-light bg-transparent")" @onclick="@(() => ActiveTab = "api")">API Controller</button>
                             </li>
                         </ul>
                     </div>

@@ -31,12 +31,11 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
-    title: 'Visual Entity Builder',
+    title: 'Enterprise Features (Gratuit)',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Générez physiquement votre code (Entités, DTOs, Controllers) en quelques 
-        clics via KBA Studio pour une productivité décuplée.
+        Générez votre code via <strong>KBA Studio</strong> et profitez de modules premium inclus : SaaS Billing (Stripe), Impersonation, Audit Logs UI et Blob Storage.
       </>
     ),
   },

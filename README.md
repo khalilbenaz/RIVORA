@@ -4,9 +4,11 @@
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)
 ![Coverage](https://img.shields.io/badge/coverage-85%25-success?style=flat-square)
-![Version](https://img.shields.io/badge/version-2.1.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.2.0-blue?style=flat-square)
 
 **Framework d'entreprise .NET 8 basé sur Clean Architecture, DDD et multi-tenancy pour applications SaaS professionnelles.**
+
+✨ **Nouveau dans la v2.2.0 : L'Édition "Enterprise" 100% Gratuite.** Profitez des fonctionnalités premium intégrées dans KBA Studio (SaaS Billing via Stripe, User Impersonation, Audit Logs UI, Dynamic Translations, Blob Storage).
 
 ---
 

@@ -7,6 +7,20 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [2.2.0] - 2026-03-13
+
+### 💎 Enterprise Edition (Gratuite) & Studio Redesign
+
+#### Added
+- **SaaS Billing & Subscriptions** (`KBA.Framework.SaaS`) : Intégration complète de Stripe.net pour gérer les abonnements, les webhooks, le MRR et la suspension automatique des locataires (Tenants).
+- **User Impersonation** (`KBA.Framework.Identity.Pro`) : API sécurisée permettant à un administrateur de se connecter en tant que client (Tenant) pour le support technique.
+- **Dynamic Localization** (`KBA.Framework.Localization.Dynamic`) : Provider de traduction avec cache (Redis/Memory) permettant de modifier les textes de l'application depuis la base de données sans redéploiement.
+- **Blob Storage Manager** (`KBA.Framework.Storage`) : Abstraction pour la gestion de fichiers supportant AWS S3, Azure Blob, et le stockage local.
+- **Audit Logs Explorer** (`KBA.Framework.AuditLogging.UI`) : Nouveau composant pour analyser la traçabilité complète de l'application.
+- **Studio Redesign** : Refonte visuelle majeure de `KBA.Studio` avec un thème "Premium SaaS", une nouvelle barre latérale, et l'intégration des 4 nouveaux dashboards interactifs de gestion (SaaS, Traductions, Fichiers, Logs).
+
+---
+
 ## [2.1.0] - 2026-03-12
 
 ### 🛠️ Developer Experience (KBA Studio)

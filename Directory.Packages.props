@@ -9,7 +9,6 @@
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
-    
     <!-- Entity Framework -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
@@ -18,25 +17,21 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
-    
     <!-- Database Providers -->
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
     <PackageVersion Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
-    
     <!-- MediatR -->
     <PackageVersion Include="MediatR" Version="12.2.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
-    
     <!-- Validation -->
     <PackageVersion Include="FluentValidation" Version="11.9.0" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
     <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
-    
     <!-- Serialization -->
+    <PackageVersion Include="Stripe.net" Version="50.4.1" />
     <PackageVersion Include="System.Text.Json" Version="8.0.0" />
     <PackageVersion Include="AutoMapper" Version="12.0.1" />
-    
     <!-- Extensions -->
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
@@ -47,32 +42,26 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
-    
     <!-- Serilog -->
     <PackageVersion Include="Serilog" Version="3.1.1" />
     <PackageVersion Include="Serilog.AspNetCore" Version="8.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="5.0.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.0.0" />
-    
     <!-- OpenTelemetry -->
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.7.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.7.0" />
-    
     <!-- Polly -->
     <PackageVersion Include="Polly" Version="8.2.0" />
     <PackageVersion Include="Polly.Extensions.Http" Version="3.0.0" />
-    
     <!-- Redis -->
     <PackageVersion Include="StackExchange.Redis" Version="2.7.4" />
-    
     <!-- Messaging -->
     <PackageVersion Include="MassTransit" Version="8.1.2" />
     <PackageVersion Include="MassTransit.RabbitMQ" Version="8.1.2" />
-    
     <!-- Job Scheduling -->
     <PackageVersion Include="Hangfire.Core" Version="1.8.14" />
     <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.14" />
@@ -82,7 +71,6 @@
     <PackageVersion Include="Quartz.Extensions.DependencyInjection" Version="3.13.0" />
     <PackageVersion Include="Quartz.Serialization.Json" Version="3.13.0" />
     <PackageVersion Include="Quartz.Plugins.TimeZoneConverter" Version="3.13.0" />
-    
     <!-- Testing -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageVersion Include="xunit" Version="2.9.2" />
@@ -92,18 +80,15 @@
     <PackageVersion Include="FluentAssertions" Version="7.0.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="Bogus" Version="35.2.0" />
-    
     <!-- Security -->
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />
     <PackageVersion Include="Dapper" Version="2.1.24" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
     <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="7.0.3" />
     <PackageVersion Include="BCrypt.Net-Next" Version="4.0.3" />
-    
     <!-- Swagger -->
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore.ReDoc" Version="6.5.0" />
-    
     <!-- CLI Tools -->
     <PackageVersion Include="Scriban" Version="5.9.0" />
     <PackageVersion Include="Spectre.Console" Version="0.48.0" />
