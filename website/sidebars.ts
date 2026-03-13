@@ -23,6 +23,11 @@ const sidebars: SidebarsConfig = {
         'modules/identity',
         'modules/tenant-management',
       ],
+    },
+    {
+      type: 'category',
+      label: 'IA & Productivité',
+      items: ['ai'],
     }
   ],
 };
