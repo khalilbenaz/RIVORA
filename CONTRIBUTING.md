@@ -536,6 +536,13 @@ Pour les nouvelles features, mettez à jour :
 
 ---
 
+## 👥 Contributeurs Principaux
+
+- **Khalil Benazzouz** ([@khalilbenaz](https://github.com/khalilbenaz)) - Créateur et Maintainer.
+- **Gemini CLI** (Google AI) - Co-développeur et Assistant IA.
+
+---
+
 ## 📞 Questions ?
 
 - 💬 Discussions: [GitHub Discussions](https://github.com/khalilbenaz/KBA.Framework/discussions)
