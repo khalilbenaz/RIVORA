@@ -27,6 +27,7 @@ public class AuthController : ControllerBase
     /// Authentifie un utilisateur et retourne un token JWT
     /// </summary>
     /// <param name="loginDto">Informations de connexion</param>
+    /// <param name="cancellationToken">Token d'annulation</param>
     /// <returns>Token JWT et informations utilisateur</returns>
     /// <response code="200">Authentification réussie</response>
     /// <response code="401">Identifiants invalides</response>
@@ -62,6 +63,7 @@ public class AuthController : ControllerBase
     /// Rafraîchit un token JWT
     /// </summary>
     /// <param name="refreshToken">Refresh token</param>
+    /// <param name="cancellationToken">Token d'annulation</param>
     /// <returns>Nouveau token JWT</returns>
     /// <response code="200">Token rafraîchi avec succès</response>
     /// <response code="401">Refresh token invalide</response>
@@ -92,6 +94,7 @@ public class AuthController : ControllerBase
     /// Déconnecte un utilisateur
     /// </summary>
     /// <param name="refreshToken">Refresh token à révoquer</param>
+    /// <param name="cancellationToken">Token d'annulation</param>
     /// <response code="200">Déconnexion réussie</response>
     [HttpPost("logout")]
     [Authorize]

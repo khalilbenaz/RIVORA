@@ -22,6 +22,9 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" />
+    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" />
+    <PackageReference Include="Grpc.AspNetCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -31,6 +34,9 @@
   <ItemGroup>
     <ProjectReference Include="..\KBA.Framework.Application\KBA.Framework.Application.csproj" />
     <ProjectReference Include="..\KBA.Framework.Infrastructure\KBA.Framework.Infrastructure.csproj" />
+    <ProjectReference Include="..\KBA.Framework.ServiceDefaults\KBA.Framework.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\KBA.Framework.RealTime\KBA.Framework.RealTime.csproj" />
+    <ProjectReference Include="..\KBA.Framework.Notifications\KBA.Framework.Notifications.csproj" />
   </ItemGroup>
 
 </Project>

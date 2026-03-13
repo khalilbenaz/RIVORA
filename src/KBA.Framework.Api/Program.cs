@@ -14,6 +14,10 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
+using KBA.Framework.Core.Modules;
+using KBA.Framework.RealTime.Hubs;
+using Microsoft.AspNetCore.RateLimiting;
+using KBA.Framework.Api.Extensions;
 
 // Configuration de Serilog
 Log.Logger = new LoggerConfiguration()
@@ -27,6 +31,9 @@ try
     Log.Information("Démarrage de l'application KBA Framework");
 
     var builder = WebApplication.CreateBuilder(args);
+
+    // Aspire Service Defaults (7.5)
+    builder.AddServiceDefaults();
 
     // Utiliser Serilog
     builder.Host.UseSerilog();
@@ -99,6 +106,25 @@ try
     // Configuration de la base de données optimisée
     builder.Services.AddOptimizedDbContext(builder.Configuration);
 
+    // Enregistrement des modules KBA (2.4)
+    builder.Services.AddKbaModules(builder.Configuration,
+        typeof(KBA.Framework.RealTime.RealTimeModule).Assembly,
+        typeof(KBA.Framework.Notifications.NotificationsModule).Assembly);
+
+    // Compression de réponse
+    builder.Services.AddResponseCompression(options =>
+    {
+        options.EnableForHttps = true;
+    });
+
+    // Output Caching (.NET 8+)
+    builder.Services.AddOutputCache(options =>
+    {
+        options.AddBasePolicy(builder => builder.Expire(TimeSpan.FromMinutes(5)));
+        options.AddPolicy("CacheProductList", builder => 
+            builder.Expire(TimeSpan.FromMinutes(10)).Tag("products"));
+    });
+
     // Enregistrement des repositories
     builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
     builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -114,9 +140,46 @@ try
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<JwtTokenService>();
 
+    // Rate Limiting (4.3)
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        
+        options.AddFixedWindowLimiter("fixed", opt =>
+        {
+            opt.Window = TimeSpan.FromSeconds(10);
+            opt.PermitLimit = 100;
+            opt.QueueLimit = 2;
+            opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+        });
+
+        options.AddConcurrencyLimiter("concurrency", opt =>
+        {
+            opt.PermitLimit = 10;
+            opt.QueueLimit = 5;
+            opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+        });
+    });
+
+    // Localization
+    builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+    // Discovery des Minimal APIs (7.4)
+    var endpointMapperType = typeof(KBA.Framework.Api.Interfaces.IMapEndpoints);
+    var endpointMappers = typeof(Program).Assembly.GetTypes()
+        .Where(t => endpointMapperType.IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+    foreach (var mapper in endpointMappers)
+    {
+        builder.Services.AddScoped(endpointMapperType, mapper);
+    }
+
+    // gRPC (3.4)
+    builder.Services.AddGrpc();
+
     // Controllers avec FluentValidation et découverte API
     builder.Services.AddControllers();
-    
+
     // FluentValidation
     builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddFluentValidationClientsideAdapters();
@@ -126,7 +189,7 @@ try
     // Authentication JWT
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
     var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey non configurée");
-    
+
     builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -153,13 +216,13 @@ try
 
     // Swagger/OpenAPI avec support JWT
     builder.Services.AddEndpointsApiExplorer();
-    
+
     // Configuration pour exposer tous les endpoints
     builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options =>
     {
         options.SuppressMapClientErrors = false;
     });
-    
+
     builder.Services.AddSwaggerGen(options =>
     {
         options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
@@ -229,11 +292,15 @@ try
         });
     });
 
-    // Health checks
+    // Health checks (3.6)
     builder.Services.AddHealthChecks()
-        .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
+        .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy())
+        .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!, name: "database", tags: new[] { "ready" });
 
     var app = builder.Build();
+
+    // Middleware de sécurité OWASP
+    app.UseMiddleware<SecurityHeadersMiddleware>();
 
     // Middleware de gestion globale des erreurs
     app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
@@ -254,7 +321,7 @@ try
             options.SpecUrl = "/swagger/v1/swagger.json";
             options.DocumentTitle = "KBA Framework API Documentation";
             options.RoutePrefix = "api-docs";
-            
+
             // Options ReDoc pour une meilleure interactivité
             options.ConfigObject = new Swashbuckle.AspNetCore.ReDoc.ConfigObject
             {
@@ -273,14 +340,20 @@ try
     }
 
     // Endpoints de santé et métriques
-    app.MapHealthChecks("/health");
+    app.MapDefaultEndpoints();
+    app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+    {
+        ResponseWriter = HealthChecks.UI.Client.UIResponseWriter.WriteHealthCheckUIResponse
+    });
     app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
     {
-        Predicate = _ => false // Liveness check basique
+        Predicate = _ => false, // Liveness check basique
+        ResponseWriter = HealthChecks.UI.Client.UIResponseWriter.WriteHealthCheckUIResponse
     });
     app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
     {
-        Predicate = check => check.Name != "self" // Readiness check avec dépendances
+        Predicate = check => check.Tags.Contains("ready"), // Readiness check avec dépendances
+        ResponseWriter = HealthChecks.UI.Client.UIResponseWriter.WriteHealthCheckUIResponse
     });
 
     // Exposition des métriques Prometheus
@@ -288,27 +361,56 @@ try
     // Utiliser Serilog pour les requêtes HTTP
     app.UseSerilogRequestLogging(options =>
     {
-        options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000}ms";
+        options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000}ms | Tenant: {TenantId} | User: {UserId}";
         options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
         {
             diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
             diagnosticContext.Set("UserAgent", httpContext.Request.Headers["User-Agent"].FirstOrDefault() ?? "unknown");
             diagnosticContext.Set("RequestId", httpContext.TraceIdentifier);
+
+            // Récupérer le contexte utilisateur pour l'enrichissement
+            var userContext = httpContext.RequestServices.GetService<ICurrentUserContext>();
+            if (userContext != null)
+            {
+                diagnosticContext.Set("TenantId", userContext.TenantId?.ToString() ?? "none");
+                diagnosticContext.Set("UserId", userContext.UserId?.ToString() ?? "none");
+                diagnosticContext.Set("UserName", userContext.UserName ?? "anonymous");
+            }
         };
     });
-    
+
+    app.UseOutputCache();
+    app.UseResponseCompression();
     app.UseHttpsRedirection();
     app.UseCors("AllowAll");
-    
+    app.UseRateLimiter();
+
+    // Configuration de la localisation
+    var supportedCultures = new[] { "fr-FR", "en-US" };
+    var localizationOptions = new RequestLocalizationOptions()
+        .SetDefaultCulture(supportedCultures[0])
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+
+    app.UseRequestLocalization(localizationOptions);
+
     // Servir les fichiers statiques (pour la page d'accueil)
     app.UseStaticFiles();
     app.UseDefaultFiles();
-    
+
+    // Authentification par clé API
+    app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+
     // Authentification et autorisation
     app.UseAuthentication();
     app.UseAuthorization();
-    
+
+    // Configuration des modules KBA (2.4)
+    app.UseKbaModules();
+
     app.MapControllers();
+    app.MapKbaEndpoints();
+    // app.MapGrpcService<KbaService>(); // À implémenter selon les besoins
 
     Log.Information("Application KBA Framework démarrée avec succès");
     app.Run();

@@ -27,6 +27,7 @@ public class InitController : ControllerBase
     /// Initialise le premier utilisateur administrateur du système
     /// </summary>
     /// <param name="dto">Informations du premier administrateur</param>
+    /// <param name="cancellationToken">Token d'annulation</param>
     /// <returns>L'utilisateur créé</returns>
     /// <response code="200">Utilisateur administrateur créé avec succès</response>
     /// <response code="400">Données invalides ou un utilisateur existe déjà</response>
@@ -69,7 +70,7 @@ public class InitController : ControllerBase
 
             var user = await _userService.CreateAsync(dto, cancellationToken);
             _logger.LogInformation("Premier utilisateur administrateur créé avec succès: {UserName}", dto.UserName);
-            
+
             return Ok(new
             {
                 user,
@@ -96,6 +97,7 @@ public class InitController : ControllerBase
     /// <summary>
     /// Vérifie si le système nécessite une initialisation
     /// </summary>
+    /// <param name="cancellationToken">Token d'annulation</param>
     /// <returns>Statut d'initialisation du système</returns>
     /// <response code="200">Retourne le statut d'initialisation</response>
     [HttpGet("status")]
@@ -112,8 +114,8 @@ public class InitController : ControllerBase
             {
                 needsInitialization,
                 userCount = existingUsers.Count,
-                message = needsInitialization 
-                    ? "Le système nécessite une initialisation. Veuillez créer le premier utilisateur administrateur." 
+                message = needsInitialization
+                    ? "Le système nécessite une initialisation. Veuillez créer le premier utilisateur administrateur."
                     : "Le système est déjà initialisé."
             });
         }

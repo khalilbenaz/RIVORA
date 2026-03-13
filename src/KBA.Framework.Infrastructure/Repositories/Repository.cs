@@ -1,3 +1,5 @@
+using EFCore.BulkExtensions;
+using KBA.Framework.Core.Specifications;
 using KBA.Framework.Domain.Entities;
 using KBA.Framework.Domain.Repositories;
 using KBA.Framework.Infrastructure.Data;
@@ -31,6 +33,12 @@ public class Repository<TEntity, TKey> : IRepository<TEntity, TKey> where TEntit
         return await _dbSet.FindAsync(new object[] { id! }, cancellationToken);
     }
 
+    /// <inheritdoc />
+    public virtual async Task<TEntity?> GetAsync(ISpecification<TEntity> spec, CancellationToken cancellationToken = default)
+    {
+        return await ApplySpecification(spec).FirstOrDefaultAsync(cancellationToken);
+    }
+
     /// <summary>
     /// Récupère une entité par son ID sans tracking (lecture seule)
     /// </summary>
@@ -45,6 +53,17 @@ public class Repository<TEntity, TKey> : IRepository<TEntity, TKey> where TEntit
     {
         // Utiliser AsNoTracking pour les requêtes en lecture seule améliore les performances
         return await _dbSet.AsNoTracking().ToListAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public virtual async Task<List<TEntity>> GetListAsync(ISpecification<TEntity> spec, CancellationToken cancellationToken = default)
+    {
+        return await ApplySpecification(spec).ToListAsync(cancellationToken);
+    }
+
+    protected IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> spec)
+    {
+        return SpecificationEvaluator<TEntity, TKey>.GetQuery(_dbSet.AsQueryable(), spec);
     }
 
     /// <inheritdoc />
@@ -76,12 +95,30 @@ public class Repository<TEntity, TKey> : IRepository<TEntity, TKey> where TEntit
         return await _dbSet.CountAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
+    public virtual async Task BulkInsertAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        await _context.BulkInsertAsync(entities.ToList(), cancellationToken: cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public virtual async Task BulkUpdateAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        await _context.BulkUpdateAsync(entities.ToList(), cancellationToken: cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public virtual async Task BulkDeleteAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        await _context.BulkDeleteAsync(entities.ToList(), cancellationToken: cancellationToken);
+    }
+
     /// <summary>
     /// Récupère une liste paginée d'entités
     /// </summary>
     public virtual async Task<List<TEntity>> GetPagedListAsync(
-        int skip, 
-        int take, 
+        int skip,
+        int take,
         CancellationToken cancellationToken = default)
     {
         return await _dbSet

@@ -57,8 +57,59 @@ public class KBADbContext : DbContext
     // Background Jobs
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
 
+    // Outbox
+    public DbSet<KBA.Framework.Domain.Events.OutboxMessage> OutboxMessages => Set<KBA.Framework.Domain.Events.OutboxMessage>();
+
+    // Security
+    public DbSet<KBA.Framework.Domain.Entities.Security.ApiKey> ApiKeys => Set<KBA.Framework.Domain.Entities.Security.ApiKey>();
+
     // Business Entities
     public DbSet<Product> Products => Set<Product>();
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        // Gestion du Soft Delete
+        foreach (var entry in ChangeTracker.Entries<KBA.Framework.Domain.Entities.ISoftDelete>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Deleted:
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsDeleted = true;
+                    entry.Entity.DeletedAtUtc = DateTime.UtcNow;
+                    break;
+            }
+        }
+
+        // Capture domain events from tracked entities
+        var domainEvents = ChangeTracker.Entries()
+            .Where(x => x.Entity.GetType().GetProperty("DomainEvents") != null)
+            .Select(x => (Entity: x.Entity, Events: (IEnumerable<object>)x.Entity.GetType().GetProperty("DomainEvents")!.GetValue(x.Entity)!))
+            .SelectMany(x => x.Events.Select(e => (x.Entity, Event: e)))
+            .ToList();
+
+        if (domainEvents.Any())
+        {
+            var outboxMessages = domainEvents.Select(x => new KBA.Framework.Domain.Events.OutboxMessage
+            {
+                Type = x.Event.GetType().FullName ?? x.Event.GetType().Name,
+                Content = System.Text.Json.JsonSerializer.Serialize(x.Event),
+                OccurredOnUtc = DateTime.UtcNow
+            }).ToList();
+
+            await OutboxMessages.AddRangeAsync(outboxMessages, cancellationToken);
+        }
+
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        // Clear events after successful save
+        foreach (var entry in domainEvents)
+        {
+            entry.Entity.GetType().GetMethod("ClearDomainEvents")?.Invoke(entry.Entity, null);
+        }
+
+        return result;
+    }
 
     /// <summary>
     /// Configuration du modèle
@@ -66,6 +117,32 @@ public class KBADbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // Configuration globale du Soft Delete
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(KBA.Framework.Domain.Entities.ISoftDelete).IsAssignableFrom(entityType.ClrType))
+            {
+                var parameter = System.Linq.Expressions.Expression.Parameter(entityType.ClrType, "e");
+                var body = System.Linq.Expressions.Expression.Equal(
+                    System.Linq.Expressions.Expression.Property(parameter, nameof(KBA.Framework.Domain.Entities.ISoftDelete.IsDeleted)),
+                    System.Linq.Expressions.Expression.Constant(false));
+                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(System.Linq.Expressions.Expression.Lambda(body, parameter));
+            }
+
+            // Chiffrement des propriétés (EncryptedAtRest)
+            foreach (var property in entityType.GetProperties())
+            {
+                var attributes = property.PropertyInfo?.GetCustomAttributes(typeof(KBA.Framework.Core.Attributes.EncryptedAtRestAttribute), false);
+                if (attributes != null && attributes.Any())
+                {
+                    // Note: En production, utilisez un vrai fournisseur de chiffrement et une clé sécurisée (Key Vault)
+                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<string, string>(
+                        v => Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(v)), // "Chiffrement" basique pour l'exemple
+                        v => System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(v))));
+                }
+            }
+        }
 
         // Application des configurations
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(KBADbContext).Assembly);

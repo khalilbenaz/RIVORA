@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\KBA.Framework.Core\KBA.Framework.Core.csproj" />
+  </ItemGroup>
+
 </Project>

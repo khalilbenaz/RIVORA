@@ -31,7 +31,7 @@ public class TenantMiddleware
         await _next(context);
     }
 
-    private async Task<TenantInfo?> ResolveTenantAsync(HttpContext context)
+    private Task<TenantInfo?> ResolveTenantAsync(HttpContext context)
     {
         var tenantId = context.Request.Headers[_tenantHeaderName].FirstOrDefault();
         if (string.IsNullOrEmpty(tenantId)) tenantId = context.Request.Query[_tenantQueryStringName].FirstOrDefault();
@@ -41,8 +41,8 @@ public class TenantMiddleware
             var parts = host.Split(".");
             if (parts.Length > 2) tenantId = parts[0];
         }
-        if (string.IsNullOrEmpty(tenantId)) return null;
-        return new TenantInfo { Id = tenantId, Name = tenantId, Identifier = tenantId };
+        if (string.IsNullOrEmpty(tenantId)) return Task.FromResult<TenantInfo?>(null);
+        return Task.FromResult<TenantInfo?>(new TenantInfo { Id = tenantId, Name = tenantId, Identifier = tenantId });
     }
 }
 

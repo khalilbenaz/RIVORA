@@ -22,8 +22,8 @@ public class CurrentUserContext : ICurrentUserContext
         get
         {
             var tenantIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("TenantId")?.Value;
-            return tenantIdClaim != null && Guid.TryParse(tenantIdClaim, out var tenantId) 
-                ? tenantId 
+            return tenantIdClaim != null && Guid.TryParse(tenantIdClaim, out var tenantId)
+                ? tenantId
                 : null;
         }
     }
@@ -34,8 +34,8 @@ public class CurrentUserContext : ICurrentUserContext
         get
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userIdClaim != null && Guid.TryParse(userIdClaim, out var userId) 
-                ? userId 
+            return userIdClaim != null && Guid.TryParse(userIdClaim, out var userId)
+                ? userId
                 : null;
         }
     }

@@ -9,18 +9,36 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [2.2.0] - 2026-03-13
 
-### 💎 Enterprise Edition (Gratuite) & Studio Redesign
+### 💎 Enterprise Edition (Gratuite) & Performance Cloud Native
 
 #### Added
-- **Local & Cloud AI Support** : Intégration complète de vrais SDKs pour OpenAI, Anthropic (Claude), et support des LLM locaux via Ollama et Kilo Code.
-- **AI Generative UI** : Nouvelle fonctionnalité "Baguette Magique" dans l'Entity Builder de KBA Studio. Génère le schéma complet de la base de données (propriétés, types, relations) à partir d'un simple prompt en langage naturel. Supporte les modèles Cloud (GPT-4, Claude) et Locaux (Llama3, Kilo).
-- **Docker One-Click** : Nouvelle commande CLI `kba generate docker` permettant de générer automatiquement un `Dockerfile` optimisé (Multi-stage .NET 8) et un `docker-compose.yml` complet (API, Base de données, Redis).
-- **SaaS Billing & Subscriptions** (`KBA.Framework.SaaS`) : Intégration complète de Stripe.net pour gérer les abonnements, les webhooks, le MRR et la suspension automatique des locataires (Tenants).
-- **User Impersonation** (`KBA.Framework.Identity.Pro`) : API sécurisée permettant à un administrateur de se connecter en tant que client (Tenant) pour le support technique.
-- **Dynamic Localization** (`KBA.Framework.Localization.Dynamic`) : Provider de traduction avec cache (Redis/Memory) permettant de modifier les textes de l'application depuis la base de données sans redéploiement.
-- **Blob Storage Manager** (`KBA.Framework.Storage`) : Abstraction pour la gestion de fichiers supportant AWS S3, Azure Blob, et le stockage local.
-- **Audit Logs Explorer** (`KBA.Framework.AuditLogging.UI`) : Nouveau composant pour analyser la traçabilité complète de l'application.
-- **Studio Redesign** : Refonte visuelle majeure de `KBA.Studio` avec un thème "Premium SaaS", une nouvelle barre latérale, et l'intégration des 4 nouveaux dashboards interactifs de gestion (SaaS, Traductions, Fichiers, Logs).
+- **.NET Aspire Support** (`KBA.Framework.AppHost`) : Orchestration complète, monitoring centralisé et service discovery natif.
+- **Outbox Pattern** : Publication fiable d'événements de domaine via la table `OutboxMessages` et un job Quartz asynchrone.
+- **SignalR Real-Time** (`KBA.Framework.RealTime`) : Hub multi-tenant pour notifications temps réel avec groupes automatiques par TenantId et UserId.
+- **Specification Pattern** : Abstraction de requêtes complexes (`ISpecification`) réutilisables et testables isolément.
+- **Module Boundaries** (`IKbaModule`) : Architecture monolithique modulaire avec découverte automatique des modules via scan d'assemblies.
+- **Performance & Scalabilité** :
+  - **EF Core Compiled Queries** : Réduction drastique de l'overhead de compilation LINQ.
+  - **DbContext Pooling** : Réutilisation des instances de contexte pour une meilleure montée en charge.
+  - **Bulk Operations** : Intégration de `EFCore.BulkExtensions` pour les traitements de masse performants.
+  - **Output Caching** : Support du nouveau middleware .NET 8/9 pour le cache de réponse granulaire.
+  - **Response Compression** : Compression Brotli/Gzip activée par défaut pour réduire la latence.
+- **Security & Reliability** :
+  - **API Key Management** : Authentification par clé `X-API-KEY` avec gestion du cycle de vie (expiration, audit).
+  - **Secret Rotation** : Service `ISecretRotationManager` pour la rotation automatique des clés (JWT, etc.).
+  - **Data Encryption at Rest** : Attribut `[EncryptedAtRest]` pour le chiffrement transparent des colonnes sensibles.
+  - **Soft Delete amélioré** : Suppression logique automatisée avec filtre de requête global.
+  - **Security Headers (OWASP)** : Middleware configuré pour injecter CSP, HSTS, X-Frame-Options, etc.
+  - **Advanced Health Checks** : Monitoring profond (DB, Redis, API) avec réponses JSON détaillées (UI Client).
+- **Email & Notifications** (`KBA.Framework.Notifications`) : Provider SMTP prêt à l'emploi et abstraction pour intégrations futures (SendGrid, Twilio).
+- **Minimal API Discovery** : Mapping automatique des endpoints implémentant `IMapEndpoints`.
+
+#### Enterprise Features (Studio Redesign)
+- **Local & Cloud AI Support** : Intégration complète de vrais SDKs pour OpenAI, Anthropic (Claude), et LLM locaux (Ollama).
+- **AI Generative UI** : Fonctionnalité "Baguette Magique" pour générer des schémas de base de données via prompt.
+- **SaaS Billing & Stripe** : Gestion des abonnements, webhooks et MRR.
+- **User Impersonation** : Support technique via connexion "en tant que".
+- **Studio Redesign** : Nouveau thème "Premium SaaS" et dashboards interactifs.
 
 ---
 
@@ -390,6 +408,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 | Version | Date | Description |
 |---------|------|-------------|
+| [2.2.0](#220---2026-03-13) | 2026-03-13 | Performance Cloud Native, .NET Aspire, Outbox & Specification Patterns, API Keys |
 | [2.1.0](#210---2026-03-12) | 2026-03-12 | KBA Studio - Visual Entity Builder (Full-Stack) with physical file generation |
 | [2.0.0](#200---2025-03-08) | 2025-03-08 | Waves 1-5 - Documentation, Features, Jobs, Security, AI/CLI |
 | [1.0.0](#100---2024-10-15) | 2024-10-15 | Initial Release |

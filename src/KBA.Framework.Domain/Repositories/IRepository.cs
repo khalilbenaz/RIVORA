@@ -1,4 +1,5 @@
 using KBA.Framework.Domain.Entities;
+using KBA.Framework.Core.Specifications;
 
 namespace KBA.Framework.Domain.Repositories;
 
@@ -18,11 +19,21 @@ public interface IRepository<TEntity, TKey> where TEntity : Entity<TKey>
     Task<TEntity?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Récupère une entité selon une spécification
+    /// </summary>
+    Task<TEntity?> GetAsync(ISpecification<TEntity> spec, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Récupère une liste d'entités
     /// </summary>
     /// <param name="cancellationToken">Token d'annulation</param>
     /// <returns>Liste des entités</returns>
     Task<List<TEntity>> GetListAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Récupère une liste d'entités selon une spécification
+    /// </summary>
+    Task<List<TEntity>> GetListAsync(ISpecification<TEntity> spec, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Insère une nouvelle entité
@@ -53,4 +64,19 @@ public interface IRepository<TEntity, TKey> where TEntity : Entity<TKey>
     /// <param name="cancellationToken">Token d'annulation</param>
     /// <returns>Nombre d'entités</returns>
     Task<int> CountAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Insère un lot d'entités de manière performante
+    /// </summary>
+    Task BulkInsertAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Met à jour un lot d'entités de manière performante
+    /// </summary>
+    Task BulkUpdateAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Supprime un lot d'entités de manière performante
+    /// </summary>
+    Task BulkDeleteAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
 }

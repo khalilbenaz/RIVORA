@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         // Charger la chaîne de connexion depuis ConnectionStrings
-        var connectionString = configuration.GetConnectionString("DefaultConnection") 
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? "Server=(localdb)\\mssqllocaldb;Database=KBAFrameworkDb;Trusted_Connection=true;MultipleActiveResultSets=true;TrustServerCertificate=true";
 
         // Charger les configurations de la base de données
@@ -36,15 +36,16 @@ public static class ServiceCollectionExtensions
             EnableDetailedErrors = bool.Parse(dbSection["EnableDetailedErrors"] ?? "false"),
             MigrationsAssembly = dbSection["MigrationsAssembly"] ?? "KBA.Framework.Infrastructure"
         };
-        
+
         var efSection = configuration.GetSection("EntityFramework");
+        var poolSize = int.Parse(efSection["MaxPoolSize"] ?? "128");
         var efSettings = new EntityFrameworkSettings
         {
             UseNoTracking = bool.Parse(efSection["UseNoTracking"] ?? "true"),
             EnableLazyLoading = bool.Parse(efSection["EnableLazyLoading"] ?? "false")
         };
 
-        services.AddDbContext<KBADbContext>((serviceProvider, options) =>
+        services.AddDbContextPool<KBADbContext>((serviceProvider, options) =>
         {
             // Configuration de base
             options.UseSqlServer(

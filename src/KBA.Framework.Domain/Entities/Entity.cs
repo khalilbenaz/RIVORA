@@ -11,6 +11,29 @@ public abstract class Entity<TKey> : IEquatable<Entity<TKey>>
     /// </summary>
     public TKey Id { get; protected set; } = default!;
 
+    private readonly List<object> _domainEvents = new();
+
+    /// <summary>
+    /// Liste des événements de domaine déclenchés par l'entité
+    /// </summary>
+    public IReadOnlyCollection<object> DomainEvents => _domainEvents.AsReadOnly();
+
+    /// <summary>
+    /// Ajoute un événement de domaine
+    /// </summary>
+    protected void AddDomainEvent(object domainEvent)
+    {
+        _domainEvents.Add(domainEvent);
+    }
+
+    /// <summary>
+    /// Efface tous les événements de domaine
+    /// </summary>
+    public void ClearDomainEvents()
+    {
+        _domainEvents.Clear();
+    }
+
     /// <summary>
     /// Vérifie l'égalité entre deux entités basée sur leur identifiant
     /// </summary>
@@ -19,7 +42,7 @@ public abstract class Entity<TKey> : IEquatable<Entity<TKey>>
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
         if (GetType() != other.GetType()) return false;
-        
+
         return Id?.Equals(other.Id) ?? false;
     }
 

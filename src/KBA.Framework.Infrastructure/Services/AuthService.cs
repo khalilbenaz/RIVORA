@@ -56,7 +56,7 @@ public class AuthService : IAuthService
 
         // Mettre à jour le refresh token dans la base de données
         // (Note: Vous devez implémenter le stockage des refresh tokens)
-        
+
         _logger.LogInformation("Utilisateur connecté avec succès: {UserName}", loginDto.UserName);
 
         return new AuthResponseDto(

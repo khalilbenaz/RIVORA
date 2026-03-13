@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'KBA Framework',
-  tagline: 'Modern Clean Architecture for .NET 8',
+  tagline: 'Modern Clean Architecture for .NET 8/9',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future

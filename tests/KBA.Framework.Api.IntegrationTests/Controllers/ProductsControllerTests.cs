@@ -76,7 +76,7 @@ public class ProductsControllerTests : IClassFixture<WebApplicationFactory<Progr
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        
+
         var createdProduct = await response.Content.ReadFromJsonAsync<ProductDto>();
         Assert.NotNull(createdProduct);
         Assert.Equal("Integration Test Product", createdProduct.Name);

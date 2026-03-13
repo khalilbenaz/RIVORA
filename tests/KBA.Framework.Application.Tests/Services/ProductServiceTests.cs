@@ -19,12 +19,12 @@ public class ProductServiceTests
     {
         _mockRepository = new Mock<IProductRepository>();
         _mockUserContext = new Mock<ICurrentUserContext>();
-        
+
         // Configuration par défaut du contexte utilisateur
         _mockUserContext.Setup(x => x.TenantId).Returns((Guid?)null);
         _mockUserContext.Setup(x => x.UserId).Returns(Guid.NewGuid());
         _mockUserContext.Setup(x => x.IsAuthenticated).Returns(true);
-        
+
         _service = new ProductService(_mockRepository.Object, _mockUserContext.Object);
     }
 
@@ -69,7 +69,7 @@ public class ProductServiceTests
     {
         // Arrange
         var dto = new CreateProductDto("New Product", "Description", 99.99m, 5, "SKU123", "Category1");
-        
+
         _mockRepository.Setup(r => r.InsertAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product p, CancellationToken ct) => p);
 
