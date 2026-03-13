@@ -220,6 +220,42 @@ public static class SecurityServiceCollectionExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// Adds external authentication (SSO) support.
+    /// </summary>
+    public static IServiceCollection AddKbaExternalAuth(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var section = configuration.GetSection("Security:ExternalAuth");
+        var options = section.Get<ExternalProviderOptions>();
+
+        if (options == null || !options.IsEnabled)
+        {
+            return services;
+        }
+
+        services.AddAuthentication()
+            .AddOpenIdConnect("OpenIdConnect", opt =>
+            {
+                opt.Authority = options.Authority;
+                opt.ClientId = options.ClientId;
+                opt.ClientSecret = options.ClientSecret;
+                opt.ResponseType = "code";
+                opt.CallbackPath = options.CallbackPath;
+                opt.SaveTokens = true;
+
+                foreach (var scope in options.Scopes)
+                {
+                    opt.Scope.Add(scope);
+                }
+
+                opt.GetClaimsFromUserInfoEndpoint = true;
+            });
+
+        return services;
+    }
 }
 
 /// <summary>
@@ -251,6 +287,24 @@ public class SecurityOptions
     /// Gets or sets the permission options.
     /// </summary>
     public PermissionOptions Permission { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the external authentication provider options.
+    /// </summary>
+    public ExternalProviderOptions ExternalAuth { get; set; } = new();
+}
+
+/// <summary>
+/// Configuration options for external authentication providers.
+/// </summary>
+public class ExternalProviderOptions
+{
+    public bool IsEnabled { get; set; } = false;
+    public string Authority { get; set; } = string.Empty;
+    public string ClientId { get; set; } = string.Empty;
+    public string ClientSecret { get; set; } = string.Empty;
+    public List<string> Scopes { get; set; } = new() { "openid", "profile", "email" };
+    public string CallbackPath { get; set; } = "/signin-oidc";
 }
 
 /// <summary>

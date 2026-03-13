@@ -133,6 +133,7 @@ try
     // Enregistrement du contexte utilisateur
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
+    builder.Services.AddScoped<KBA.Framework.MultiTenancy.ITenantProvider, KBA.Framework.MultiTenancy.HttpTenantProvider>();
 
     // Enregistrement des services
     builder.Services.AddScoped<IProductService, ProductService>();

@@ -7,6 +7,7 @@ using KBA.Framework.Domain.Entities.MultiTenancy;
 using KBA.Framework.Domain.Entities.Organization;
 using KBA.Framework.Domain.Entities.Permissions;
 using KBA.Framework.Domain.Entities.Products;
+using KBA.Framework.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace KBA.Framework.Infrastructure.Data;
@@ -16,11 +17,25 @@ namespace KBA.Framework.Infrastructure.Data;
 /// </summary>
 public class KBADbContext : DbContext
 {
+    private readonly ITenantProvider? _tenantProvider;
+
     /// <summary>
     /// Constructeur
     /// </summary>
-    public KBADbContext(DbContextOptions<KBADbContext> options) : base(options)
+    public KBADbContext(DbContextOptions<KBADbContext> options, ITenantProvider? tenantProvider = null) : base(options)
     {
+        _tenantProvider = tenantProvider;
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        var connectionString = _tenantProvider?.GetConnectionString();
+        if (!string.IsNullOrEmpty(connectionString))
+        {
+            optionsBuilder.UseSqlServer(connectionString);
+        }
+
+        base.OnConfiguring(optionsBuilder);
     }
 
     // Identity

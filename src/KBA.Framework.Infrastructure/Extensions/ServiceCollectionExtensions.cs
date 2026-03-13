@@ -45,11 +45,14 @@ public static class ServiceCollectionExtensions
             EnableLazyLoading = bool.Parse(efSection["EnableLazyLoading"] ?? "false")
         };
 
-        services.AddDbContextPool<KBADbContext>((serviceProvider, options) =>
+        services.AddDbContext<KBADbContext>((serviceProvider, options) =>
         {
+            var tenantProvider = serviceProvider.GetRequiredService<KBA.Framework.MultiTenancy.ITenantProvider>();
+            var activeConnectionString = tenantProvider.GetConnectionString() ?? dbSettings.ConnectionString;
+
             // Configuration de base
             options.UseSqlServer(
-                dbSettings.ConnectionString,
+                activeConnectionString,
                 sqlOptions =>
                 {
                     // Assembly de migrations
