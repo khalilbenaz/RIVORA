@@ -37,11 +37,11 @@ public class Result<T> : Result
 {
     private readonly T? _value;
 
-    public T Value => IsSuccess 
-        ? _value! 
+    public T Value => IsSuccess
+        ? _value!
         : throw new InvalidOperationException("Impossible d'accéder à la valeur d'un résultat en échec.");
 
-    protected Result(bool isSuccess, T? value, string? error, string? errorCode = null) 
+    protected Result(bool isSuccess, T? value, string? error, string? errorCode = null)
         : base(isSuccess, error, errorCode)
     {
         _value = value;

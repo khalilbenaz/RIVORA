@@ -81,7 +81,7 @@ public class CompletionCommandTests
     {
         // Arrange & Act - tested indirectly
         // The completion script generation is verified through manual testing
-        
+
         // Assert
         Assert.True(true, "Bash completion generation verified manually");
     }

@@ -9,7 +9,7 @@ public static class RealTimeEndpointRouteBuilderExtensions
     public static IEndpointRouteBuilder MapKbaHubs(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapHub<KbaHub>("/hubs/kba");
-        
+
         return endpoints;
     }
 }

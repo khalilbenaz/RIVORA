@@ -31,12 +31,12 @@ public class DoctorCommandTests
         // Arrange - navigate to project root by searching upwards
         var currentDir = new DirectoryInfo(Directory.GetCurrentDirectory());
         DirectoryInfo? projectRoot = currentDir;
-        
+
         while (projectRoot != null && !projectRoot.GetFiles("*.sln").Any())
         {
             projectRoot = projectRoot.Parent;
         }
-        
+
         // Act & Assert
         if (projectRoot != null)
         {

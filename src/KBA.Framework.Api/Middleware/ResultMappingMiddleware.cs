@@ -22,10 +22,10 @@ public class ResultMappingMiddleware
         // Mais en ASP.NET Core MVC, c'est plus complexe car les controllers retournent souvent ActionResult.
         // Pour une implémentation simplifiée dans ce cadre, on va plutôt suggérer 
         // d'utiliser des extensions sur ControllerBase ou un filtre d'action.
-        
+
         // Cependant, pour respecter la roadmap "Result Pattern (Railway-Oriented)", 
         // nous allons fournir une classe de base de contrôleur qui gère cela.
-        
+
         await _next(context);
     }
 }

@@ -46,7 +46,7 @@ public class ApiKeyAuthenticationMiddleware
 
         if (apiKey.TenantId.HasValue)
             claims.Add(new("TenantId", apiKey.TenantId.Value.ToString()));
-        
+
         if (apiKey.UserId.HasValue)
             claims.Add(new(System.Security.Claims.ClaimTypes.NameIdentifier, apiKey.UserId.Value.ToString()));
 

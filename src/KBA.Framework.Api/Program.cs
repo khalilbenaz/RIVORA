@@ -121,7 +121,7 @@ try
     builder.Services.AddOutputCache(options =>
     {
         options.AddBasePolicy(builder => builder.Expire(TimeSpan.FromMinutes(5)));
-        options.AddPolicy("CacheProductList", builder => 
+        options.AddPolicy("CacheProductList", builder =>
             builder.Expire(TimeSpan.FromMinutes(10)).Tag("products"));
     });
 
@@ -145,7 +145,7 @@ try
     builder.Services.AddRateLimiter(options =>
     {
         options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-        
+
         options.AddFixedWindowLimiter("fixed", opt =>
         {
             opt.Window = TimeSpan.FromSeconds(10);

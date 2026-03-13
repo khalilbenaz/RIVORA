@@ -14,7 +14,7 @@ public class DatabaseLocalizationProvider
     public string GetString(string culture, string key)
     {
         var cacheKey = $"{culture}_{key}";
-        
+
         if (_cache.TryGetValue(cacheKey, out var value))
         {
             return value;
@@ -23,7 +23,7 @@ public class DatabaseLocalizationProvider
         // Logic to fetch from DB:
         // var entity = _dbContext.LanguageTexts.FirstOrDefault(t => t.Culture == culture && t.Key == key);
         var entity = new LanguageText { Value = "Translated from DB (Mock)" }; // Mocked
-        
+
         if (entity != null)
         {
             _cache.TryAdd(cacheKey, entity.Value);

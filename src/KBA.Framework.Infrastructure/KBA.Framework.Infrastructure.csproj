@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\KBA.Framework.Domain\KBA.Framework.Domain.csproj" />
     <ProjectReference Include="..\KBA.Framework.Application\KBA.Framework.Application.csproj" />
+    <ProjectReference Include="..\KBA.Framework.MultiTenancy\KBA.Framework.MultiTenancy.csproj" />
   </ItemGroup>
 
   <ItemGroup>

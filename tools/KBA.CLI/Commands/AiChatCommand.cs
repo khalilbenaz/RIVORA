@@ -48,7 +48,7 @@ public static class AiChatCommand
         AnsiConsole.MarkupLine("[bold cyan]Model:[/] " + _model);
         if (_provider == "ollama" || _provider == "kilo")
         {
-            var endpoint = _provider == "ollama" 
+            var endpoint = _provider == "ollama"
                 ? (Environment.GetEnvironmentVariable("OLLAMA_API_URL") ?? "http://localhost:11434/v1")
                 : (Environment.GetEnvironmentVariable("KILO_API_URL") ?? "http://localhost:8080/v1");
             AnsiConsole.MarkupLine("[bold cyan]Endpoint:[/] " + endpoint);
@@ -65,7 +65,7 @@ public static class AiChatCommand
             if (string.IsNullOrWhiteSpace(input))
                 continue;
 
-            if (input.Equals("quit", StringComparison.OrdinalIgnoreCase) || 
+            if (input.Equals("quit", StringComparison.OrdinalIgnoreCase) ||
                 input.Equals("exit", StringComparison.OrdinalIgnoreCase))
             {
                 AnsiConsole.MarkupLine("[yellow]Goodbye![/]");
@@ -129,8 +129,8 @@ public static class AiChatCommand
         if (_provider == "claude")
         {
             var client = new AnthropicClient(_apiKey);
-            var messages = history.Select(h => new Message() 
-            { 
+            var messages = history.Select(h => new Message()
+            {
                 Role = h.Role == "user" ? RoleType.User : RoleType.Assistant,
                 Content = new List<ContentBase> { new TextContent() { Text = h.Content } }
             }).ToList();
@@ -149,13 +149,13 @@ public static class AiChatCommand
         }
         else if (_provider == "ollama" || _provider == "kilo")
         {
-            var endpointUrl = _provider == "ollama" 
+            var endpointUrl = _provider == "ollama"
                 ? (Environment.GetEnvironmentVariable("OLLAMA_API_URL") ?? "http://localhost:11434/v1")
                 : (Environment.GetEnvironmentVariable("KILO_API_URL") ?? "http://localhost:8080/v1");
 
             var clientOptions = new OpenAI.OpenAIClientOptions { Endpoint = new Uri(endpointUrl) };
             var client = new ChatClient(_model, new ApiKeyCredential(_apiKey!), clientOptions);
-            
+
             var messages = new List<ChatMessage> { new SystemChatMessage(systemPrompt) };
             foreach (var h in history)
             {
@@ -172,7 +172,7 @@ public static class AiChatCommand
         {
             var client = new ChatClient(_model, new ApiKeyCredential(_apiKey!));
             var messages = new List<ChatMessage> { new SystemChatMessage(systemPrompt) };
-            
+
             foreach (var h in history)
             {
                 if (h.Role == "user")

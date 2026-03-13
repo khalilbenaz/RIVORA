@@ -18,7 +18,7 @@ public static class DevCommand
         AnsiConsole.MarkupLine("[bold blue]Starting development server...[/]");
         if (watch)
             AnsiConsole.MarkupLine("[yellow]Hot-reload enabled[/]");
-        
+
         var psi = new ProcessStartInfo
         {
             FileName = "dotnet",

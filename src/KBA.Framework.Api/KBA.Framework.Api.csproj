@@ -34,6 +34,7 @@
   <ItemGroup>
     <ProjectReference Include="..\KBA.Framework.Application\KBA.Framework.Application.csproj" />
     <ProjectReference Include="..\KBA.Framework.Infrastructure\KBA.Framework.Infrastructure.csproj" />
+    <ProjectReference Include="..\KBA.Framework.MultiTenancy\KBA.Framework.MultiTenancy.csproj" />
     <ProjectReference Include="..\KBA.Framework.ServiceDefaults\KBA.Framework.ServiceDefaults.csproj" />
     <ProjectReference Include="..\KBA.Framework.RealTime\KBA.Framework.RealTime.csproj" />
     <ProjectReference Include="..\KBA.Framework.Notifications\KBA.Framework.Notifications.csproj" />

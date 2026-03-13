@@ -12,7 +12,7 @@ public static class DockerCommand
         AnsiConsole.MarkupLine("[bold blue]🐳 Generating Docker environment...[/]");
 
         var currentDir = Directory.GetCurrentDirectory();
-        
+
         // Find the API project dynamically
         string apiProjectName = "KBA.Framework.Api"; // Default
         var srcDir = Path.Combine(currentDir, "src");
@@ -53,8 +53,8 @@ ENTRYPOINT [""dotnet"", ""{apiProjectName}.dll""]
         // Generate docker-compose.yml
         var dbImage = database.ToLower() == "postgresql" ? "postgres:15-alpine" : "mcr.microsoft.com/mssql/server:2022-latest";
         var dbPort = database.ToLower() == "postgresql" ? "5432:5432" : "1433:1433";
-        var dbEnv = database.ToLower() == "postgresql" 
-            ? "      - POSTGRES_PASSWORD=SuperSecret123!\n      - POSTGRES_USER=postgres\n      - POSTGRES_DB=kbadb" 
+        var dbEnv = database.ToLower() == "postgresql"
+            ? "      - POSTGRES_PASSWORD=SuperSecret123!\n      - POSTGRES_USER=postgres\n      - POSTGRES_DB=kbadb"
             : "      - ACCEPT_EULA=Y\n      - SA_PASSWORD=SuperSecret123!";
 
         var composeContent = $@"version: '3.8'

@@ -5,7 +5,7 @@ namespace KBA.Framework.Identity.Pro.Services;
 public class ImpersonationService : IImpersonationService
 {
     // Normally injected ITokenService, IUserRepository, etc.
-    
+
     public async Task<string> ImpersonateUserAsync(string adminUserId, string targetTenantId, string targetUserId)
     {
         // 1. Validate Admin has permission "Permissions.Identity.Impersonation"
@@ -14,9 +14,9 @@ public class ImpersonationService : IImpersonationService
         //    - sub = targetUserId
         //    - tenantId = targetTenantId
         //    - impersonatorId = adminUserId (Crucial for audit logs)
-        
+
         await Task.CompletedTask; // Simulate DB/Token work
-        
+
         return "fake-impersonation-jwt-token";
     }
 
@@ -24,9 +24,9 @@ public class ImpersonationService : IImpersonationService
     {
         // 1. Decode token to find impersonatorId
         // 2. Generate a new normal token for the impersonator (Admin)
-        
+
         await Task.CompletedTask;
-        
+
         return "fake-restored-admin-jwt-token";
     }
 }

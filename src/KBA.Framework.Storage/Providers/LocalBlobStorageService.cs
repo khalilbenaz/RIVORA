@@ -49,7 +49,7 @@ public class LocalBlobStorageService : IBlobStorageService
         {
             File.Delete(filePath);
         }
-        
+
         return Task.CompletedTask;
     }
 }

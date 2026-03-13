@@ -52,7 +52,8 @@ public class UsersController : ControllerBase
     /// Récupère un utilisateur par son identifiant
     /// </summary>
     /// <param name="id">Identifiant de l'utilisateur</param>
-    /// <returns>L'utilisateur</returns>
+    /// <param name="cancellationToken">Token d'annulation</param>
+    /// <returns>L'utilisateur ou 404</returns>
     /// <response code="200">Retourne l'utilisateur</response>
     /// <response code="404">Utilisateur non trouvé</response>
     [HttpGet("{id}")]

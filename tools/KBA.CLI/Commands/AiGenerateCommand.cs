@@ -23,10 +23,10 @@ public static class AiGenerateCommand
     /// <param name="language">Target programming language (default: csharp).</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     public static async Task ExecuteAsync(
-        string prompt, 
-        string? output, 
-        string provider, 
-        string model, 
+        string prompt,
+        string? output,
+        string provider,
+        string model,
         string? apiKey,
         string language = "csharp")
     {
@@ -69,7 +69,7 @@ public static class AiGenerateCommand
                 try
                 {
                     var generatedCode = await GenerateCodeAsync(prompt, language);
-                    
+
                     if (!string.IsNullOrWhiteSpace(output))
                     {
                         await WriteToFileAsync(output, generatedCode);

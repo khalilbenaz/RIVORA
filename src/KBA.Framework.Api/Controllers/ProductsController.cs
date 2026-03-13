@@ -74,7 +74,8 @@ public class ProductsController : ControllerBase
     /// Récupère un produit par son identifiant
     /// </summary>
     /// <param name="id">Identifiant du produit</param>
-    /// <returns>Le produit</returns>
+    /// <param name="cancellationToken">Token d'annulation</param>
+    /// <returns>Le produit ou 404</returns>
     /// <response code="200">Retourne le produit</response>
     /// <response code="404">Produit non trouvé</response>
     [HttpGet("{id}")]

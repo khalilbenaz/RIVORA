@@ -27,7 +27,7 @@ public class HttpTenantProvider : ITenantProvider
     public string? GetConnectionString()
     {
         var tenant = GetCurrentTenant();
-        
+
         // If the tenant has a specific connection string, use it.
         if (tenant != null && !string.IsNullOrEmpty(tenant.ConnectionString))
         {

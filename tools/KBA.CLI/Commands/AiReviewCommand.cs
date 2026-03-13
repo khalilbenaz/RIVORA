@@ -22,9 +22,9 @@ public static class AiReviewCommand
     /// <param name="focus">Specific focus areas (security, performance, style, all).</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     public static async Task ExecuteAsync(
-        string path, 
-        string provider, 
-        string model, 
+        string path,
+        string provider,
+        string model,
         string? apiKey,
         string focus = "all")
     {
@@ -50,7 +50,7 @@ public static class AiReviewCommand
         }
 
         var filesToReview = GetFilesToReview(path);
-        
+
         AnsiConsole.MarkupLine($"[bold cyan]Provider:[/] {_provider}");
         AnsiConsole.MarkupLine($"[bold cyan]Model:[/] {_model}");
         AnsiConsole.MarkupLine($"[bold cyan]Focus:[/] {focus}");
@@ -236,7 +236,7 @@ public static class AiReviewCommand
     private static void DisplayReviewResults(List<ReviewIssue> issues)
     {
         AnsiConsole.WriteLine();
-        
+
         if (issues.Count == 0)
         {
             AnsiConsole.MarkupLine("[bold green]✓ No issues found! Code looks great.[/]");
@@ -246,7 +246,7 @@ public static class AiReviewCommand
         var summary = new Table();
         summary.AddColumn("Severity");
         summary.AddColumn("Count");
-        
+
         var critical = issues.Count(i => i.Severity == "Critical");
         var error = issues.Count(i => i.Severity == "Error");
         var warning = issues.Count(i => i.Severity == "Warning");
@@ -279,7 +279,7 @@ public static class AiReviewCommand
 [bold]Category:[/] {issue.Category}
 [bold]Message:[/] {issue.Message}
 [bold green]Suggestion:[/] {issue.Suggestion}");
-            
+
             panel.Header = new PanelHeader($"[{severityColor}]{issue.Severity}[/{severityColor}]");
             panel.Border = BoxBorder.Rounded;
             AnsiConsole.Write(panel);

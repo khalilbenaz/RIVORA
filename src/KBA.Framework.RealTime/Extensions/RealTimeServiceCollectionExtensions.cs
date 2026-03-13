@@ -9,7 +9,7 @@ public static class RealTimeServiceCollectionExtensions
     {
         services.AddSignalR();
         services.AddSingleton<INotificationService, SignalRNotificationService>();
-        
+
         return services;
     }
 }
