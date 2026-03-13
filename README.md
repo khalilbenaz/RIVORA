@@ -110,6 +110,9 @@ Le **Visual Entity Builder** permet de concevoir vos entités de domaine graphiq
 
 🚀 **Nouveau** : Génération **physique** des fichiers directement dans votre solution `src/` en un clic.
 
+### ✨ AI Generative Schema
+Dans l'Entity Builder, une "baguette magique" vous permet de saisir un prompt en langage naturel (ex: "Système de clinique vétérinaire avec Animaux, Clients, Rendez-vous"). L'IA génère instantanément le schéma complet de l'entité (propriétés, types, relations) prêt à être généré physiquement.
+
 ---
 
 ## 🏗️ Architecture
@@ -387,6 +390,9 @@ kba generate aggregate Product Catalog
 
 # Générer CRUD
 kba generate crud User --props "Name:string,Email:string,Age:int"
+
+# Dockerisation One-Click
+kba generate docker --database postgresql
 
 # Chat AI
 kba ai chat --provider openai --model gpt-4o

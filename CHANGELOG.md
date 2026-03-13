@@ -12,6 +12,8 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### 💎 Enterprise Edition (Gratuite) & Studio Redesign
 
 #### Added
+- **AI Generative UI** : Nouvelle fonctionnalité "Baguette Magique" dans l'Entity Builder de KBA Studio. Génère le schéma complet de la base de données (propriétés, types, relations) à partir d'un simple prompt en langage naturel.
+- **Docker One-Click** : Nouvelle commande CLI `kba generate docker` permettant de générer automatiquement un `Dockerfile` optimisé (Multi-stage .NET 8) et un `docker-compose.yml` complet (API, Base de données, Redis).
 - **SaaS Billing & Subscriptions** (`KBA.Framework.SaaS`) : Intégration complète de Stripe.net pour gérer les abonnements, les webhooks, le MRR et la suspension automatique des locataires (Tenants).
 - **User Impersonation** (`KBA.Framework.Identity.Pro`) : API sécurisée permettant à un administrateur de se connecter en tant que client (Tenant) pour le support technique.
 - **Dynamic Localization** (`KBA.Framework.Localization.Dynamic`) : Provider de traduction avec cache (Redis/Memory) permettant de modifier les textes de l'application depuis la base de données sans redéploiement.
