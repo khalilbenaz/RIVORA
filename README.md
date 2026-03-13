@@ -8,6 +8,20 @@
 
 **Framework d'entreprise Cloud-Native basé sur Clean Architecture, DDD et Multi-tenancy pour applications SaaS professionnelles.**
 
+## 💡 À propos de KBA Framework
+
+KBA Framework n'est pas juste un boilerplate de plus ; c'est un **accélérateur de développement d'entreprise** complet et robuste, conçu spécifiquement pour le développement d'applications SaaS et Cloud-Native modernes sous .NET 8/9. 
+
+Né de la volonté de standardiser les meilleures pratiques d'ingénierie logicielle (Clean Architecture, Domain-Driven Design, CQRS), il offre une fondation de production immédiate. Fini les semaines perdues à configurer l'authentification JWT, à mettre en place l'isolation Multi-Tenant, ou à concevoir un système de logs d'audit. KBA Framework intègre ces concepts de manière native et sécurisée.
+
+**Pourquoi choisir KBA Framework ?**
+- 🛡️ **Sécurité "By Design"** : Isolation des données par tenant, rôles dynamiques, chiffrement au repos, et protection OWASP intégrés dès le premier jour.
+- 🚀 **Performance Extrême** : Requêtes compilées, DbContext Pooling, caching à deux niveaux (Memory/Redis), et support natif de gRPC pour les microservices.
+- 🧩 **Modularité Absolue** : Une architecture monolithique modulaire (IKbaModule) qui permet de démarrer simple et de scaler vers des microservices complexes en toute sérénité.
+- 🪄 **Developer Experience (DX) Inégalée** : Accompagné de **KBA Studio** (Interface visuelle IA générative) et du **KBA.CLI**, le framework automatise le code répétitif (CRUD, CQRS, Tests) pour vous laisser vous concentrer sur la valeur métier.
+
+Que vous construisiez un ERP complexe, un backend B2B scalable ou une startup SaaS innovante, KBA Framework vous donne une longueur d'avance décisive.
+
 ✨ **Nouveau dans la v2.2.0 : Performance & Reliability.** Intégration de .NET Aspire pour l'orchestration, Outbox Pattern pour des événements fiables, gRPC haute performance, et optimisations EF Core majeures (Pooling, Compiled Queries).
 
 ---
@@ -186,7 +200,9 @@ kba doctor
 
 ---
 
-## 🤝 Contributing
+## 🤝 Crédits & Contributeurs
+
+Ce framework est maintenu par **Khalil Benazzouz** et co-développé avec l'assistance de **Gemini CLI** (Google AI).
 
 Les contributions sont les bienvenues ! Consultez [CONTRIBUTING.md](CONTRIBUTING.md) pour les détails sur le workflow de PR et les standards de code.
 
