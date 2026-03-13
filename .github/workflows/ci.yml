@@ -11,6 +11,8 @@ on:
       - 'feat/*'
       - 'bugfix/*'
       - 'hotfix/*'
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - main
@@ -174,3 +176,41 @@ jobs:
           echo "| Tests & Coverage | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Code Quality | ${{ needs.code-quality.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Security Scan | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+
+  # Job 5: Publish NuGet Packages (Only on tags)
+  publish-nuget:
+    name: Publish NuGet Packages
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [test, code-quality, security]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Pack KBA.Framework projects
+        run: |
+          # Extraire la version du tag (ex: v2.2.0 -> 2.2.0)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Packing version $VERSION"
+          
+          dotnet pack src/KBA.Framework.Core/KBA.Framework.Core.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+          dotnet pack src/KBA.Framework.Domain/KBA.Framework.Domain.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+          dotnet pack src/KBA.Framework.Application/KBA.Framework.Application.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+          dotnet pack src/KBA.Framework.Infrastructure/KBA.Framework.Infrastructure.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+          dotnet pack src/KBA.Framework.MultiTenancy/KBA.Framework.MultiTenancy.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+          dotnet pack src/KBA.Framework.Security/KBA.Framework.Security.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+          dotnet pack src/KBA.Framework.RealTime/KBA.Framework.RealTime.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+          dotnet pack src/KBA.Framework.Notifications/KBA.Framework.Notifications.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+          dotnet pack tools/KBA.CLI/KBA.CLI.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+
+      - name: Push to NuGet.org
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
