@@ -18,6 +18,7 @@ public class RateLimitService : IRateLimitService
     private readonly IRateLimitStore _store;
     private readonly RateLimitOptions _options;
     private readonly ILogger<RateLimitService> _logger;
+    private readonly EndpointRuleCache _ruleCache;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RateLimitService"/> class.
@@ -25,14 +26,17 @@ public class RateLimitService : IRateLimitService
     /// <param name="store">The rate limit store.</param>
     /// <param name="options">The rate limit options.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="ruleCache">The endpoint rule cache.</param>
     public RateLimitService(
         IRateLimitStore store,
         IOptions<RateLimitOptions> options,
-        ILogger<RateLimitService> logger)
+        ILogger<RateLimitService> logger,
+        EndpointRuleCache ruleCache)
     {
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _ruleCache = ruleCache ?? throw new ArgumentNullException(nameof(ruleCache));
     }
 
     /// <inheritdoc/>
@@ -75,11 +79,8 @@ public class RateLimitService : IRateLimitService
         string? tenantId,
         CancellationToken cancellationToken = default)
     {
-        // Find applicable rules
-        var applicableRules = _options.Rules
-            .Where(r => r.Enabled && MatchesEndpoint(r, endpoint))
-            .OrderBy(r => r.Order)
-            .ToList();
+        // Find applicable rules using pre-compiled cache
+        var applicableRules = _ruleCache.GetRulesForEndpoint(endpoint);
 
         if (applicableRules.Count == 0)
         {
