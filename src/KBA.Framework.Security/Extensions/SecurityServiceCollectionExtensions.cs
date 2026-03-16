@@ -42,6 +42,7 @@ public static class SecurityServiceCollectionExtensions
         // Rate Limiting Services
         services.AddSingleton<IRateLimitStore, InMemoryRateLimitStore>();
         services.AddSingleton<IRateLimitService, RateLimitService>();
+        services.AddSingleton<EndpointRuleCache>();
 
         // Audit Services
         services.AddSingleton<IAuditStore, InMemoryAuditStore>();
@@ -99,6 +100,7 @@ public static class SecurityServiceCollectionExtensions
         // Rate Limiting Services (Redis)
         services.AddSingleton<IRateLimitStore, RedisRateLimitStore>();
         services.AddSingleton<IRateLimitService, RateLimitService>();
+        services.AddSingleton<EndpointRuleCache>();
 
         // Audit Services
         services.AddSingleton<IAuditStore, InMemoryAuditStore>();
@@ -157,6 +159,7 @@ public static class SecurityServiceCollectionExtensions
 
         services.AddSingleton<IRateLimitStore, InMemoryRateLimitStore>();
         services.AddSingleton<IRateLimitService, RateLimitService>();
+        services.AddSingleton<EndpointRuleCache>();
 
         return services;
     }
