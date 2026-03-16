@@ -1,6 +1,7 @@
 using KBA.Framework.Application.DTOs.Users;
 using KBA.Framework.Domain.Entities.Identity;
 using KBA.Framework.Domain.Repositories;
+using KBA.Framework.Security.Services;
 
 namespace KBA.Framework.Application.Services;
 
@@ -11,14 +12,16 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly ICurrentUserContext _currentUserContext;
+    private readonly IPasswordHasher _passwordHasher;
 
     /// <summary>
     /// Constructeur
     /// </summary>
-    public UserService(IUserRepository userRepository, ICurrentUserContext currentUserContext)
+    public UserService(IUserRepository userRepository, ICurrentUserContext currentUserContext, IPasswordHasher passwordHasher)
     {
         _userRepository = userRepository;
         _currentUserContext = currentUserContext;
+        _passwordHasher = passwordHasher;
     }
 
     /// <inheritdoc />
@@ -56,8 +59,7 @@ public class UserService : IUserService
             email: dto.Email
         );
 
-        // Note: Le hachage du mot de passe devrait utiliser un service de hachage approprié
-        user.SetPasswordHash(HashPassword(dto.Password));
+        user.SetPasswordHash(_passwordHasher.HashPassword(dto.Password));
 
         if (!string.IsNullOrWhiteSpace(dto.FirstName) || !string.IsNullOrWhiteSpace(dto.LastName) || !string.IsNullOrWhiteSpace(dto.PhoneNumber))
         {
@@ -102,16 +104,6 @@ public class UserService : IUserService
 
         var user = await _userRepository.GetByUserNameAsync(userName, cancellationToken);
         return user == null ? null : MapToDto(user);
-    }
-
-    /// <summary>
-    /// Hache un mot de passe (implémentation simplifiée - à remplacer par un vrai service de hachage)
-    /// </summary>
-    private static string HashPassword(string password)
-    {
-        // NOTE: Ceci est une implémentation simplifiée
-        // En production, utilisez BCrypt, PBKDF2, ou ASP.NET Core Identity PasswordHasher
-        return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(password));
     }
 
     /// <summary>

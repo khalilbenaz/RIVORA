@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="../KBA.Framework.Core/KBA.Framework.Core.csproj" />
     <ProjectReference Include="../KBA.Framework.Domain/KBA.Framework.Domain.csproj" />
+    <ProjectReference Include="../KBA.Framework.Security/KBA.Framework.Security.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" />
