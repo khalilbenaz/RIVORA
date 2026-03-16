@@ -9,6 +9,7 @@
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="AutoMapper" />
+    <PackageReference Include="Mapperly" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KBA.SaaS.Starter.Domain\KBA.SaaS.Starter.Domain.csproj" />
