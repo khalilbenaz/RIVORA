@@ -1,9 +1,8 @@
 using KBA.Framework.Application.DTOs.Auth;
 using KBA.Framework.Application.Services;
 using KBA.Framework.Domain.Repositories;
+using KBA.Framework.Security.Services;
 using Microsoft.Extensions.Logging;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace KBA.Framework.Infrastructure.Services;
 
@@ -15,15 +14,18 @@ public class AuthService : IAuthService
     private readonly IUserRepository _userRepository;
     private readonly JwtTokenService _jwtTokenService;
     private readonly ILogger<AuthService> _logger;
+    private readonly IPasswordHasher _passwordHasher;
 
     public AuthService(
         IUserRepository userRepository,
         JwtTokenService jwtTokenService,
-        ILogger<AuthService> logger)
+        ILogger<AuthService> logger,
+        IPasswordHasher passwordHasher)
     {
         _userRepository = userRepository;
         _jwtTokenService = jwtTokenService;
         _logger = logger;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto, CancellationToken cancellationToken = default)
@@ -36,8 +38,8 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Nom d'utilisateur ou mot de passe invalide.");
         }
 
-        // Vérifier le mot de passe (Note: Dans une vraie application, utiliser un système de hachage approprié)
-        if (!VerifyPassword(loginDto.Password, user.PasswordHash))
+        // Vérifier le mot de passe
+        if (!_passwordHasher.VerifyPassword(loginDto.Password, user.PasswordHash))
         {
             _logger.LogWarning("Tentative de connexion avec un mot de passe invalide pour l'utilisateur: {UserName}", loginDto.UserName);
             throw new UnauthorizedAccessException("Nom d'utilisateur ou mot de passe invalide.");
@@ -81,15 +83,5 @@ public class AuthService : IAuthService
         // Implémenter la logique de déconnexion
         // Révoquer le refresh token
         throw new NotImplementedException("La fonctionnalité de déconnexion n'est pas encore implémentée.");
-    }
-
-    private bool VerifyPassword(string password, string passwordHash)
-    {
-        // Note: Ceci est une implémentation simplifiée
-        // Dans une vraie application, utiliser BCrypt, Argon2, ou un système similaire
-        using var sha256 = SHA256.Create();
-        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-        var hash = Convert.ToBase64String(hashedBytes);
-        return hash == passwordHash;
     }
 }

@@ -3,23 +3,23 @@
   "spec": "009-replace-sha256-password-hashing-with-bcrypt-argon2",
   "state": "building",
   "subtasks": {
-    "completed": 3,
+    "completed": 4,
     "total": 11,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Create Password Hashing Service",
+    "current": "Replace Insecure Password Hashing",
     "id": null,
-    "total": 4
+    "total": 3
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 5,
+    "number": 6,
     "started_at": "2026-03-16T09:29:48.886963"
   },
-  "last_update": "2026-03-16T09:41:09.281949"
+  "last_update": "2026-03-16T09:42:30.804101"
 }
