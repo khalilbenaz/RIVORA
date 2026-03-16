@@ -7,6 +7,33 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [2.3.0] - 2026-03-16
+
+### 🚀 Native AOT & Performance
+
+#### Changed
+- **AutoMapper → Mapperly Migration** : Remplacement complet d'AutoMapper par Mapperly source generators.
+  - **Compile-Time Mapping** : Toutes les conversions Entity ↔ DTO sont générées à la compilation, éliminant la réflexion runtime.
+  - **Native AOT Ready** : Le framework est désormais compatible avec la compilation AOT native .NET, permettant des déploiements optimisés avec un temps de démarrage réduit.
+  - **Performance Améliorée** : Suppression de l'overhead de réflexion d'AutoMapper, réduisant l'empreinte mémoire et accélérant le démarrage de l'application.
+  - **Compile-Time Safety** : Les erreurs de mapping sont détectées lors du build, pas en production.
+  - **Mappers Créés** :
+    - `TenantMapper` (Tenant ↔ TenantDto)
+    - `UserMapper` (User ↔ UserDto)
+    - `ProductMapper` (Product ↔ ProductDto)
+    - `OrderMapper` (Order ↔ OrderDto)
+    - `FeatureFlagMapper` (FeatureFlag ↔ FeatureFlagDto)
+    - `AuditLogMapper` (AuditLog ↔ AuditLogDto)
+  - **Architecture Pattern** : Tous les mappers utilisent `[Mapper] partial class` avec des méthodes partielles pour un mapping bidirectionnel.
+
+#### Removed
+- **AutoMapper** : Suppression complète du package AutoMapper et de ses dépendances (v12.0.1).
+  - Plus de réflexion runtime pour le mapping d'objets
+  - Déblocage du chemin de compilation Native AOT
+  - Avantage compétitif sur ABP Framework et Clean Architecture templates qui utilisent encore AutoMapper
+
+---
+
 ## [2.2.0] - 2026-03-13
 
 ### 💎 Enterprise Edition (Gratuite) & Performance Cloud Native
