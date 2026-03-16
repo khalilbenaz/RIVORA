@@ -3,23 +3,23 @@
   "spec": "002-migrate-automapper-to-mapperly-source-generators",
   "state": "building",
   "subtasks": {
-    "completed": 2,
+    "completed": 4,
     "total": 12,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Prepare - Add Mapperly",
+    "current": "Migrate - Create All Mappers",
     "id": null,
-    "total": 3
+    "total": 4
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 4,
+    "number": 6,
     "started_at": "2026-03-16T01:29:54.382836"
   },
-  "last_update": "2026-03-16T01:38:16.685799"
+  "last_update": "2026-03-16T01:41:19.977998"
 }
