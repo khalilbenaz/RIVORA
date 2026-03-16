@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "002-migrate-automapper-to-mapperly-source-generators",
+  "spec": "009-replace-sha256-password-hashing-with-bcrypt-argon2",
   "state": "building",
   "subtasks": {
-    "completed": 10,
-    "total": 12,
+    "completed": 3,
+    "total": 11,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Verify - Test & Document",
+    "current": "Create Password Hashing Service",
     "id": null,
-    "total": 3
+    "total": 4
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 12,
-    "started_at": "2026-03-16T01:29:54.382836"
+    "number": 5,
+    "started_at": "2026-03-16T09:29:48.886963"
   },
-  "last_update": "2026-03-16T01:47:43.954957"
+  "last_update": "2026-03-16T09:41:09.281949"
 }

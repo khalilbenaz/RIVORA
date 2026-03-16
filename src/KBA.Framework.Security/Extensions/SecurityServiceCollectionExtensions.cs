@@ -53,6 +53,9 @@ public static class SecurityServiceCollectionExtensions
         services.AddSingleton<IBackupCodeStore, InMemoryBackupCodeStore>();
         services.AddSingleton<ITotpService, TotpService>();
 
+        // Password Hashing Services
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
         // Permission Services
         services.AddSingleton<IPermissionStore, InMemoryPermissionStore>();
         services.AddSingleton<IPermissionService, PermissionService>();
@@ -110,6 +113,9 @@ public static class SecurityServiceCollectionExtensions
         // TOTP Services
         services.AddSingleton<IBackupCodeStore, InMemoryBackupCodeStore>();
         services.AddSingleton<ITotpService, TotpService>();
+
+        // Password Hashing Services
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
         // Permission Services
         services.AddSingleton<IPermissionStore, InMemoryPermissionStore>();
