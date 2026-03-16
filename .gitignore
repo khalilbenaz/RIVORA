@@ -121,3 +121,6 @@ ehthumbs.db
 
 # Documentation generated files
 *.pdf
+
+# Auto Claude data directory
+.auto-claude/
