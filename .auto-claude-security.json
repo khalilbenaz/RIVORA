@@ -127,7 +127,9 @@
     "zip",
     "zsh"
   ],
-  "stack_commands": [],
+  "stack_commands": [
+    "dotnet"
+  ],
   "script_commands": [],
   "custom_commands": [],
   "detected_stack": {

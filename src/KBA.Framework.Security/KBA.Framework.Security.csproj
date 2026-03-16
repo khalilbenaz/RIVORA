@@ -4,9 +4,35 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);NU1903;NU1507;CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Authentication -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
+
+    <!-- EF Core for interceptors -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+
+    <!-- Redis for distributed caching -->
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+
+    <!-- QR Code generation for 2FA -->
+    <PackageReference Include="QRCoder" />
+
+    <!-- TOTP implementation -->
+    <PackageReference Include="Otp.NET" />
+
+    <!-- Password hashing -->
     <PackageReference Include="BCrypt.Net-Next" />
   </ItemGroup>
 

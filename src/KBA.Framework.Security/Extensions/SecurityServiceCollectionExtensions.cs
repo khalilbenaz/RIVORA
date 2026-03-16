@@ -7,8 +7,10 @@ using KBA.Framework.Security.Interfaces;
 using KBA.Framework.Security.Jobs;
 using KBA.Framework.Security.Middleware;
 using KBA.Framework.Security.Services;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
