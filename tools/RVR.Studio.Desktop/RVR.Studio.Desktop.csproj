@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
+    <!-- Single TFM per build — selected via /p:TargetFramework= in CI -->
     <TargetFrameworks>net9.0-windows10.0.19041.0;net9.0-maccatalyst;net9.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace>RVR.Studio.Desktop</RootNamespace>
@@ -9,23 +10,32 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <!-- Display settings -->
+    <!-- App metadata -->
     <ApplicationTitle>RVR Studio</ApplicationTitle>
     <ApplicationId>com.rivora.studio</ApplicationId>
     <ApplicationIdGuid>3E5A8F2B-7C4D-4E6F-9A1B-2D3E4F5A6B7C</ApplicationIdGuid>
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>4.0.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
+
+    <!-- Allow cross-compilation in CI -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
 
     <!-- Windows -->
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+    <WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">None</WindowsPackageType>
 
     <!-- macOS -->
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
+    <CreatePackage Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">true</CreatePackage>
   </PropertyGroup>
 
+  <!-- MAUI only for Windows/macOS TFMs -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebView" Version="9.0.3" />
+  </ItemGroup>
+
   <ItemGroup>
-    <!-- Shared Blazor components from Admin -->
     <ProjectReference Include="..\..\src\ui\RVR.Framework.Admin\RVR.Framework.Admin.csproj" />
   </ItemGroup>
 
