@@ -19,9 +19,11 @@ features:
   - title: Securite Avancee
     details: JWT, OAuth2/OIDC, BCrypt, 2FA/TOTP, AES-256, GDPR toolkit, Account Lockout, Rate Limiting, Audit Trail.
   - title: IA Integree
-    details: Module RAG, NL Query Builder, CLI AI Review avec Architecture/DDD/Security analyzers.
+    details: Module RAG, NL Query Builder, CLI AI Review, AI Guardrails (injection, PII, moderation), AI Agents multi-strategies (ReAct, sequentiel, parallele).
   - title: Export & Integration
     details: PDF, Excel, CSV, Webhooks HMAC-SHA256, GraphQL HotChocolate, Client API type.
+  - title: Modules Extensibles
+    details: SMS multi-provider, Plugin System base sur NuGet avec decouverte automatique, 53 packages NuGet modulaires.
   - title: DevOps Ready
     details: Docker Compose, Testcontainers, CI/CD GitHub Actions, .NET Aspire, Prometheus + Grafana.
 ---

@@ -9,7 +9,8 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>rvr</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <Version>3.3.0</Version>
+    <Version>3.3.3</Version>
+    <PackageId>RVR.CLI</PackageId>
     <Authors>Khalil Benazzouz</Authors>
     <Description>Rivora Framework CLI - Enterprise .NET 9 scaffolding, AI code review, domain design, and migration tool</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -17,7 +18,7 @@
     <PackageProjectUrl>https://github.com/khalilbenaz/RIVORA</PackageProjectUrl>
     <RepositoryUrl>https://github.com/khalilbenaz/RIVORA</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/khalilbenaz/RIVORA/releases/tag/v3.3.0</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/khalilbenaz/RIVORA/releases</PackageReleaseNotes>
     <PackageTags>rivora rvr framework dotnet cli tool generator scaffolding ai review design</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -33,6 +34,5 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="" />
-    <None Include="icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
