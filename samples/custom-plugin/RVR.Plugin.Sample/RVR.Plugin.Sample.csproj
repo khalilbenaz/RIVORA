@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>13.0</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);NU1903</NoWarn>
+
+    <!-- NuGet package metadata -->
+    <PackageId>RVR.Plugin.Sample</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>RIVORA Team</Authors>
+    <Description>A sample RIVORA plugin demonstrating the IRvrPlugin interface.</Description>
+    <PackageTags>rivora;plugin;sample</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\core\RVR.Framework.Core\RVR.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\modules\RVR.Framework.Plugins\RVR.Framework.Plugins.csproj" />
+  </ItemGroup>
+
+</Project>

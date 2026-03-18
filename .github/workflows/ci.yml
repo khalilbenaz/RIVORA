@@ -331,11 +331,30 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Pack RVR.CLI
+      - name: Pack all framework modules
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          echo "Packing RVR.CLI version $VERSION"
-          dotnet pack tools/RVR.CLI/RVR.CLI.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+          echo "Packing all packable projects with version $VERSION"
+          dotnet pack RVR.Framework.sln -c Release -o ./artifacts /p:PackageVersion=$VERSION
+
+      - name: List generated packages
+        run: |
+          echo "## Generated NuGet Packages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          ls -la ./artifacts/*.nupkg
+          ls -la ./artifacts/*.nupkg >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Validate package count
+        run: |
+          PACKAGE_COUNT=$(ls ./artifacts/*.nupkg 2>/dev/null | wc -l)
+          echo "Total packages generated: $PACKAGE_COUNT"
+          if [ "$PACKAGE_COUNT" -le 1 ]; then
+            echo "::error::Expected more than 1 NuGet package but found $PACKAGE_COUNT. Ensure all framework modules are packable."
+            exit 1
+          fi
+          echo "Package validation passed: $PACKAGE_COUNT packages generated."
 
       - name: Push to NuGet.org
         env:
@@ -351,3 +370,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: dotnet nuget push "./artifacts/*.nupkg" --api-key "$GITHUB_TOKEN" --source "https://nuget.pkg.github.com/khalilbenaz/index.json" --skip-duplicate
+
+      - name: Upload NuGet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./artifacts/*.nupkg
+          retention-days: 30

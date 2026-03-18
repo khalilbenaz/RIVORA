@@ -22,6 +22,7 @@ export default defineConfig({
             { text: 'Introduction', items: [
               { text: 'Demarrage rapide', link: '/guide/getting-started' },
               { text: 'Installation', link: '/guide/installation' },
+              { text: 'Creer son projet', link: '/guide/create-project' },
               { text: 'Architecture', link: '/guide/architecture' }
             ]},
             { text: 'Concepts', items: [
@@ -93,6 +94,7 @@ export default defineConfig({
             { text: 'Introduction', items: [
               { text: 'Quick Start', link: '/en/guide/getting-started' },
               { text: 'Installation', link: '/en/guide/installation' },
+              { text: 'Create a Project', link: '/guide/create-project' },
               { text: 'Architecture', link: '/en/guide/architecture' }
             ]},
             { text: 'Concepts', items: [
