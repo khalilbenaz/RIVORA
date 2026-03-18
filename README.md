@@ -233,6 +233,18 @@ rvr benchmark
 
 ---
 
+## Telecharger RVR Studio Desktop
+
+| Plateforme | Lien |
+|------------|------|
+| **Windows** (x64) | [RVR-Studio-Desktop-win-x64.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Desktop-win-x64.zip) |
+| **macOS** | [RVR-Studio-Desktop-macos.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Desktop-macos.zip) |
+| **Linux** (x64) | [RVR-Studio-Desktop-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Desktop-linux-x64.tar.gz) |
+
+> Tous les installeurs sont disponibles sur la page [Releases](https://github.com/khalilbenaz/RIVORA/releases).
+
+---
+
 ## Documentation
 
 | Guide | Contenu |
