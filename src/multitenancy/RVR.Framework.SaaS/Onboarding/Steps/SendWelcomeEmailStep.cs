@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using RVR.Framework.Core.Helpers;
 
 namespace RVR.Framework.SaaS.Onboarding.Steps;
 
@@ -58,7 +59,7 @@ public sealed class SendWelcomeEmailStep : ITenantOnboardingStep
 
                 _logger.LogInformation(
                     "Welcome email sent to {AdminEmail} for tenant {TenantId} via IEmailService",
-                    context.AdminEmail, context.TenantId);
+                    LogSanitizer.Sanitize(context.AdminEmail), context.TenantId);
 
                 return new OnboardingStepResult(Name, true, "Welcome email sent via IEmailService");
             }
@@ -73,7 +74,7 @@ public sealed class SendWelcomeEmailStep : ITenantOnboardingStep
         // Fallback: log the welcome message.
         _logger.LogInformation(
             "Welcome email (log-only) for tenant {TenantId}: To={AdminEmail}, Subject={Subject}",
-            context.TenantId, context.AdminEmail, subject);
+            context.TenantId, LogSanitizer.Sanitize(context.AdminEmail), LogSanitizer.Sanitize(subject));
 
         return new OnboardingStepResult(Name, true, "Welcome email logged (no email service registered)");
     }

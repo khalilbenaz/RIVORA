@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
+using RVR.Framework.Core.Helpers;
 
 namespace RVR.Framework.SaaS.Onboarding;
 
@@ -58,7 +59,7 @@ public sealed class TenantOnboardingService : ITenantOnboardingService
 
         _logger.LogInformation(
             "Starting tenant onboarding for {TenantName} (TenantId={TenantId}) with {StepCount} step(s)",
-            context.TenantName, context.TenantId, orderedSteps.Count);
+            LogSanitizer.Sanitize(context.TenantName), context.TenantId, orderedSteps.Count);
 
         foreach (var step in orderedSteps)
         {
@@ -99,7 +100,7 @@ public sealed class TenantOnboardingService : ITenantOnboardingService
             {
                 _logger.LogWarning(
                     "Tenant {TenantId}: step '{StepName}' failed — {Message}. Initiating compensation",
-                    context.TenantId, step.Name, result.Message);
+                    context.TenantId, step.Name, LogSanitizer.Sanitize(result.Message));
 
                 await CompensateAsync(context, orderedSteps, ct);
 

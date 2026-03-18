@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using RVR.Framework.Core.Helpers;
 
 namespace RVR.Framework.SaaS.Onboarding.Steps;
 
@@ -84,7 +85,7 @@ public sealed class NotifyWebhookStep : ITenantOnboardingStep
         _logger.LogInformation(
             "Webhook notification (log-only) for tenant {TenantId}: event='{EventType}', " +
             "name={TenantName}, plan={Plan}",
-            context.TenantId, EventType, context.TenantName, context.Plan);
+            context.TenantId, EventType, LogSanitizer.Sanitize(context.TenantName), LogSanitizer.Sanitize(context.Plan));
 
         return new OnboardingStepResult(
             Name,

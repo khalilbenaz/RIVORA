@@ -19,4 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../core/RVR.Framework.Core/RVR.Framework.Core.csproj" />
+  </ItemGroup>
 </Project>

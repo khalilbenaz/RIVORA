@@ -1,5 +1,6 @@
 using RVR.Framework.Billing.Extensions;
 using RVR.Framework.Billing.Interfaces;
+using RVR.Framework.Core.Helpers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -61,7 +62,7 @@ public sealed class StripePaymentProvider : IPaymentProvider
             };
         }
 
-        _logger.LogInformation("Creating Stripe checkout session for customer {CustomerId} with price {PriceId}", customerId, priceId);
+        _logger.LogInformation("Creating Stripe checkout session for customer {CustomerId} with price {PriceId}", LogSanitizer.Sanitize(customerId), LogSanitizer.Sanitize(priceId));
 
         var session = await sessionService.CreateAsync(sessionOptions, cancellationToken: cancellationToken);
 
@@ -82,7 +83,7 @@ public sealed class StripePaymentProvider : IPaymentProvider
             ReturnUrl = returnUrl
         };
 
-        _logger.LogInformation("Creating Stripe portal session for customer {CustomerId}", customerId);
+        _logger.LogInformation("Creating Stripe portal session for customer {CustomerId}", LogSanitizer.Sanitize(customerId));
 
         var session = await portalService.CreateAsync(portalOptions, cancellationToken: cancellationToken);
 
@@ -99,7 +100,7 @@ public sealed class StripePaymentProvider : IPaymentProvider
             CancelAtPeriodEnd = true
         };
 
-        _logger.LogInformation("Canceling Stripe subscription {SubscriptionId} at period end", subscriptionId);
+        _logger.LogInformation("Canceling Stripe subscription {SubscriptionId} at period end", LogSanitizer.Sanitize(subscriptionId));
 
         await subscriptionService.UpdateAsync(subscriptionId, updateOptions, cancellationToken: cancellationToken);
     }
@@ -127,7 +128,7 @@ public sealed class StripePaymentProvider : IPaymentProvider
             ProrationBehavior = "create_prorations"
         };
 
-        _logger.LogInformation("Updating Stripe subscription {SubscriptionId} to price {NewPriceId}", subscriptionId, newPriceId);
+        _logger.LogInformation("Updating Stripe subscription {SubscriptionId} to price {NewPriceId}", LogSanitizer.Sanitize(subscriptionId), LogSanitizer.Sanitize(newPriceId));
 
         await subscriptionService.UpdateAsync(subscriptionId, updateOptions, cancellationToken: cancellationToken);
     }

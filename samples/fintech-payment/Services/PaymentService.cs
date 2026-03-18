@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using RVR.Fintech.Payment.Domain;
+using RVR.Framework.Core.Helpers;
 using RVR.Framework.Idempotency.Services;
 using RVR.Framework.Webhooks;
 using RVR.Framework.Webhooks.Models;
@@ -41,7 +42,7 @@ public sealed class PaymentService
             WebhookUrl = webhookUrl
         };
         _merchants[merchant.Id] = merchant;
-        _logger.LogInformation("Marchand enregistre: {MerchantId} ({Name})", merchant.Id, name);
+        _logger.LogInformation("Marchand enregistre: {MerchantId} ({Name})", merchant.Id, LogSanitizer.Sanitize(name));
         return merchant;
     }
 
@@ -98,7 +99,7 @@ public sealed class PaymentService
             merchant.Balance += amount - fee;
             _logger.LogInformation(
                 "Paiement {PaymentId} complete: {Amount} {Currency} (frais: {Fee})",
-                payment.Id, amount, currency, fee);
+                payment.Id, amount, LogSanitizer.Sanitize(currency), fee);
         }
         else
         {

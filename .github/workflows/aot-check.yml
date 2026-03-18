@@ -6,6 +6,10 @@ on:
       - 'src/**'
       - 'samples/aot-minimal/**'
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   aot-publish:
     name: AOT Publish Verification

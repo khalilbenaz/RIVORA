@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using RVR.Framework.Core.Helpers;
 using RVR.Framework.SaaS.Services;
 
 namespace RVR.Framework.SaaS.Onboarding.Steps;
@@ -40,7 +41,7 @@ public sealed class CreateTenantStep : ITenantOnboardingStep
 
         _logger.LogInformation(
             "Creating tenant record for '{TenantName}' (TenantId={TenantId})",
-            context.TenantName, context.TenantId);
+            LogSanitizer.Sanitize(context.TenantName), context.TenantId);
 
         var request = new Models.TenantProvisionRequest
         {
@@ -58,7 +59,7 @@ public sealed class CreateTenantStep : ITenantOnboardingStep
         {
             _logger.LogWarning(
                 "Failed to create tenant record for '{TenantName}': {Error}",
-                context.TenantName, result.ErrorMessage);
+                LogSanitizer.Sanitize(context.TenantName), LogSanitizer.Sanitize(result.ErrorMessage));
 
             return new OnboardingStepResult(Name, false, result.ErrorMessage);
         }
@@ -94,7 +95,7 @@ public sealed class CreateTenantStep : ITenantOnboardingStep
         {
             _logger.LogWarning(
                 "Compensating CreateTenant: no ProvisionedTenantId found in context for tenant '{TenantName}'",
-                context.TenantName);
+                LogSanitizer.Sanitize(context.TenantName));
         }
     }
 }
