@@ -30,25 +30,33 @@ jobs:
       - name: Publish (Windows x64)
         run: |
           dotnet publish ${{ env.PROJECT }} `
-            -f net9.0-windows10.0.19041.0 `
+            /p:TargetFramework=net9.0-windows10.0.19041.0 `
             -c Release `
             -r win-x64 `
-            -p:WindowsPackageType=None `
             -p:SelfContained=true `
             -p:PublishSingleFile=true `
             -p:EnableCompressionInSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
             -o artifacts/win-x64
 
-      - name: Rename to .exe installer
+      - name: Package .exe
         run: |
           $exe = Get-ChildItem artifacts/win-x64/*.exe | Select-Object -First 1
-          Copy-Item $exe.FullName artifacts/RVR-Studio-Setup-win-x64.exe
+          if ($exe) {
+            Copy-Item $exe.FullName artifacts/RVR-Studio-Setup-win-x64.exe
+          } else {
+            # Fallback: zip all publish output
+            Compress-Archive -Path artifacts/win-x64/* -DestinationPath artifacts/RVR-Studio-Setup-win-x64.zip
+            # Rename to .exe won't work, so use zip
+          }
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: desktop-windows
-          path: artifacts/RVR-Studio-Setup-win-x64.exe
+          path: |
+            artifacts/RVR-Studio-Setup-win-x64.exe
+            artifacts/RVR-Studio-Setup-win-x64.zip
 
   build-macos:
     name: macOS (.dmg)
@@ -67,27 +75,23 @@ jobs:
       - name: Publish (macOS)
         run: |
           dotnet publish ${{ env.PROJECT }} \
-            -f net9.0-maccatalyst \
+            /p:TargetFramework=net9.0-maccatalyst \
             -c Release \
             -p:CreatePackage=true \
             -o artifacts/macos
 
       - name: Create DMG
         run: |
-          # Find the .app bundle
+          mkdir -p dmg-staging
+          # Find .app or copy publish output
           APP_PATH=$(find artifacts/macos -name "*.app" -type d | head -1)
-          if [ -z "$APP_PATH" ]; then
-            # Fallback: package the publish output as DMG
-            mkdir -p dmg-staging
-            cp -R artifacts/macos/* dmg-staging/
-            hdiutil create -volname "RVR Studio" -srcfolder dmg-staging -ov -format UDZO artifacts/RVR-Studio-Setup-macos.dmg
-          else
-            mkdir -p dmg-staging
+          if [ -n "$APP_PATH" ]; then
             cp -R "$APP_PATH" dmg-staging/
-            # Create Applications symlink for drag-install
             ln -s /Applications dmg-staging/Applications
-            hdiutil create -volname "RVR Studio" -srcfolder dmg-staging -ov -format UDZO artifacts/RVR-Studio-Setup-macos.dmg
+          else
+            cp -R artifacts/macos/* dmg-staging/
           fi
+          hdiutil create -volname "RVR Studio" -srcfolder dmg-staging -ov -format UDZO artifacts/RVR-Studio-Setup-macos.dmg
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -106,47 +110,20 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Publish (Linux x64 — Blazor Server)
+      - name: Publish (Linux x64)
         run: |
           dotnet publish ${{ env.PROJECT }} \
-            -f net9.0 \
+            /p:TargetFramework=net9.0 \
             -c Release \
             -r linux-x64 \
             --self-contained \
             -p:PublishSingleFile=true \
             -p:EnableCompressionInSingleFile=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
             -o artifacts/linux-x64
 
-      - name: Create AppImage structure
-        run: |
-          mkdir -p RVR-Studio.AppDir/usr/bin
-          mkdir -p RVR-Studio.AppDir/usr/share/icons/hicolor/256x256/apps
-
-          # Copy binary
-          cp artifacts/linux-x64/* RVR-Studio.AppDir/usr/bin/ 2>/dev/null || true
-          chmod +x RVR-Studio.AppDir/usr/bin/*
-
-          # Desktop entry
-          cat > RVR-Studio.AppDir/RVR-Studio.desktop << 'DESKTOP'
-          [Desktop Entry]
-          Name=RVR Studio
-          Exec=RVR.Studio.Desktop
-          Icon=rvr-studio
-          Type=Application
-          Categories=Development;
-          DESKTOP
-
-          # AppRun
-          cat > RVR-Studio.AppDir/AppRun << 'APPRUN'
-          #!/bin/bash
-          SELF=$(readlink -f "$0")
-          HERE=${SELF%/*}
-          exec "${HERE}/usr/bin/RVR.Studio.Desktop" "$@"
-          APPRUN
-          chmod +x RVR-Studio.AppDir/AppRun
-
-          # Package as tar.gz (AppImage tooling optional)
-          tar -czf artifacts/RVR-Studio-linux-x64.tar.gz -C RVR-Studio.AppDir .
+      - name: Create tar.gz
+        run: tar -czf artifacts/RVR-Studio-linux-x64.tar.gz -C artifacts/linux-x64 .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -167,7 +144,7 @@ jobs:
           merge-multiple: true
 
       - name: List artifacts
-        run: ls -lah artifacts/
+        run: find artifacts/ -type f | sort
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -175,7 +152,9 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             artifacts/RVR-Studio-Setup-win-x64.exe
+            artifacts/RVR-Studio-Setup-win-x64.zip
             artifacts/RVR-Studio-Setup-macos.dmg
             artifacts/RVR-Studio-linux-x64.tar.gz
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
