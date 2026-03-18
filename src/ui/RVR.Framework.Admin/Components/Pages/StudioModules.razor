@@ -1,0 +1,84 @@
+@page "/studio/modules"
+
+<PageTitle>Modules — RVR Studio</PageTitle>
+
+<h1>Gestionnaire de Modules</h1>
+<p class="studio-subtitle">Modules RIVORA disponibles. Utilisez <code>rvr add-module</code> ou <code>rvr remove-module</code> pour gerer vos modules.</p>
+
+<div class="toolbar">
+    <input type="text" class="search-input" placeholder="Rechercher un module..." @bind="SearchQuery" @bind:event="oninput" />
+    <span class="result-count">@FilteredModules.Count() modules</span>
+</div>
+
+<div class="modules-grid">
+    @foreach (var mod in FilteredModules)
+    {
+        <div class="module-card">
+            <div class="module-header">
+                <h4>@mod.Name</h4>
+                <span class="badge @(mod.IsCore ? "badge-success" : "badge-method")">
+                    @(mod.IsCore ? "Core" : mod.Category)
+                </span>
+            </div>
+            <p class="module-desc">@mod.Description</p>
+            <div class="module-footer">
+                <code class="module-package">RVR.Framework.@mod.Name</code>
+                <div class="module-actions">
+                    <button class="btn-sm btn-add" title="rvr add-module @mod.Name">+ Add</button>
+                    <button class="btn-sm btn-remove" title="rvr remove-module @mod.Name">- Remove</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string SearchQuery { get; set; } = "";
+
+    private IEnumerable<ModuleInfo> FilteredModules => AllModules
+        .Where(m => string.IsNullOrEmpty(SearchQuery) ||
+                    m.Name.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                    m.Description.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase));
+
+    private static readonly ModuleInfo[] AllModules = new[]
+    {
+        new ModuleInfo("Core", "Abstractions, entites, events, specifications", "Core", true),
+        new ModuleInfo("Domain", "Entites, Value Objects, Domain Events", "Core", true),
+        new ModuleInfo("Application", "CQRS, services, validators, DTOs", "Core", true),
+        new ModuleInfo("Infrastructure", "EF Core, repositories, services externes", "Core", true),
+        new ModuleInfo("Api", "REST Minimal API, controllers, Swagger", "Core", true),
+        new ModuleInfo("Caching", "HybridCache .NET 9 — Memory (L1) + Redis (L2)", "Infrastructure", false),
+        new ModuleInfo("HealthChecks", "Health checks pour DB, Redis, services", "Infrastructure", false),
+        new ModuleInfo("Storage", "Abstraction stockage fichiers (local, Azure Blob, S3)", "Infrastructure", false),
+        new ModuleInfo("Resilience", "Polly v8 — retry, circuit breaker, timeout", "Infrastructure", false),
+        new ModuleInfo("Idempotency", "X-Idempotency-Key middleware", "Infrastructure", false),
+        new ModuleInfo("Events", "Event bus abstraction, domain events", "Messaging", false),
+        new ModuleInfo("Messaging", "IMessageBus — RabbitMQ, Azure Service Bus", "Messaging", false),
+        new ModuleInfo("Notifications", "Multi-canal : email, SMS, push, in-app", "Messaging", false),
+        new ModuleInfo("Webhooks", "Publish/Subscribe, HMAC-SHA256, retry", "Messaging", false),
+        new ModuleInfo("Email", "IEmailSender — SMTP, SendGrid, Mailgun", "Messaging", false),
+        new ModuleInfo("SMS", "Multi-provider — Twilio, Vonage, OVH, Azure", "Messaging", false),
+        new ModuleInfo("Jobs.Hangfire", "Background jobs avec Hangfire", "Jobs", false),
+        new ModuleInfo("Jobs.Quartz", "Planification de taches avec Quartz.NET", "Jobs", false),
+        new ModuleInfo("EventSourcing", "Event store, snapshots, projections", "Architecture", false),
+        new ModuleInfo("Saga", "Saga/Process Manager, orchestration", "Architecture", false),
+        new ModuleInfo("Security", "JWT, BCrypt, OWASP headers, rate limiting", "Security", false),
+        new ModuleInfo("Identity.Pro", "2FA/TOTP, OAuth2/OIDC, session management", "Security", false),
+        new ModuleInfo("Privacy", "RGPD toolkit — [PersonalData], DSAR, consent", "Security", false),
+        new ModuleInfo("MultiTenancy", "Isolation tenant — colonne, schema, base", "Tenancy", false),
+        new ModuleInfo("SaaS", "Billing Stripe, onboarding, analytics", "Tenancy", false),
+        new ModuleInfo("AI", "LLM integration — OpenAI, Claude, Ollama", "AI", false),
+        new ModuleInfo("NaturalQuery", "Text-to-LINQ — requetes en langage naturel", "AI", false),
+        new ModuleInfo("Agents", "Orchestration multi-agents, ReAct strategy", "AI", false),
+        new ModuleInfo("Guardrails", "Prompt injection detection, PII masking", "AI", false),
+        new ModuleInfo("GraphQL", "HotChocolate 14 — filtering, sorting, projection", "Integration", false),
+        new ModuleInfo("Export", "PDF (QuestPDF), Excel (ClosedXML), CSV", "Integration", false),
+        new ModuleInfo("Client", "RvrApiClient type pour consommateurs", "Integration", false),
+        new ModuleInfo("Search", "Elasticsearch integration — facets, highlighting", "Features", false),
+        new ModuleInfo("Workflow", "State machine — etats, transitions, guards", "Features", false),
+        new ModuleInfo("FeatureManagement", "Feature flags dynamiques", "Features", false),
+        new ModuleInfo("Localization.Dynamic", "Localisation dynamique multi-langue", "Features", false),
+    };
+
+    private record ModuleInfo(string Name, string Description, string Category, bool IsCore);
+}

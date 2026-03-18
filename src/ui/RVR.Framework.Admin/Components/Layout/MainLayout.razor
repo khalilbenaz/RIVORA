@@ -3,9 +3,20 @@
 <div class="admin-wrapper">
     <nav class="sidebar">
         <div class="sidebar-header">
-            <h3>RVR Admin</h3>
+            <h3>RVR Studio</h3>
         </div>
         <ul class="sidebar-nav">
+            <li class="nav-section">Studio</li>
+            <li>
+                <NavLink href="/studio" Match="NavLinkMatch.All" class="nav-link">Accueil</NavLink>
+            </li>
+            <li>
+                <NavLink href="/studio/new" class="nav-link">Nouvelle Solution</NavLink>
+            </li>
+            <li>
+                <NavLink href="/studio/modules" class="nav-link">Modules</NavLink>
+            </li>
+            <li class="nav-section">Administration</li>
             <li>
                 <NavLink href="/" Match="NavLinkMatch.All" class="nav-link">Dashboard</NavLink>
             </li>
