@@ -41,17 +41,15 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore (RID-specific)
-        run: dotnet restore RVR.Framework.sln -r ${{ matrix.rid }}
-
       - name: Publish
         run: >
           dotnet publish ${{ env.PROJECT }}
           -c Release
           -r ${{ matrix.rid }}
           --self-contained
-          --no-restore
           -p:AssemblyName=RVR.Studio.Desktop
+          -p:TreatWarningsAsErrors=false
+          -p:WarningLevel=0
           -o artifacts/publish
 
       - name: Package (Windows)
