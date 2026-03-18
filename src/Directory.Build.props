@@ -1,0 +1,22 @@
+<Project>
+  <!-- Import parent Directory.Build.props -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <!-- All src/ projects are packable by default -->
+    <IsPackable>true</IsPackable>
+
+    <!-- Package version - can be overridden via CLI with /p:PackageVersion -->
+    <PackageVersion>1.0.0</PackageVersion>
+  </PropertyGroup>
+
+  <!-- Exclude hosting projects (not libraries) -->
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('AppHost')) Or $(MSBuildProjectName.Contains('ServiceDefaults'))">
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- Exclude UI projects (not libraries) -->
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('Admin')) Or $(MSBuildProjectName.Contains('AuditLogging.UI'))">
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>

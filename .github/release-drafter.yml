@@ -1,0 +1,108 @@
+# Release Drafter Configuration - RIVORA Framework
+# Automatically generates release notes from merged pull requests
+
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: "\U0001F680 Fonctionnalites"
+    labels:
+      - feature
+      - enhancement
+  - title: "\U0001F41B Corrections"
+    labels:
+      - bug
+      - fix
+      - bugfix
+  - title: "\u26A1 Performance"
+    labels:
+      - performance
+      - perf
+  - title: "\U0001F512 Securite"
+    labels:
+      - security
+  - title: "\U0001F4DA Documentation"
+    labels:
+      - documentation
+      - docs
+  - title: "\U0001F3D7\uFE0F CI/CD"
+    labels:
+      - ci
+      - cd
+      - devops
+  - title: "\U0001F4A5 Breaking Changes"
+    labels:
+      - breaking
+      - breaking-change
+  - title: "\U0001F9F9 Maintenance"
+    labels:
+      - chore
+      - maintenance
+      - refactor
+      - dependencies
+
+exclude-labels:
+  - skip-changelog
+
+version-resolver:
+  major:
+    labels:
+      - breaking
+      - breaking-change
+  minor:
+    labels:
+      - feature
+      - enhancement
+  patch:
+    labels:
+      - bug
+      - fix
+      - bugfix
+      - chore
+      - maintenance
+      - refactor
+      - dependencies
+      - documentation
+      - docs
+      - performance
+      - perf
+      - security
+      - ci
+      - cd
+      - devops
+  default: patch
+
+autolabeler:
+  - label: feature
+    branch:
+      - '/^feat(ure)?[/-].+/'
+  - label: bug
+    branch:
+      - '/^(bug)?fix[/-].+/'
+  - label: documentation
+    branch:
+      - '/^docs?[/-].+/'
+  - label: chore
+    branch:
+      - '/^chore[/-].+/'
+  - label: refactor
+    branch:
+      - '/^refactor[/-].+/'
+  - label: performance
+    branch:
+      - '/^perf[/-].+/'
+  - label: ci
+    branch:
+      - '/^ci[/-].+/'
+
+template: |
+  # RIVORA Framework $RESOLVED_VERSION
+
+  $CHANGES
+
+  ## Contributors
+
+  $CONTRIBUTORS
+
+  ---
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

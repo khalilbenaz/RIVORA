@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+
+      - name: Download NuGet artifacts from CI
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: ci.yml
+          commit: ${{ github.sha }}
+          name: nuget-packages
+          path: ./artifacts
+        continue-on-error: true
+
+      - name: Create release with Release Drafter
+        uses: release-drafter/release-drafter@v6
+        with:
+          config-name: release-drafter.yml
+          version: ${{ steps.version.outputs.VERSION }}
+          tag: ${{ github.ref_name }}
+          name: v${{ steps.version.outputs.VERSION }}
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload NuGet packages to release
+        if: hashFiles('artifacts/*.nupkg') != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+
+      - name: Generate CHANGELOG update
+        id: changelog
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          PREV_TAG=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || echo "")
+
+          {
+            echo "## [$TAG] - $(date +%Y-%m-%d)"
+            echo ""
+            if [ -n "$PREV_TAG" ]; then
+              git log --pretty=format:"- %s (%h)" "$PREV_TAG..$TAG"
+            else
+              git log --pretty=format:"- %s (%h)" "$TAG"
+            fi
+            echo ""
+            echo ""
+          } > changelog_entry.md
+
+          cat changelog_entry.md
+
+      - name: Update CHANGELOG.md
+        run: |
+          if [ -f CHANGELOG.md ]; then
+            # Insert new entry after the first heading line
+            awk '
+              /^# / && !inserted {
+                print
+                getline
+                print
+                while ((getline line < "changelog_entry.md") > 0) print line
+                print ""
+                inserted=1
+                next
+              }
+              { print }
+            ' CHANGELOG.md > CHANGELOG.tmp
+            mv CHANGELOG.tmp CHANGELOG.md
+          else
+            {
+              echo "# Changelog"
+              echo ""
+              cat changelog_entry.md
+            } > CHANGELOG.md
+          fi
+
+      - name: Commit CHANGELOG.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout main
+          git add CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "No CHANGELOG changes to commit."
+          else
+            git commit -m "docs: update CHANGELOG.md for ${{ github.ref_name }}"
+            git push origin main
+          fi

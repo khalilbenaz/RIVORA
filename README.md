@@ -19,7 +19,7 @@ RIVORA Framework est un **accelerateur de developpement d'entreprise** complet c
 - **DX Inegalee** : RVR Studio (IDE visuel), RVR.CLI (scaffolding + AI review + migrations), client API type, GraphQL gateway.
 - **IA Integree** : Module RAG, NL Query Builder, AI code review (Architecture, DDD, Performance, Security analyzers).
 
-**Nouveau dans la v3.2.0** : OAuth2/OIDC (Azure AD, Keycloak, Auth0), GDPR Privacy Toolkit, Event Sourcing, Saga/Process Manager, Keyset pagination, Tenant Lifecycle Management, Dynamic Localization, AuditLogging.UI, Value Objects enrichis, `rvr generate client`, `rvr migrate` commands.
+**Nouveau dans la v3.3.0** : AI Guardrails (securite LLM), AI Agents (orchestration multi-agents, ReAct), Module SMS multi-provider (Twilio, Vonage, OVH, Azure), Plugin System (NuGet auto-discovery, signatures), Tenant Onboarding Wizard (Saga rollback), Cross-Tenant Analytics Dashboard, .NET Aspire integration native, Native AOT audit, CI release notes automatiques, NuGet packaging de tous les modules.
 
 ---
 
@@ -121,9 +121,26 @@ Infrastructure (Data)       EF Core 9, Repositories, Services externes
 |---------|-------------|
 | Module RAG | Ingestion, chunking, vector search, chat |
 | NL Query Builder | "produits actifs prix > 100" -> LINQ (FR/EN) |
+| AI Guardrails | Prompt injection detection, PII masking, content moderation, token budget |
+| AI Agents | Orchestration multi-agents, ReAct strategy, pipeline sequentiel/parallele |
 | CLI AI Review | Architecture, DDD, Performance, Security analyzers |
 | LLM Backends | OpenAI, Claude, Ollama (offline) |
 | SARIF Output | Integration CI/CD pipelines |
+
+### Multi-Tenancy & SaaS
+| Feature | Description |
+|---------|-------------|
+| Tenant Isolation | 3 strategies (colonne, schema, base separee) |
+| Tenant Onboarding | Provisioning automatise avec rollback Saga |
+| Cross-Tenant Analytics | Dashboard super-admin, metriques, export CSV |
+| SaaS Billing | Stripe subscriptions, checkout, portal |
+
+### Modules additionnels
+| Feature | Description |
+|---------|-------------|
+| SMS multi-provider | Twilio, Vonage, OVH, Azure Communication Services |
+| Plugin System | NuGet auto-discovery, signature verification, marketplace |
+| .NET Aspire | Integration native, orchestration complète |
 
 ### Integration
 | Feature | Description |
@@ -191,17 +208,20 @@ rvr benchmark
 | Guide | Contenu |
 |-------|---------|
 | [Quickstart](docs/quickstart.md) | Installation en 5 minutes |
+| [Creer son projet](website/guide/create-project.md) | Guide pas-a-pas pour demarrer avec RIVORA |
+| [Architecture (C4)](docs/ARCHITECTURE.md) | Diagrammes C4, dependances, flux HTTP |
+| [Native AOT](docs/NATIVE-AOT.md) | Audit AOT, patterns, compatibilite |
 | [Guide Complet](docs/GUIDE-COMPLET.md) | Architecture et patterns detailles |
 | [Project Context](docs/project-context.md) | Vue d'ensemble technique complete |
-| [Rapport v3.0](docs/RAPPORT-ANOMALIES-AMELIORATIONS.md) | Anomalies corrigees + features implementees |
 | [Modules](docs/modules/) | Documentation par module |
 | [CLI](docs/cli/) | Reference commandes CLI |
+| [Site web](https://khalilbenaz.github.io/RIVORA/) | Documentation complete en ligne |
 
 ---
 
 ## Known Limitations
 
-- **Native AOT**: Not all modules are fully AOT-compatible yet. EF Core and some reflection-heavy modules (AI, GraphQL) require JIT.
+- **Native AOT**: 14 modules compatibles, 27 partiellement, 15 non-compatibles. Voir [docs/NATIVE-AOT.md](docs/NATIVE-AOT.md) pour le detail.
 - **AI Review CLI**: Requires an API key for OpenAI or Claude. Ollama can be used offline but with reduced analysis quality.
 - **SaaS Billing**: Only Stripe is supported. Other payment providers are on the roadmap.
 - **Database Providers**: While 4 providers are supported (SQL Server, PostgreSQL, MySQL, SQLite), advanced features like Event Sourcing are optimized for SQL Server and PostgreSQL.

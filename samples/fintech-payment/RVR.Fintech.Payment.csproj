@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>RVR.Fintech.Payment</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.*" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/core/RVR.Framework.Core/RVR.Framework.Core.csproj" />
+    <ProjectReference Include="../../src/core/RVR.Framework.Domain/RVR.Framework.Domain.csproj" />
+    <ProjectReference Include="../../src/core/RVR.Framework.Application/RVR.Framework.Application.csproj" />
+    <ProjectReference Include="../../src/core/RVR.Framework.Infrastructure/RVR.Framework.Infrastructure.csproj" />
+    <ProjectReference Include="../../src/security/RVR.Framework.Security/RVR.Framework.Security.csproj" />
+    <ProjectReference Include="../../src/modules/RVR.Framework.ApiKeys/RVR.Framework.ApiKeys.csproj" />
+    <ProjectReference Include="../../src/modules/RVR.Framework.Idempotency/RVR.Framework.Idempotency.csproj" />
+    <ProjectReference Include="../../src/integration/RVR.Framework.Webhooks/RVR.Framework.Webhooks.csproj" />
+    <ProjectReference Include="../../src/multitenancy/RVR.Framework.Billing/RVR.Framework.Billing.csproj" />
+  </ItemGroup>
+</Project>

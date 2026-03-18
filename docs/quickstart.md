@@ -110,6 +110,51 @@ git init
 
 > ⚠️ **Important** : En production, utilisez des variables d'environnement pour les secrets.
 
+### Sécuriser les secrets avec User Secrets
+
+Pour éviter de committer des informations sensibles (chaînes de connexion, mots de passe, clés JWT) dans le code source, utilisez **dotnet user-secrets** :
+
+```bash
+# Initialiser User Secrets pour le projet API (une seule fois)
+cd src/api/RVR.Framework.Api
+dotnet user-secrets init
+```
+
+#### Configurer la chaîne de connexion
+
+```bash
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
+  "Server=localhost;Database=RVRFrameworkDb;User Id=sa;Password=MonMotDePasse;MultipleActiveResultSets=true;TrustServerCertificate=true"
+```
+
+#### Configurer la clé JWT
+
+```bash
+dotnet user-secrets set "JwtSettings:SecretKey" "MaCleSecreteSuperLongueEtComplexe123!"
+```
+
+#### Configurer OAuth (Azure AD, Keycloak, Auth0)
+
+```bash
+dotnet user-secrets set "OAuth:AzureAd:ClientSecret" "mon-client-secret"
+dotnet user-secrets set "OAuth:AzureAd:TenantId" "mon-tenant-id"
+```
+
+#### Commandes utiles
+
+```bash
+# Lister tous les secrets configurés
+dotnet user-secrets list
+
+# Supprimer un secret
+dotnet user-secrets remove "ConnectionStrings:DefaultConnection"
+
+# Supprimer tous les secrets
+dotnet user-secrets clear
+```
+
+> 💡 **Note** : Les User Secrets sont stockés localement dans `%APPDATA%\Microsoft\UserSecrets\` (Windows) ou `~/.microsoft/usersecrets/` (Linux/macOS). Ils ne sont **jamais** inclus dans le code source et sont automatiquement chargés en environnement `Development`.
+
 ### Créer la base de données
 
 ```bash
@@ -359,6 +404,7 @@ dotnet test /p:CollectCoverage=true \
 
 ### 🚀 Production checklist
 
+- [ ] Utiliser `dotnet user-secrets` pour le développement local (ne jamais committer de secrets)
 - [ ] Changer la `JwtSettings.SecretKey`
 - [ ] Configurer HTTPS
 - [ ] Mettre `EnableSensitiveDataLogging` à `false`
@@ -366,6 +412,7 @@ dotnet test /p:CollectCoverage=true \
 - [ ] Activer le rate limiting
 - [ ] Configurer le logging centralisé
 - [ ] Mettre en place les health checks
+- [ ] Utiliser des variables d'environnement ou Azure Key Vault pour les secrets en production
 
 ---
 
