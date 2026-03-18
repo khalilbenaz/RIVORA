@@ -7,22 +7,25 @@ RVR Studio Desktop is the official application to create and manage RIVORA proje
 | Platform | File | Format |
 |----------|------|--------|
 | **Windows** (x64) | [RVR-Studio-Setup-win-x64.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.zip) | ZIP |
-| **macOS** | [RVR-Studio-Setup-macos.dmg](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.dmg) | DMG |
+| **macOS** (x64) | [RVR-Studio-Setup-macos.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.tar.gz) | tar.gz |
 | **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | tar.gz |
 
 > Installers are automatically attached to each [GitHub Release](https://github.com/khalilbenaz/RIVORA/releases).
+>
+> Prerequisite: [.NET 9 Runtime](https://dotnet.microsoft.com/download/dotnet/9.0) installed on your machine.
 
 ## Installation
 
 ### Windows
 1. Download `RVR-Studio-Setup-win-x64.zip`
 2. Extract to a folder
-3. Run `RVR.Studio.Desktop.exe` — opens `http://localhost:5200` automatically
+3. Run `install.bat` — installs to `%LOCALAPPDATA%\RVR-Studio` and creates a Desktop shortcut
+4. Double-click the **RVR Studio** shortcut — opens `http://localhost:5200`
 
 ### macOS
-1. Download `RVR-Studio-Setup-macos.dmg`
-2. Open the DMG and drag RVR Studio to `/Applications`
-3. Launch the app
+1. Download `RVR-Studio-Setup-macos.tar.gz`
+2. Extract: `tar -xzf RVR-Studio-Setup-macos.tar.gz -C ~/rvr-studio`
+3. Run: `~/rvr-studio/rvr-studio.sh` — opens `http://localhost:5200`
 
 ### Linux
 ```bash
