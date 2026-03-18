@@ -12,3 +12,7 @@ RIVORA Framework est compose de modules independants enregistrables via `IRvrMod
 | [Webhooks](/modules/webhooks) | `RVR.Framework.Webhooks` | Publish/Subscribe HMAC-SHA256 |
 | [GraphQL](/modules/graphql) | `RVR.Framework.GraphQL` | HotChocolate gateway |
 | [Billing](/modules/billing) | `RVR.Framework.Billing` | Facturation SaaS |
+| [SMS](/modules/sms) | `RVR.Framework.Sms` | Multi-provider SMS (Twilio, Vonage, OVH, Azure) |
+| [AI Guardrails](/modules/guardrails) | `RVR.Framework.AI.Guardrails` | Securite et validation LLM |
+| [AI Agents](/modules/agents) | `RVR.Framework.AI.Agents` | Orchestration multi-agents |
+| [Plugin System](/modules/plugins) | `RVR.Framework.Plugins` | Decouverte et gestion de plugins NuGet |

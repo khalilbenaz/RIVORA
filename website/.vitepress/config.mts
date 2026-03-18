@@ -59,8 +59,10 @@ export default defineConfig({
               { text: 'Webhooks', link: '/modules/webhooks' },
               { text: 'GraphQL', link: '/modules/graphql' },
               { text: 'Billing', link: '/modules/billing' },
+              { text: 'SMS', link: '/modules/sms' },
               { text: 'Localisation', link: '/modules/localization' },
-              { text: 'Audit Logging UI', link: '/modules/audit' }
+              { text: 'Audit Logging UI', link: '/modules/audit' },
+              { text: 'Plugin System', link: '/modules/plugins' }
             ]},
             { text: 'Domaine', items: [
               { text: 'Event Sourcing', link: '/modules/eventsourcing' },
@@ -73,6 +75,8 @@ export default defineConfig({
             ]},
             { text: 'AI & Integration', items: [
               { text: 'AI & NaturalQuery', link: '/modules/ai' },
+              { text: 'AI Guardrails', link: '/modules/guardrails' },
+              { text: 'AI Agents', link: '/modules/agents' },
               { text: 'RivoraApiClient', link: '/modules/client' }
             ]}
           ]
