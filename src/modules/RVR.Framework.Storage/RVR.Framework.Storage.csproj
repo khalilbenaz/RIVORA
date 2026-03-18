@@ -5,6 +5,8 @@
     <LangVersion>13.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>RVR.Framework.Storage</PackageId>
+    <Description>File storage abstraction for RIVORA Framework</Description>
   </PropertyGroup>
 
 </Project>

@@ -5,6 +5,8 @@
     <LangVersion>13.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>RVR.Framework.Notifications</PackageId>
+    <Description>Notification system for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>

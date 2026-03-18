@@ -15,8 +15,13 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <!-- Exclude UI projects (not libraries) -->
+  <!-- Exclude UI projects (not distributable libraries) -->
   <PropertyGroup Condition="$(MSBuildProjectName.Contains('Admin')) Or $(MSBuildProjectName.Contains('AuditLogging.UI'))">
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- Exclude API project (executable, not a library) -->
+  <PropertyGroup Condition="$(MSBuildProjectName) == 'RVR.Framework.Api'">
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 </Project>

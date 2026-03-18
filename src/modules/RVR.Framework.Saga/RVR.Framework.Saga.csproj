@@ -9,6 +9,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>RVR.Framework.Saga</RootNamespace>
     <AssemblyName>RVR.Framework.Saga</AssemblyName>
+    <PackageId>RVR.Framework.Saga</PackageId>
+    <Description>Saga and process manager pattern for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>

@@ -5,6 +5,8 @@
     <LangVersion>13.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>RVR.Framework.Localization.Dynamic</PackageId>
+    <Description>Dynamic localization with database-backed translations</Description>
   </PropertyGroup>
 
   <ItemGroup>

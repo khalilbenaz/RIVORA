@@ -9,6 +9,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>RVR.Framework.Profiling</RootNamespace>
     <AssemblyName>RVR.Framework.Profiling</AssemblyName>
+    <PackageId>RVR.Framework.Profiling</PackageId>
+    <Description>Performance profiling with MiniProfiler for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>
