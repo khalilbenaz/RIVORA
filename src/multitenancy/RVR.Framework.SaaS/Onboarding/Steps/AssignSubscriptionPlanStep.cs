@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using RVR.Framework.Core.Helpers;
 using RVR.Framework.SaaS.Interfaces;
 
 namespace RVR.Framework.SaaS.Onboarding.Steps;
@@ -47,7 +48,7 @@ public sealed class AssignSubscriptionPlanStep : ITenantOnboardingStep
 
         _logger.LogInformation(
             "Assigning subscription plan '{Plan}' to tenant {TenantId}",
-            plan, context.TenantId);
+            LogSanitizer.Sanitize(plan), context.TenantId);
 
         if (_subscriptionService is not null)
         {
@@ -60,13 +61,13 @@ public sealed class AssignSubscriptionPlanStep : ITenantOnboardingStep
 
                 _logger.LogInformation(
                     "Checkout session {SessionId} created for tenant {TenantId} on plan '{Plan}'",
-                    sessionId, context.TenantId, plan);
+                    LogSanitizer.Sanitize(sessionId), context.TenantId, LogSanitizer.Sanitize(plan));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex,
                     "Failed to create checkout session for tenant {TenantId} on plan '{Plan}'",
-                    context.TenantId, plan);
+                    context.TenantId, LogSanitizer.Sanitize(plan));
 
                 return new OnboardingStepResult(Name, false, $"Failed to assign plan: {ex.Message}");
             }
@@ -75,7 +76,7 @@ public sealed class AssignSubscriptionPlanStep : ITenantOnboardingStep
         {
             _logger.LogInformation(
                 "No ISubscriptionService registered. Plan '{Plan}' assigned in-memory for tenant {TenantId}",
-                plan, context.TenantId);
+                LogSanitizer.Sanitize(plan), context.TenantId);
         }
 
         context.Properties["AssignedPlan"] = plan;

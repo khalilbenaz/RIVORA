@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RVR.Framework.Core.Helpers;
 
 namespace RVR.Framework.SaaS.Onboarding;
 
@@ -59,7 +60,7 @@ public sealed class TenantOnboardingController : ControllerBase
         {
             _logger.LogInformation(
                 "Received tenant provisioning request for '{TenantName}' on plan '{Plan}'",
-                request.TenantName, request.Plan);
+                LogSanitizer.Sanitize(request.TenantName), LogSanitizer.Sanitize(request.Plan));
 
             var result = await _onboardingService.ProvisionTenantAsync(request, ct);
 
@@ -67,14 +68,14 @@ public sealed class TenantOnboardingController : ControllerBase
             {
                 _logger.LogWarning(
                     "Tenant provisioning failed for '{TenantName}': {Error}",
-                    request.TenantName, result.Error);
+                    LogSanitizer.Sanitize(request.TenantName), LogSanitizer.Sanitize(result.Error));
 
                 return BadRequest(result);
             }
 
             _logger.LogInformation(
                 "Tenant '{TenantName}' provisioned successfully (TenantId={TenantId})",
-                request.TenantName, result.TenantId);
+                LogSanitizer.Sanitize(request.TenantName), result.TenantId);
 
             return Ok(result);
         }
@@ -86,7 +87,7 @@ public sealed class TenantOnboardingController : ControllerBase
         {
             _logger.LogError(ex,
                 "Unexpected error while provisioning tenant '{TenantName}'",
-                request.TenantName);
+                LogSanitizer.Sanitize(request.TenantName));
 
             return StatusCode(
                 StatusCodes.Status500InternalServerError,

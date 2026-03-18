@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RVR.Framework.Core.Helpers;
 using RVR.Framework.SaaS.Analytics.Models;
 
 namespace RVR.Framework.SaaS.Analytics;
@@ -189,7 +190,7 @@ public sealed class CrossTenantAnalyticsController : ControllerBase
         if (!string.Equals(format, "csv", StringComparison.OrdinalIgnoreCase))
             return BadRequest($"Unsupported export format: '{format}'. Supported formats: csv.");
 
-        _logger.LogInformation("SuperAdmin {User} requested tenant metrics export (format={Format})", User.Identity?.Name, format);
+        _logger.LogInformation("SuperAdmin {User} requested tenant metrics export (format={Format})", User.Identity?.Name, LogSanitizer.Sanitize(format));
 
         // Fetch all tenant metrics without pagination for the export
         var filter = new TenantMetricsFilter(Page: 1, PageSize: 200);

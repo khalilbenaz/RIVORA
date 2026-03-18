@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
+using RVR.Framework.Core.Helpers;
 
 namespace RVR.Framework.SaaS.Onboarding.Steps;
 
@@ -55,7 +56,7 @@ public sealed class CreateAdminUserStep : ITenantOnboardingStep
 
         _logger.LogInformation(
             "Admin user created for tenant {TenantId} with email {AdminEmail}",
-            context.TenantId, context.AdminEmail);
+            context.TenantId, LogSanitizer.Sanitize(context.AdminEmail));
 
         return Task.FromResult(
             new OnboardingStepResult(
