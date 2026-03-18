@@ -6,7 +6,7 @@ using RVR.CLI.Commands;
 
 // Display welcome banner
 AnsiConsole.Write(new FigletText("RVR CLI").Color(Color.Blue));
-AnsiConsole.MarkupLine("[grey]RIVORA Framework CLI v2.1.0 - Studio Integration Edition[/]" + Environment.NewLine);
+AnsiConsole.MarkupLine("[grey]RIVORA Framework CLI v3.4.0 - Extended Edition[/]" + Environment.NewLine);
 
 // Create root command
 var rootCommand = new RootCommand("RIVORA Framework CLI - Scaffolding and code generation for .NET applications");
@@ -228,9 +228,129 @@ var migrateRollbackCommand = new Command("rollback", "Rollback to the previous m
 migrateRollbackCommand.SetHandler(async () => await MigrateCommand.RollbackAsync());
 migrateCommand.AddCommand(migrateRollbackCommand);
 
-// === SEED COMMAND ===
-var seedCommand = new Command("seed", "Seed database with demo data");
-seedCommand.SetHandler(async () => await SeedCommand.ExecuteAsync());
+// === REMOVE-MODULE COMMAND ===
+var removeModuleCommand = new Command("remove-module", "Remove a module from the project (inverse of add-module)");
+var removeModuleNameArg = new Argument<string>("name", "Name of the module to remove");
+var removeModuleDryRunOption = new Option<bool>("--dry-run", "Preview changes without applying them");
+var removeModuleForceOption = new Option<bool>("--force", "Ignore dependency warnings");
+removeModuleCommand.AddArgument(removeModuleNameArg);
+removeModuleCommand.AddOption(removeModuleDryRunOption);
+removeModuleCommand.AddOption(removeModuleForceOption);
+removeModuleCommand.SetHandler(async (name, dryRun, force) => await RemoveModuleCommand.ExecuteAsync(name, dryRun, force), removeModuleNameArg, removeModuleDryRunOption, removeModuleForceOption);
+
+// === SEED COMMAND (with options) ===
+var seedCommand = new Command("seed", "Seed database with test/demo data");
+var seedProfileOption = new Option<string>("--profile", () => "dev", "Seeding profile (dev, demo, test, perf)");
+var seedResetOption = new Option<bool>("--reset", "Truncate database before seeding");
+var seedDryRunOption = new Option<bool>("--dry-run", "Show what would be seeded without executing");
+var seedTenantOption = new Option<string?>("--tenant", "Seed a specific tenant (multi-tenant support)");
+seedCommand.AddOption(seedProfileOption);
+seedCommand.AddOption(seedResetOption);
+seedCommand.AddOption(seedDryRunOption);
+seedCommand.AddOption(seedTenantOption);
+seedCommand.SetHandler(async (profile, reset, dryRun, tenant) => await SeedCommand.ExecuteAsync(profile, reset, dryRun, tenant), seedProfileOption, seedResetOption, seedDryRunOption, seedTenantOption);
+
+// Generate Seed (subcommand under generate)
+var genSeedCommand = new Command("seed", "Generate a data seeder scaffold for an entity");
+var genSeedEntityArg = new Argument<string>("entity", "Name of the entity to generate a seeder for");
+var genSeedProfileOption = new Option<string>("--profile", () => "dev", "Default seeding profile");
+genSeedCommand.AddArgument(genSeedEntityArg);
+genSeedCommand.AddOption(genSeedProfileOption);
+genSeedCommand.SetHandler(async (entity, profile) => await SeedCommand.GenerateAsync(entity, profile), genSeedEntityArg, genSeedProfileOption);
+generateCommand.AddCommand(genSeedCommand);
+
+// === PUBLISH COMMAND ===
+var publishCommand = new Command("publish", "Publish application (Docker, NuGet, Azure, self-contained)");
+var publishTargetOption = new Option<string>("--target", () => "auto", "Publish target (docker, nuget, azure, self-contained, auto)");
+var publishSkipTestsOption = new Option<bool>("--skip-tests", "Skip running tests before publishing");
+var publishDryRunOption = new Option<bool>("--dry-run", "Show commands without executing them");
+var publishRegistryOption = new Option<string?>("--registry", "Container/package registry URL");
+var publishTagOption = new Option<string?>("--tag", "Version tag override");
+publishCommand.AddOption(publishTargetOption);
+publishCommand.AddOption(publishSkipTestsOption);
+publishCommand.AddOption(publishDryRunOption);
+publishCommand.AddOption(publishRegistryOption);
+publishCommand.AddOption(publishTagOption);
+publishCommand.SetHandler(async (target, skipTests, dryRun, registry, tag) => await PublishCommand.ExecuteAsync(target, skipTests, dryRun, registry, tag), publishTargetOption, publishSkipTestsOption, publishDryRunOption, publishRegistryOption, publishTagOption);
+
+// === ENV COMMAND (with subcommands) ===
+var envCommand = new Command("env", "Manage environments and secrets");
+
+var envListCommand = new Command("list", "List available environments");
+envListCommand.SetHandler(async () => await EnvCommand.ListAsync());
+envCommand.AddCommand(envListCommand);
+
+var envGetCommand = new Command("get", "Get a configuration value");
+var envGetKeyArg = new Argument<string>("key", "Configuration key (supports nested keys with ':' separator)");
+envGetCommand.AddArgument(envGetKeyArg);
+envGetCommand.SetHandler(async (key) => await EnvCommand.GetAsync(key), envGetKeyArg);
+envCommand.AddCommand(envGetCommand);
+
+var envSetCommand = new Command("set", "Set a configuration value");
+var envSetKeyArg = new Argument<string>("key", "Configuration key");
+var envSetValueArg = new Argument<string>("value", "Configuration value");
+envSetCommand.AddArgument(envSetKeyArg);
+envSetCommand.AddArgument(envSetValueArg);
+envSetCommand.SetHandler(async (key, value) => await EnvCommand.SetAsync(key, value), envSetKeyArg, envSetValueArg);
+envCommand.AddCommand(envSetCommand);
+
+var envRemoveCommand = new Command("remove", "Remove a configuration key");
+var envRemoveKeyArg = new Argument<string>("key", "Configuration key to remove");
+envRemoveCommand.AddArgument(envRemoveKeyArg);
+envRemoveCommand.SetHandler(async (key) => await EnvCommand.RemoveAsync(key), envRemoveKeyArg);
+envCommand.AddCommand(envRemoveCommand);
+
+var envSwitchCommand = new Command("switch", "Switch active environment");
+var envSwitchEnvArg = new Argument<string>("environment", "Target environment (Development, Staging, Production)");
+envSwitchCommand.AddArgument(envSwitchEnvArg);
+envSwitchCommand.SetHandler(async (env) => await EnvCommand.SwitchAsync(env), envSwitchEnvArg);
+envCommand.AddCommand(envSwitchCommand);
+
+var envDiffCommand = new Command("diff", "Compare two environments");
+var envDiffEnv1Arg = new Argument<string>("env1", "First environment");
+var envDiffEnv2Arg = new Argument<string>("env2", "Second environment");
+envDiffCommand.AddArgument(envDiffEnv1Arg);
+envDiffCommand.AddArgument(envDiffEnv2Arg);
+envDiffCommand.SetHandler(async (env1, env2) => await EnvCommand.DiffAsync(env1, env2), envDiffEnv1Arg, envDiffEnv2Arg);
+envCommand.AddCommand(envDiffCommand);
+
+var envSecretsCommand = new Command("secrets", "Manage .NET User Secrets");
+
+var envSecretsInitCommand = new Command("init", "Initialize .NET User Secrets");
+envSecretsInitCommand.SetHandler(async () => await EnvCommand.SecretsInitAsync());
+envSecretsCommand.AddCommand(envSecretsInitCommand);
+
+var envSecretsSetCommand = new Command("set", "Set a secret value");
+var envSecretsSetKeyArg = new Argument<string>("key", "Secret key");
+var envSecretsSetValueArg = new Argument<string>("value", "Secret value");
+envSecretsSetCommand.AddArgument(envSecretsSetKeyArg);
+envSecretsSetCommand.AddArgument(envSecretsSetValueArg);
+envSecretsSetCommand.SetHandler(async (key, value) => await EnvCommand.SecretsSetAsync(key, value), envSecretsSetKeyArg, envSecretsSetValueArg);
+envSecretsCommand.AddCommand(envSecretsSetCommand);
+
+envCommand.AddCommand(envSecretsCommand);
+
+var envExportCommand = new Command("export", "Export configuration to file");
+var envExportFormatOption = new Option<string>("--format", () => "dotenv", "Export format (dotenv, json, yaml)");
+envExportCommand.AddOption(envExportFormatOption);
+envExportCommand.SetHandler(async (format) => await EnvCommand.ExportAsync(format), envExportFormatOption);
+envCommand.AddCommand(envExportCommand);
+
+var envImportCommand = new Command("import", "Import configuration from .env file");
+var envImportFileOption = new Option<string>("--file", () => ".env", "File to import");
+envImportCommand.AddOption(envImportFileOption);
+envImportCommand.SetHandler(async (file) => await EnvCommand.ImportAsync(file), envImportFileOption);
+envCommand.AddCommand(envImportCommand);
+
+// === UPGRADE COMMAND ===
+var upgradeCommand = new Command("upgrade", "Migration assistant between major RIVORA versions");
+var upgradeTargetOption = new Option<string?>("--to", "Target version to upgrade to");
+var upgradeDryRunOption = new Option<bool>("--dry-run", "Preview changes without applying them");
+var upgradeListOption = new Option<bool>("--list", "List available migrations");
+upgradeCommand.AddOption(upgradeTargetOption);
+upgradeCommand.AddOption(upgradeDryRunOption);
+upgradeCommand.AddOption(upgradeListOption);
+upgradeCommand.SetHandler(async (target, dryRun, list) => await UpgradeCommand.ExecuteAsync(target, dryRun, list), upgradeTargetOption, upgradeDryRunOption, upgradeListOption);
 
 // === COMPLETION COMMAND ===
 var completionCommand = new Command("completion", "Generate shell completion script");
@@ -243,11 +363,15 @@ rootCommand.AddCommand(newCommand);
 rootCommand.AddCommand(generateCommand);
 rootCommand.AddCommand(aiCommand);
 rootCommand.AddCommand(addModuleCommand);
+rootCommand.AddCommand(removeModuleCommand);
 rootCommand.AddCommand(benchmarkCommand);
 rootCommand.AddCommand(doctorCommand);
 rootCommand.AddCommand(devCommand);
 rootCommand.AddCommand(migrateCommand);
 rootCommand.AddCommand(seedCommand);
+rootCommand.AddCommand(publishCommand);
+rootCommand.AddCommand(envCommand);
+rootCommand.AddCommand(upgradeCommand);
 rootCommand.AddCommand(completionCommand);
 
 // Build and run parser

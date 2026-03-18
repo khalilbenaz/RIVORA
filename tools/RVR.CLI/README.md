@@ -1,9 +1,9 @@
-# RVR CLI v3.3.0 - RIVORA Framework CLI
+# RVR CLI v3.4.0 - RIVORA Framework CLI
 
 [![NuGet](https://img.shields.io/nuget/v/RVR.CLI.svg)](https://www.nuget.org/packages/RVR.CLI/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-**CLI enterprise pour le framework RIVORA (.NET 9)** — scaffolding de projets, CRUD, modules, AI code review, domain design et migrations.
+**CLI enterprise pour le framework RIVORA (.NET 9)** — scaffolding de projets, CRUD, modules, AI code review, domain design, migrations, environnements, publication et assistant de migration.
 
 ## Installation
 
@@ -50,8 +50,23 @@ rvr generate client --url http://api/swagger/v1/swagger.json
 # Tests unitaires scaffoldes
 rvr generate test Product
 
+# Data seeder scaffold
+rvr generate seed Product --profile demo
+
 # Module complet (Domain/Application/Infrastructure/API/Tests)
 rvr add-module Inventory
+```
+
+### Module Management
+
+```bash
+# Ajouter un module
+rvr add-module Inventory
+
+# Retirer un module proprement
+rvr remove-module Caching
+rvr remove-module Caching --dry-run    # Previsualiser sans modifier
+rvr remove-module Caching --force      # Ignorer les avertissements
 ```
 
 ### AI Review
@@ -88,13 +103,75 @@ rvr ai generate "Create a payment service with Stripe integration"
 rvr ai design --provider openai
 ```
 
-### Migrations
+### Database
 
 ```bash
-rvr migrate generate AddOrderTable    # Generer migration EF Core
+# Migrations EF Core
+rvr migrate generate AddOrderTable    # Generer migration
 rvr migrate apply                     # Appliquer les migrations
 rvr migrate list                      # Lister les migrations
 rvr migrate rollback                  # Annuler derniere migration
+
+# Seeding de donnees
+rvr seed                              # Seed par defaut (profil dev)
+rvr seed --profile demo               # Seed avec le profil demo
+rvr seed --profile test --reset       # Truncate + reseed
+rvr seed --dry-run                    # Previsualiser sans executer
+rvr seed --tenant my-tenant           # Seed multi-tenant
+```
+
+### Environnements & Secrets
+
+```bash
+# Gestion des environnements
+rvr env list                          # Lister les environnements
+rvr env get ConnectionStrings:Default # Lire une variable
+rvr env set DB:Host "localhost"       # Definir une variable
+rvr env remove DB:Host               # Supprimer une variable
+rvr env switch Production             # Changer d'environnement
+rvr env diff Development Production   # Comparer deux envs
+
+# Secrets (.NET User Secrets)
+rvr env secrets init                  # Initialiser User Secrets
+rvr env secrets set ApiKey "sk-..."   # Definir un secret
+
+# Import/Export
+rvr env export --format dotenv        # Exporter en .env
+rvr env export --format json          # Exporter en JSON
+rvr env export --format yaml          # Exporter en YAML
+rvr env import --file .env            # Importer depuis .env
+```
+
+### Publication
+
+```bash
+# Publication unifiee (auto-detection)
+rvr publish
+
+# Cibles specifiques
+rvr publish --target docker           # Image Docker (build + push)
+rvr publish --target nuget            # Packages NuGet (pack + push)
+rvr publish --target self-contained   # Binaires autonomes (win/linux/mac)
+rvr publish --target azure            # Azure App Service
+
+# Options
+rvr publish --skip-tests              # Ignorer les tests
+rvr publish --dry-run                 # Previsualiser les commandes
+rvr publish --registry ghcr.io/user   # Registry custom
+rvr publish --tag 2.0.0               # Version tag custom
+```
+
+### Upgrade (Migration entre versions)
+
+```bash
+# Lister les migrations disponibles
+rvr upgrade --list
+
+# Previsualiser la migration
+rvr upgrade --to 4.0 --dry-run
+
+# Appliquer la migration
+rvr upgrade --to 4.0
 ```
 
 ### DevOps & Diagnostic
@@ -127,16 +204,12 @@ rvr dev          # Serveur de developpement
 Pour eviter de stocker des cles API dans vos fichiers :
 
 ```bash
-# Cle OpenAI
-dotnet user-secrets set "AI:OpenAI:ApiKey" "sk-..."
+# Via rvr env (recommande)
+rvr env secrets init
+rvr env secrets set "AI:OpenAI:ApiKey" "sk-..."
+rvr env secrets set "AI:Anthropic:ApiKey" "sk-ant-..."
 
-# Cle Anthropic
-dotnet user-secrets set "AI:Anthropic:ApiKey" "sk-ant-..."
-```
-
-Ou via variables d'environnement :
-
-```bash
+# Ou via variables d'environnement
 export RVR_OPENAI_KEY="sk-..."
 export RVR_ANTHROPIC_KEY="sk-ant-..."
 ```
@@ -158,7 +231,7 @@ RIVORA est un framework .NET 9 enterprise avec :
 
 - [Documentation](https://khalilbenaz.github.io/RIVORA/)
 - [GitHub](https://github.com/khalilbenaz/RIVORA)
-- [Release Notes](https://github.com/khalilbenaz/RIVORA/releases/tag/v3.3.0)
+- [Release Notes](https://github.com/khalilbenaz/RIVORA/releases)
 - [Guide : Creer son projet](https://khalilbenaz.github.io/RIVORA/guide/create-project)
 
 ## License
