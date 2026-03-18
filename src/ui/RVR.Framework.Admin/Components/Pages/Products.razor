@@ -2,6 +2,7 @@
 @using RVR.Framework.Infrastructure.Data
 @using RVR.Framework.Domain.Entities.Products
 @inject RVRDbContext DbContext
+@inject DatabaseStatus DbStatus
 
 <h1>Produits</h1>
 
@@ -59,7 +60,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadProducts();
+        if (!DbStatus.IsConfigured) return;
+        try { await LoadProducts(); } catch { }
     }
 
     private async Task Search()
