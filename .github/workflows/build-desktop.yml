@@ -10,12 +10,32 @@ permissions:
 
 env:
   DOTNET_VERSION: '9.0.x'
-  PROJECT: tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj
+  PROJECT: src/ui/RVR.Framework.Admin/RVR.Framework.Admin.csproj
 
 jobs:
-  build-windows:
-    name: Windows (.exe)
-    runs-on: windows-latest
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            rid: win-x64
+            artifact: RVR-Studio-Setup-win-x64.exe
+            ext: exe
+          - name: macOS
+            os: macos-latest
+            rid: osx-x64
+            artifact: RVR-Studio-Setup-macos
+            ext: dmg
+          - name: Linux
+            os: ubuntu-latest
+            rid: linux-x64
+            artifact: RVR-Studio-linux-x64.tar.gz
+            ext: tar.gz
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,125 +44,64 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Install MAUI workload
-        run: dotnet workload install maui-windows
+      - name: Publish
+        run: >
+          dotnet publish ${{ env.PROJECT }}
+          -c Release
+          -r ${{ matrix.rid }}
+          --self-contained
+          -p:PublishSingleFile=true
+          -p:EnableCompressionInSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:AssemblyName=RVR.Studio.Desktop
+          -o artifacts/publish
 
-      - name: Restore (Windows TFM)
-        run: dotnet restore ${{ env.PROJECT }} /p:TargetFramework=net9.0-windows10.0.19041.0
-
-      - name: Publish (Windows x64)
+      - name: Package (Windows .exe)
+        if: matrix.ext == 'exe'
+        shell: pwsh
         run: |
-          dotnet publish ${{ env.PROJECT }} `
-            /p:TargetFramework=net9.0-windows10.0.19041.0 `
-            -c Release `
-            -r win-x64 `
-            --no-restore `
-            -p:SelfContained=true `
-            -p:PublishSingleFile=true `
-            -p:EnableCompressionInSingleFile=true `
-            -p:IncludeNativeLibrariesForSelfExtract=true `
-            -o artifacts/win-x64
+          Copy-Item artifacts/publish/RVR.Studio.Desktop.exe artifacts/${{ matrix.artifact }}
 
-      - name: Package
-        run: |
-          $exe = Get-ChildItem artifacts/win-x64/*.exe | Select-Object -First 1
-          if ($exe) {
-            Copy-Item $exe.FullName artifacts/RVR-Studio-Setup-win-x64.exe
-          } else {
-            Compress-Archive -Path artifacts/win-x64/* -DestinationPath artifacts/RVR-Studio-Setup-win-x64.zip
-          }
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: desktop-windows
-          path: |
-            artifacts/RVR-Studio-Setup-win-x64.exe
-            artifacts/RVR-Studio-Setup-win-x64.zip
-
-  build-macos:
-    name: macOS (.dmg)
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Install MAUI workload
-        run: dotnet workload install maui-maccatalyst
-
-      - name: Restore (macOS TFM)
-        run: dotnet restore ${{ env.PROJECT }} /p:TargetFramework=net9.0-maccatalyst
-
-      - name: Publish (macOS)
-        run: |
-          dotnet publish ${{ env.PROJECT }} \
-            /p:TargetFramework=net9.0-maccatalyst \
-            -c Release \
-            --no-restore \
-            -p:CreatePackage=true \
-            -o artifacts/macos
-
-      - name: Create DMG
+      - name: Package (macOS .dmg)
+        if: matrix.ext == 'dmg'
         run: |
           mkdir -p dmg-staging
-          APP_PATH=$(find artifacts/macos -name "*.app" -type d | head -1)
-          if [ -n "$APP_PATH" ]; then
-            cp -R "$APP_PATH" dmg-staging/
-            ln -s /Applications dmg-staging/Applications
-          else
-            cp -R artifacts/macos/* dmg-staging/
-          fi
-          hdiutil create -volname "RVR Studio" -srcfolder dmg-staging -ov -format UDZO artifacts/RVR-Studio-Setup-macos.dmg
+          cp artifacts/publish/RVR.Studio.Desktop dmg-staging/
+          chmod +x dmg-staging/RVR.Studio.Desktop
+          # Create .app bundle
+          mkdir -p "dmg-staging/RVR Studio.app/Contents/MacOS"
+          cp dmg-staging/RVR.Studio.Desktop "dmg-staging/RVR Studio.app/Contents/MacOS/"
+          cat > "dmg-staging/RVR Studio.app/Contents/Info.plist" << 'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleExecutable</key><string>RVR.Studio.Desktop</string>
+            <key>CFBundleIdentifier</key><string>com.rivora.studio</string>
+            <key>CFBundleName</key><string>RVR Studio</string>
+            <key>CFBundleVersion</key><string>4.0.0</string>
+          </dict>
+          </plist>
+          PLIST
+          rm dmg-staging/RVR.Studio.Desktop
+          ln -s /Applications dmg-staging/Applications
+          hdiutil create -volname "RVR Studio" -srcfolder dmg-staging -ov -format UDZO "artifacts/${{ matrix.artifact }}.dmg"
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: desktop-macos
-          path: artifacts/RVR-Studio-Setup-macos.dmg
-
-  build-linux:
-    name: Linux (self-contained)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore (net9.0)
-        run: dotnet restore ${{ env.PROJECT }} /p:TargetFramework=net9.0
-
-      - name: Publish (Linux x64)
+      - name: Package (Linux .tar.gz)
+        if: matrix.ext == 'tar.gz'
         run: |
-          dotnet publish ${{ env.PROJECT }} \
-            /p:TargetFramework=net9.0 \
-            -c Release \
-            -r linux-x64 \
-            --no-restore \
-            --self-contained \
-            -p:PublishSingleFile=true \
-            -p:EnableCompressionInSingleFile=true \
-            -p:IncludeNativeLibrariesForSelfExtract=true \
-            -o artifacts/linux-x64
-
-      - name: Create tar.gz
-        run: tar -czf artifacts/RVR-Studio-linux-x64.tar.gz -C artifacts/linux-x64 .
+          chmod +x artifacts/publish/RVR.Studio.Desktop
+          tar -czf "artifacts/${{ matrix.artifact }}" -C artifacts/publish .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-linux
-          path: artifacts/RVR-Studio-linux-x64.tar.gz
+          name: desktop-${{ matrix.rid }}
+          path: artifacts/${{ matrix.artifact }}*
 
   publish-release:
-    name: Attach installers to Release
-    needs: [build-windows, build-macos, build-linux]
+    name: Attach to Release
+    needs: [build]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -161,7 +120,6 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             artifacts/RVR-Studio-Setup-win-x64.exe
-            artifacts/RVR-Studio-Setup-win-x64.zip
             artifacts/RVR-Studio-Setup-macos.dmg
             artifacts/RVR-Studio-linux-x64.tar.gz
           fail_on_unmatched_files: false
