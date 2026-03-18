@@ -2,6 +2,17 @@
 
 ## [v4.0.0-preview.1] - 2026-03-18
 
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
 - docs: add Desktop download links to README (364a8cd)
 - feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
 - feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
