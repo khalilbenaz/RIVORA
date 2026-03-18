@@ -5,6 +5,8 @@
     <LangVersion>13.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>RVR.Framework.SaaS</PackageId>
+    <Description>SaaS features including tenant onboarding and cross-tenant analytics</Description>
   </PropertyGroup>
 
   <ItemGroup>

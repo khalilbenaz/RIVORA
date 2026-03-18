@@ -9,6 +9,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>RVR.Framework.EventSourcing</RootNamespace>
     <AssemblyName>RVR.Framework.EventSourcing</AssemblyName>
+    <PackageId>RVR.Framework.EventSourcing</PackageId>
+    <Description>Event sourcing implementation for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>

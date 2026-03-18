@@ -8,6 +8,8 @@
     <AssemblyName>RVR.Framework.Data.Abstractions</AssemblyName>
     <LangVersion>13.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>RVR.Framework.Data.Abstractions</PackageId>
+    <Description>Database provider abstractions for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>

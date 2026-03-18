@@ -6,6 +6,8 @@
     <RootNamespace>RVR.Framework.Application</RootNamespace>
     <AssemblyName>RVR.Framework.Application</AssemblyName>
     <LangVersion>13.0</LangVersion>
+    <PackageId>RVR.Framework.Application</PackageId>
+    <Description>Application layer with CQRS (MediatR), services, validators and DTOs</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\RVR.Framework.Core\RVR.Framework.Core.csproj" />

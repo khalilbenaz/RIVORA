@@ -24,6 +24,8 @@
     <LangVersion>13.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>RVR.Framework.Infrastructure</PackageId>
+    <Description>Infrastructure layer with EF Core repositories and external service implementations</Description>
   </PropertyGroup>
 
 </Project>

@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>RVR.Framework.Aspire</RootNamespace>
+    <PackageId>RVR.Framework.Aspire</PackageId>
+    <Description>.NET Aspire integration with RIVORA extension methods</Description>
   </PropertyGroup>
 
   <ItemGroup>

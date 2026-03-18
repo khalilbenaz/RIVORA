@@ -6,6 +6,8 @@
     <RootNamespace>RVR.Framework.MultiTenancy</RootNamespace>
     <AssemblyName>RVR.Framework.MultiTenancy</AssemblyName>
     <LangVersion>13.0</LangVersion>
+    <PackageId>RVR.Framework.MultiTenancy</PackageId>
+    <Description>Multi-tenancy support with column, schema and database isolation</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\core\RVR.Framework.Core\RVR.Framework.Core.csproj" />

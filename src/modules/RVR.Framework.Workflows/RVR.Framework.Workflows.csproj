@@ -9,6 +9,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>RVR.Framework.Workflows</RootNamespace>
     <AssemblyName>RVR.Framework.Workflows</AssemblyName>
+    <PackageId>RVR.Framework.Workflows</PackageId>
+    <Description>Workflow engine for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>
