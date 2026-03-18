@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <!--
-      Default: net9.0 (works everywhere).
-      CI overrides via /p:TargetFramework=net9.0-windows10.0.19041.0 etc.
+      CI passes /p:TargetFramework=net9.0-windows10.0.19041.0 or net9.0-maccatalyst
+      Default net9.0 is only for local dev / Linux builds.
     -->
     <TargetFramework Condition="'$(TargetFramework)' == ''">net9.0</TargetFramework>
     <OutputType>Exe</OutputType>
@@ -11,18 +11,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <!-- MAUI only when targeting platform-specific TFMs -->
+    <!-- MAUI only for Windows/macOS -->
     <UseMaui Condition="$(TargetFramework.Contains('windows')) OR $(TargetFramework.Contains('maccatalyst'))">true</UseMaui>
     <SingleProject Condition="'$(UseMaui)' == 'true'">true</SingleProject>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
 
     <!-- App metadata -->
     <ApplicationTitle>RVR Studio</ApplicationTitle>
     <ApplicationId>com.rivora.studio</ApplicationId>
     <ApplicationDisplayVersion>4.0.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
-
-    <!-- Cross-compilation support -->
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
 
     <!-- Windows -->
     <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('windows'))">10.0.17763.0</SupportedOSPlatformVersion>
@@ -32,6 +30,13 @@
     <!-- macOS -->
     <SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('maccatalyst'))">14.0</SupportedOSPlatformVersion>
   </PropertyGroup>
+
+  <!-- Exclude MAUI-specific files when not using MAUI (Linux/net9.0 builds) -->
+  <ItemGroup Condition="'$(UseMaui)' != 'true'">
+    <Compile Remove="App.xaml.cs" />
+    <Compile Remove="MauiProgram.cs" />
+    <None Remove="MainPage.xaml" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ui\RVR.Framework.Admin\RVR.Framework.Admin.csproj" />

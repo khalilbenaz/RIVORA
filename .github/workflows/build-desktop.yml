@@ -27,27 +27,29 @@ jobs:
       - name: Install MAUI workload
         run: dotnet workload install maui-windows
 
+      - name: Restore (Windows TFM)
+        run: dotnet restore ${{ env.PROJECT }} /p:TargetFramework=net9.0-windows10.0.19041.0
+
       - name: Publish (Windows x64)
         run: |
           dotnet publish ${{ env.PROJECT }} `
             /p:TargetFramework=net9.0-windows10.0.19041.0 `
             -c Release `
             -r win-x64 `
+            --no-restore `
             -p:SelfContained=true `
             -p:PublishSingleFile=true `
             -p:EnableCompressionInSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true `
             -o artifacts/win-x64
 
-      - name: Package .exe
+      - name: Package
         run: |
           $exe = Get-ChildItem artifacts/win-x64/*.exe | Select-Object -First 1
           if ($exe) {
             Copy-Item $exe.FullName artifacts/RVR-Studio-Setup-win-x64.exe
           } else {
-            # Fallback: zip all publish output
             Compress-Archive -Path artifacts/win-x64/* -DestinationPath artifacts/RVR-Studio-Setup-win-x64.zip
-            # Rename to .exe won't work, so use zip
           }
 
       - name: Upload artifact
@@ -72,18 +74,21 @@ jobs:
       - name: Install MAUI workload
         run: dotnet workload install maui-maccatalyst
 
+      - name: Restore (macOS TFM)
+        run: dotnet restore ${{ env.PROJECT }} /p:TargetFramework=net9.0-maccatalyst
+
       - name: Publish (macOS)
         run: |
           dotnet publish ${{ env.PROJECT }} \
             /p:TargetFramework=net9.0-maccatalyst \
             -c Release \
+            --no-restore \
             -p:CreatePackage=true \
             -o artifacts/macos
 
       - name: Create DMG
         run: |
           mkdir -p dmg-staging
-          # Find .app or copy publish output
           APP_PATH=$(find artifacts/macos -name "*.app" -type d | head -1)
           if [ -n "$APP_PATH" ]; then
             cp -R "$APP_PATH" dmg-staging/
@@ -110,12 +115,16 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Restore (net9.0)
+        run: dotnet restore ${{ env.PROJECT }} /p:TargetFramework=net9.0
+
       - name: Publish (Linux x64)
         run: |
           dotnet publish ${{ env.PROJECT }} \
             /p:TargetFramework=net9.0 \
             -c Release \
             -r linux-x64 \
+            --no-restore \
             --self-contained \
             -p:PublishSingleFile=true \
             -p:EnableCompressionInSingleFile=true \
