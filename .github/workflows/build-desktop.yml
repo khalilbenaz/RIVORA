@@ -10,7 +10,6 @@ permissions:
 
 env:
   DOTNET_VERSION: '9.0.x'
-  PROJECT: src/ui/RVR.Framework.Admin/RVR.Framework.Admin.csproj
 
 jobs:
   build:
@@ -22,16 +21,13 @@ jobs:
         include:
           - name: Windows
             os: windows-latest
-            rid: win-x64
-            artifact: RVR-Studio-Setup-win-x64
+            artifact: RVR-Studio-Setup-win-x64.zip
           - name: macOS
             os: macos-latest
-            rid: osx-x64
-            artifact: RVR-Studio-Setup-macos
+            artifact: RVR-Studio-Setup-macos.tar.gz
           - name: Linux
             os: ubuntu-latest
-            rid: linux-x64
-            artifact: RVR-Studio-linux-x64
+            artifact: RVR-Studio-linux-x64.tar.gz
 
     steps:
       - uses: actions/checkout@v4
@@ -41,55 +37,58 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Publish
-        run: >
-          dotnet publish ${{ env.PROJECT }}
-          -c Release
-          -r ${{ matrix.rid }}
-          --self-contained
-          -p:AssemblyName=RVR.Studio.Desktop
-          -p:TreatWarningsAsErrors=false
-          -p:WarningLevel=0
-          -o artifacts/publish
+      - name: Restore
+        run: dotnet restore RVR.Framework.sln
 
-      - name: Package (Windows)
+      - name: Build
+        run: dotnet build RVR.Framework.sln -c Release --no-restore --verbosity minimal
+
+      - name: Publish
+        run: dotnet publish src/ui/RVR.Framework.Admin/RVR.Framework.Admin.csproj -c Release --no-build -o artifacts/publish
+
+      - name: Add launcher (Windows)
         if: matrix.name == 'Windows'
         shell: pwsh
         run: |
-          Compress-Archive -Path artifacts/publish/* -DestinationPath "artifacts/${{ matrix.artifact }}.zip"
+          @"
+          @echo off
+          echo Starting RVR Studio on http://localhost:5200 ...
+          start http://localhost:5200
+          dotnet "%~dp0RVR.Framework.Admin.dll"
+          "@ | Set-Content -Path artifacts/publish/RVR-Studio.bat
+          Compress-Archive -Path artifacts/publish/* -DestinationPath "artifacts/${{ matrix.artifact }}"
 
-      - name: Package (macOS)
+      - name: Add launcher (macOS)
         if: matrix.name == 'macOS'
         run: |
-          mkdir -p "dmg-staging/RVR Studio.app/Contents/MacOS"
-          cp artifacts/publish/RVR.Studio.Desktop "dmg-staging/RVR Studio.app/Contents/MacOS/"
-          chmod +x "dmg-staging/RVR Studio.app/Contents/MacOS/RVR.Studio.Desktop"
-          cat > "dmg-staging/RVR Studio.app/Contents/Info.plist" << 'PLIST'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>CFBundleExecutable</key><string>RVR.Studio.Desktop</string>
-            <key>CFBundleIdentifier</key><string>com.rivora.studio</string>
-            <key>CFBundleName</key><string>RVR Studio</string>
-            <key>CFBundleVersion</key><string>4.0.0</string>
-          </dict>
-          </plist>
-          PLIST
-          ln -s /Applications dmg-staging/Applications
-          hdiutil create -volname "RVR Studio" -srcfolder dmg-staging -ov -format UDZO "artifacts/${{ matrix.artifact }}.dmg"
+          cat > artifacts/publish/rvr-studio.sh << 'LAUNCHER'
+          #!/bin/bash
+          DIR="$(cd "$(dirname "$0")" && pwd)"
+          echo "Starting RVR Studio on http://localhost:5200 ..."
+          open http://localhost:5200 &
+          dotnet "$DIR/RVR.Framework.Admin.dll"
+          LAUNCHER
+          chmod +x artifacts/publish/rvr-studio.sh
+          tar -czf "artifacts/${{ matrix.artifact }}" -C artifacts/publish .
 
-      - name: Package (Linux)
+      - name: Add launcher (Linux)
         if: matrix.name == 'Linux'
         run: |
-          chmod +x artifacts/publish/RVR.Studio.Desktop
-          tar -czf "artifacts/${{ matrix.artifact }}.tar.gz" -C artifacts/publish .
+          cat > artifacts/publish/rvr-studio.sh << 'LAUNCHER'
+          #!/bin/bash
+          DIR="$(cd "$(dirname "$0")" && pwd)"
+          echo "Starting RVR Studio on http://localhost:5200 ..."
+          xdg-open http://localhost:5200 2>/dev/null &
+          dotnet "$DIR/RVR.Framework.Admin.dll"
+          LAUNCHER
+          chmod +x artifacts/publish/rvr-studio.sh
+          tar -czf "artifacts/${{ matrix.artifact }}" -C artifacts/publish .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-${{ matrix.rid }}
-          path: artifacts/${{ matrix.artifact }}.*
+          name: desktop-${{ matrix.name }}
+          path: artifacts/${{ matrix.artifact }}
 
   publish-release:
     name: Attach to Release

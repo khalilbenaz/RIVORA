@@ -238,8 +238,10 @@ rvr benchmark
 | Plateforme | Fichier | Format |
 |------------|---------|--------|
 | **Windows** (x64) | [RVR-Studio-Setup-win-x64.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.zip) | ZIP |
-| **macOS** | [RVR-Studio-Setup-macos.dmg](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.dmg) | DMG |
+| **macOS** (x64) | [RVR-Studio-Setup-macos.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.tar.gz) | tar.gz |
 | **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | tar.gz |
+
+> Prerequis : [.NET 9 Runtime](https://dotnet.microsoft.com/download/dotnet/9.0) installe sur la machine.
 
 > Tous les installeurs sont disponibles sur la page [Releases](https://github.com/khalilbenaz/RIVORA/releases).
 
