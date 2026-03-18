@@ -19,6 +19,10 @@ rvr generate crud Invoice --props "Reference:string,Amount:decimal,DueDate:DateT
 
 # Ajouter un module
 rvr add-module Inventory
+
+# Retirer un module proprement
+rvr remove-module Caching
+rvr remove-module Caching --dry-run    # Previsualiser sans modifier
 ```
 
 ### AI Review
@@ -43,6 +47,51 @@ rvr ai review --output sarif --output-file report.sarif # CI/CD integration
 ```bash
 rvr ai chat --provider claude
 rvr ai generate "Create a payment service with Stripe integration"
+rvr ai design --provider openai
+```
+
+### Base de donnees
+
+```bash
+# Migrations
+rvr migrate generate AddOrderTable
+rvr migrate apply
+rvr migrate list
+rvr migrate rollback
+
+# Seeding
+rvr seed --profile demo               # Seeder avec le profil demo
+rvr seed --reset --profile test        # Truncate + reseed
+rvr seed --dry-run                     # Previsualiser
+rvr generate seed Product              # Scaffolder un seeder
+```
+
+### Environnements & Secrets
+
+```bash
+rvr env list                          # Lister les environnements
+rvr env set DB:Host "localhost"       # Definir une variable
+rvr env diff Development Production   # Comparer deux envs
+rvr env secrets init                  # Initialiser User Secrets
+rvr env export --format dotenv        # Exporter en .env
+rvr env import --file .env            # Importer depuis .env
+```
+
+### Publication
+
+```bash
+rvr publish --target docker           # Image Docker
+rvr publish --target nuget            # Packages NuGet
+rvr publish --target self-contained   # Binaires autonomes
+rvr publish --dry-run                 # Previsualiser
+```
+
+### Upgrade
+
+```bash
+rvr upgrade --list                    # Migrations disponibles
+rvr upgrade --to 4.0 --dry-run       # Previsualiser
+rvr upgrade --to 4.0                  # Migrer
 ```
 
 ### DevOps
@@ -50,7 +99,7 @@ rvr ai generate "Create a payment service with Stripe integration"
 ```bash
 rvr doctor       # Verifie SDK, DB, Redis, etc.
 rvr benchmark    # Benchmark des performances
-rvr migrate      # Appliquer les migrations
+rvr dev          # Serveur de developpement
 ```
 
 ### Templates disponibles

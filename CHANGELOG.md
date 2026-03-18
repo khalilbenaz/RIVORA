@@ -1,11 +1,29 @@
 # Changelog
 
+## [v3.4.0] - 2026-03-18
+
+### Added - CLI Extended Edition (5 new commands)
+
+#### CLI - New Commands
+- **`rvr remove-module`** : Remove a module cleanly (inverse of `add-module`) — removes PackageReference, Program.cs registrations, appsettings sections, config files. Supports `--dry-run` and `--force` with dependency warnings (#101)
+- **`rvr seed`** : Standardized database seeding with profiles (dev/demo/test/perf), ordered execution via `IRvrDataSeeder`, `--reset` (truncate + reseed), `--dry-run`, `--tenant` multi-tenant support. Includes `rvr generate seed <Entity>` scaffolding (#102)
+- **`rvr publish`** : Unified publish pipeline (build + test + publish). Targets: Docker, NuGet, Azure, self-contained. Supports `--dry-run`, `--skip-tests`, `--registry`, `--tag`, auto-detection (#103)
+- **`rvr env`** : Complete environment management — `list`, `get`, `set`, `remove`, `switch`, `diff`, `secrets init/set`, `export` (dotenv/json/yaml), `import`. Automatic sensitive value masking (#104)
+- **`rvr upgrade`** : Migration assistant between major RIVORA versions — detects current version, applies automatic transformations (rename, TFM upgrade, config migration), reports manual steps. Supports `--dry-run`, `--to <version>`, `--list` (#108)
+
+#### Core
+- **`IRvrDataSeeder`** interface added to `RVR.Framework.Core.Seeding` for standardized seeding
+
+#### CLI Version
+- CLI version bumped to **3.4.0**
+
+---
+
 ## [v3.3.3] - 2026-03-18
 
 - docs: add missing website pages + fix NuGet CLI README packaging (c71ddb1)
 - fix: resolve all code scanning alerts (log injection + permissions) (d3bd64f)
 - docs: update CHANGELOG.md for v3.3.2 (794f83f)
-
 
 ## [v3.3.2] - 2026-03-18
 

@@ -167,6 +167,8 @@ Infrastructure (Data)       EF Core 9, Repositories, Services externes
 rvr new MySaaS --template saas-starter
 rvr generate crud Invoice --props "Reference:string,Amount:decimal"
 rvr add-module Inventory
+rvr remove-module Caching                     # Retire proprement un module
+rvr remove-module Caching --dry-run           # Previsualiser les changements
 
 # AI Commands
 rvr ai chat --provider claude
@@ -180,21 +182,37 @@ rvr ai review --provider ollama               # AI suggestions (offline)
 rvr ai review --output sarif --output-file report.sarif  # CI integration
 rvr ai design --provider claude              # Interactive domain design
 
-# Client Generation
+# Client & Test Generation
 rvr generate client                           # OpenAPI -> typed C# client
-
-# Test Generation
 rvr generate test Invoice                     # xUnit + FluentAssertions tests
-rvr generate test Invoice --output ./tests    # Custom output directory
+rvr generate seed Product                     # Scaffolder un data seeder
 
-# Migrations
+# Database
 rvr migrate generate MigrationName            # Generate EF Core migration
 rvr migrate apply                             # Apply pending migrations
 rvr migrate list                              # List migrations
 rvr migrate rollback                          # Rollback last migration
+rvr seed --profile demo                       # Seeder la base de donnees
+rvr seed --reset --profile test               # Truncate + reseed
 
-# Benchmarks
-dotnet run --project tests/RVR.Framework.Benchmarks -c Release
+# Environnements & Secrets
+rvr env list                                  # Lister les environnements
+rvr env set DB:Host "localhost"               # Definir une variable
+rvr env diff Development Production           # Comparer deux envs
+rvr env secrets init                          # Initialiser User Secrets
+rvr env export --format dotenv                # Exporter en .env
+rvr env import --file .env                    # Importer depuis .env
+
+# Publication
+rvr publish --target docker                   # Build + push Docker
+rvr publish --target nuget                    # Pack + push NuGet
+rvr publish --target self-contained           # Binaires autonomes
+rvr publish --dry-run                         # Previsualiser les commandes
+
+# Upgrade
+rvr upgrade --list                            # Migrations disponibles
+rvr upgrade --to 4.0 --dry-run               # Previsualiser la migration
+rvr upgrade --to 4.0                          # Migrer vers v4.0
 
 # DevOps
 rvr doctor
