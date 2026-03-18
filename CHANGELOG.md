@@ -2,6 +2,32 @@
 
 ## [v4.0.0-preview.1] - 2026-03-18
 
+- fix: Desktop CI final — restore solution with RID, then publish --no-restore (c6e477d)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e688d14)
+- fix: Desktop CI v7 — restore + build solution first, then publish --no-build (c954dc1)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e784a14)
+- fix: Desktop CI v6 — let publish do its own RID-aware restore (2c5a2ee)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (89ec321)
+- fix: Desktop CI v5 — add global.json (pin SDK 9.0) + restore solution first (f5f0918)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (55dd407)
+- fix: Desktop CI v4 — publish Admin project directly as self-contained app (f0fd326)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (f1b1cf8)
+- fix: Desktop CI v3 — explicit restore per TFM, exclude MAUI files on Linux (9a26e51)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (c8ac612)
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
 - fix: Desktop CI v7 — restore + build solution first, then publish --no-build (c954dc1)
 - docs: update CHANGELOG.md for v4.0.0-preview.1 (e784a14)
 - fix: Desktop CI v6 — let publish do its own RID-aware restore (2c5a2ee)
