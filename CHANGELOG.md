@@ -1,5 +1,23 @@
 # Changelog
 
+## [v4.0.0-preview.1] - 2026-03-18
+
+### Added - v4.0 Advanced Features (6 issues)
+
+#### CLI - Interactive Wizard
+- **`rvr new` interactive wizard** : 10-step guided solution creation with Spectre.Console — app type, database, modules, security, multi-tenancy, AI, observability, DevOps. Generates full Clean Architecture solution that compiles on first `dotnet build`. Non-interactive mode via flags (`--type`, `--db`, `--modules`, `--security`, `--multitenancy`, `--devops`, `--ai`). Shows equivalent CLI command after wizard. (#98)
+
+#### RVR Studio
+- **Solution Wizard (Blazor)** : Multi-step wizard in RVR Studio web — same 8-step flow as CLI with visual card selection, module toggles, database picker, summary with "Copy CLI Command" button and ZIP download (#99)
+- **RVR Studio Desktop** : MAUI Blazor Hybrid project scaffold for cross-platform desktop app (Windows/macOS/Linux). Reuses Admin Blazor components for native desktop experience (#100)
+
+#### Developer Experience
+- **VS Code Extension (`rivora-vscode`)** : Official VS Code extension with 9 C# snippets (rvr-entity, rvr-handler, rvr-valueobject, rvr-domainevents, rvr-endpoint, rvr-test-unit, rvr-test-integration, rvr-seeder, rvr-module), 11 palette commands (New Solution, Add/Remove Module, AI Review, Generate Test, Doctor, Migrate, Seed, Publish, Upgrade, Env List). TypeScript project ready for VS Code Marketplace publishing (#105)
+- **GitHub Pages documentation** : Enhanced deploy-docs workflow to trigger on docs/ changes. VitePress site with full CLI reference, module docs, search, dark mode (#106)
+- **Playground (GitHub Codespaces)** : `.devcontainer/devcontainer.json` with .NET 9 SDK, RVR CLI pre-installed, ports forwarded. Minimal `samples/playground/` ready to run. "Open in Codespaces" support (#107)
+
+---
+
 ## [v3.4.0] - 2026-03-18
 
 ### Added - CLI Extended Edition (5 new commands)

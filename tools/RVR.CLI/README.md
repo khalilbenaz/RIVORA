@@ -1,4 +1,4 @@
-# RVR CLI v3.4.0 - RIVORA Framework CLI
+# RVR CLI v4.0.0 - RIVORA Framework CLI
 
 [![NuGet](https://img.shields.io/nuget/v/RVR.CLI.svg)](https://www.nuget.org/packages/RVR.CLI/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -22,6 +22,9 @@ dotnet tool update --global RVR.CLI
 ### Scaffolding de projet
 
 ```bash
+# Wizard interactif (recommande)
+rvr new
+
 # Nouveau projet SaaS multi-tenant
 rvr new MyApp --template saas-starter
 
