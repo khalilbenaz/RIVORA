@@ -1,5 +1,11 @@
 # Changelog
 
+## [v3.3.2] - 2026-03-18
+
+- chore: add explicit PackageId and IsPackable to all publishable projects (#97) (54b1c55)
+- docs: update CHANGELOG.md for v3.3.1 (ae08d6e)
+
+
 ## [v3.3.1] - 2026-03-18
 
 - feat: RIVORA v3.3.0 - resolve all 13 open issues (#84-#96) (7abb367)
