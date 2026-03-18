@@ -1,6 +1,7 @@
 @page "/health"
 @using RVR.Framework.Infrastructure.Data
 @inject RVRDbContext DbContext
+@inject DatabaseStatus DbStatus
 
 <h1>Health Dashboard</h1>
 
@@ -80,7 +81,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadHealthData();
+        if (!DbStatus.IsConfigured) return;
+        try { await LoadHealthData(); } catch { }
     }
 
     private async Task Refresh()

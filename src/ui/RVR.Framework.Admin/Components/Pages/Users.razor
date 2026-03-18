@@ -2,6 +2,7 @@
 @using RVR.Framework.Infrastructure.Data
 @using RVR.Framework.Domain.Entities.Identity
 @inject RVRDbContext DbContext
+@inject DatabaseStatus DbStatus
 
 <h1>Utilisateurs</h1>
 
@@ -61,7 +62,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadUsers();
+        if (!DbStatus.IsConfigured) return;
+        try { await LoadUsers(); } catch { }
     }
 
     private async Task Search()

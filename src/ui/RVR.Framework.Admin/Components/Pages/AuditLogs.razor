@@ -2,6 +2,7 @@
 @using RVR.Framework.Infrastructure.Data
 @using RVR.Framework.Domain.Entities.Auditing
 @inject RVRDbContext DbContext
+@inject DatabaseStatus DbStatus
 
 <h1>Audit Logs</h1>
 
@@ -69,7 +70,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadLogs();
+        if (!DbStatus.IsConfigured) return;
+        try { await LoadLogs(); } catch { }
     }
 
     private async Task Search()

@@ -1,59 +1,76 @@
 @page "/"
 @using RVR.Framework.Infrastructure.Data
 @inject RVRDbContext DbContext
+@inject DatabaseStatus DbStatus
 
 <h1>Dashboard</h1>
 
-<div class="stats-grid">
-    <div class="stat-card">
-        <p class="stat-label">Utilisateurs</p>
-        <p class="stat-value">@_userCount</p>
+@if (!DbStatus.IsConfigured)
+{
+    <div class="stat-card" style="border-color: #fbbf24; background: #fffbeb; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <p style="margin: 0 0 0.5rem; font-weight: 600; color: #92400e;">Base de donnees non configuree</p>
+        <p style="margin: 0; color: #78716c; font-size: 0.875rem;">
+            Les statistiques ne sont pas disponibles. Pour activer le dashboard, configurez
+            <code>ConnectionStrings:DefaultConnection</code> dans <code>appsettings.json</code>.
+        </p>
+        <p style="margin: 0.75rem 0 0; font-size: 0.875rem;">
+            <a href="/studio" style="color: #3b82f6; font-weight: 500;">Acceder a RVR Studio</a> (fonctionne sans base de donnees)
+        </p>
     </div>
-    <div class="stat-card">
-        <p class="stat-label">Produits</p>
-        <p class="stat-value">@_productCount</p>
+}
+else
+{
+    <div class="stats-grid">
+        <div class="stat-card">
+            <p class="stat-label">Utilisateurs</p>
+            <p class="stat-value">@_userCount</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Produits</p>
+            <p class="stat-value">@_productCount</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Tenants</p>
+            <p class="stat-value">@_tenantCount</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Audit Logs</p>
+            <p class="stat-value">@_auditCount</p>
+        </div>
     </div>
-    <div class="stat-card">
-        <p class="stat-label">Tenants</p>
-        <p class="stat-value">@_tenantCount</p>
-    </div>
-    <div class="stat-card">
-        <p class="stat-label">Audit Logs</p>
-        <p class="stat-value">@_auditCount</p>
-    </div>
-</div>
 
-<h2 style="margin-top:2rem;">Derniers Audit Logs</h2>
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Methode</th>
-            <th>URL</th>
-            <th>Status</th>
-            <th>Duree (ms)</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (_recentLogs is not null)
-        {
-            @foreach (var log in _recentLogs)
+    <h2 style="margin-top:2rem;">Derniers Audit Logs</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Methode</th>
+                <th>URL</th>
+                <th>Status</th>
+                <th>Duree (ms)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (_recentLogs is not null)
             {
-                <tr>
-                    <td>@log.ExecutionDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                    <td>@log.HttpMethod</td>
-                    <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">@log.Url</td>
-                    <td>
-                        <span class="@(log.HttpStatusCode >= 400 ? "badge badge-danger" : "badge badge-success")">
-                            @log.HttpStatusCode
-                        </span>
-                    </td>
-                    <td>@log.ExecutionTime</td>
-                </tr>
+                @foreach (var log in _recentLogs)
+                {
+                    <tr>
+                        <td>@log.ExecutionDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@log.HttpMethod</td>
+                        <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">@log.Url</td>
+                        <td>
+                            <span class="@(log.HttpStatusCode >= 400 ? "badge badge-danger" : "badge badge-success")">
+                                @log.HttpStatusCode
+                            </span>
+                        </td>
+                        <td>@log.ExecutionTime</td>
+                    </tr>
+                }
             }
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+}
 
 @code {
     private int _userCount, _productCount, _tenantCount, _auditCount;
@@ -61,14 +78,23 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _userCount = await DbContext.Users.CountAsync();
-        _productCount = await DbContext.Products.CountAsync();
-        _tenantCount = await DbContext.Tenants.CountAsync();
-        _auditCount = await DbContext.AuditLogs.CountAsync();
+        if (!DbStatus.IsConfigured) return;
 
-        _recentLogs = await DbContext.AuditLogs
-            .OrderByDescending(a => a.ExecutionDate)
-            .Take(10)
-            .ToListAsync();
+        try
+        {
+            _userCount = await DbContext.Users.CountAsync();
+            _productCount = await DbContext.Products.CountAsync();
+            _tenantCount = await DbContext.Tenants.CountAsync();
+            _auditCount = await DbContext.AuditLogs.CountAsync();
+
+            _recentLogs = await DbContext.AuditLogs
+                .OrderByDescending(a => a.ExecutionDate)
+                .Take(10)
+                .ToListAsync();
+        }
+        catch
+        {
+            // Silently handle DB errors — dashboard shows empty state
+        }
     }
 }
