@@ -4,33 +4,34 @@ RVR Studio Desktop est l'application officielle pour creer et gerer vos projets 
 
 ## Installeurs
 
-| Plateforme | Fichier | Taille |
+| Plateforme | Fichier | Format |
 |------------|---------|--------|
-| **Windows** (x64) | [RVR-Studio-Desktop-win-x64.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Desktop-win-x64.zip) | ~50 MB |
-| **macOS** (Universal) | [RVR-Studio-Desktop-macos.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Desktop-macos.zip) | ~60 MB |
-| **Linux** (x64) | [RVR-Studio-Desktop-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Desktop-linux-x64.tar.gz) | ~55 MB |
+| **Windows** (x64) | [RVR-Studio-Setup-win-x64.exe](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.exe) | Executable (.exe) |
+| **macOS** | [RVR-Studio-Setup-macos.dmg](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.dmg) | Disk Image (.dmg) |
+| **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | AppImage (.tar.gz) |
 
 > Les installeurs sont attaches automatiquement a chaque [GitHub Release](https://github.com/khalilbenaz/RIVORA/releases).
 
 ## Installation
 
 ### Windows
-1. Telecharger le fichier `.zip`
-2. Extraire dans un dossier
-3. Lancer `RVR.Studio.Desktop.exe`
+1. Telecharger `RVR-Studio-Setup-win-x64.exe`
+2. Lancer l'executable
+3. L'application demarre directement (portable, pas d'installation requise)
 
 ### macOS
-1. Telecharger le fichier `.zip`
-2. Extraire et deplacer l'app dans `/Applications`
+1. Telecharger `RVR-Studio-Setup-macos.dmg`
+2. Ouvrir le DMG et glisser RVR Studio dans `/Applications`
 3. Lancer l'application
 
 ### Linux
 ```bash
 # Extraire
-tar -xzf RVR-Studio-Desktop-linux-x64.tar.gz -C ~/rvr-studio
+mkdir -p ~/rvr-studio
+tar -xzf RVR-Studio-linux-x64.tar.gz -C ~/rvr-studio
 
 # Lancer
-~/rvr-studio/RVR.Studio.Desktop
+~/rvr-studio/usr/bin/RVR.Studio.Desktop
 ```
 
 ## Alternative : RVR CLI

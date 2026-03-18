@@ -8,111 +8,154 @@ on:
 permissions:
   contents: write
 
+env:
+  DOTNET_VERSION: '9.0.x'
+  PROJECT: tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj
+
 jobs:
   build-windows:
-    name: Build Windows Installer
+    name: Windows (.exe)
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET 9
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install MAUI workload
-        run: dotnet workload install maui
+        run: dotnet workload install maui-windows
 
-      - name: Restore
-        run: dotnet restore tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj
-
-      - name: Build & Publish (Windows)
+      - name: Publish (Windows x64)
         run: |
-          dotnet publish tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj `
+          dotnet publish ${{ env.PROJECT }} `
             -f net9.0-windows10.0.19041.0 `
             -c Release `
+            -r win-x64 `
             -p:WindowsPackageType=None `
-            -p:RuntimeIdentifierOverride=win-x64 `
-            -o artifacts/windows
+            -p:SelfContained=true `
+            -p:PublishSingleFile=true `
+            -p:EnableCompressionInSingleFile=true `
+            -o artifacts/win-x64
 
-      - name: Create ZIP
-        run: Compress-Archive -Path artifacts/windows/* -DestinationPath artifacts/RVR-Studio-Desktop-win-x64.zip
+      - name: Rename to .exe installer
+        run: |
+          $exe = Get-ChildItem artifacts/win-x64/*.exe | Select-Object -First 1
+          Copy-Item $exe.FullName artifacts/RVR-Studio-Setup-win-x64.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: desktop-windows
-          path: artifacts/RVR-Studio-Desktop-win-x64.zip
+          path: artifacts/RVR-Studio-Setup-win-x64.exe
 
   build-macos:
-    name: Build macOS App
+    name: macOS (.dmg)
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET 9
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install MAUI workload
-        run: dotnet workload install maui
+        run: dotnet workload install maui-maccatalyst
 
-      - name: Restore
-        run: dotnet restore tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj
-
-      - name: Build & Publish (macOS)
+      - name: Publish (macOS)
         run: |
-          dotnet publish tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj \
+          dotnet publish ${{ env.PROJECT }} \
             -f net9.0-maccatalyst \
             -c Release \
+            -p:CreatePackage=true \
             -o artifacts/macos
 
-      - name: Create ZIP
+      - name: Create DMG
         run: |
-          cd artifacts/macos
-          zip -r ../RVR-Studio-Desktop-macos.zip .
+          # Find the .app bundle
+          APP_PATH=$(find artifacts/macos -name "*.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            # Fallback: package the publish output as DMG
+            mkdir -p dmg-staging
+            cp -R artifacts/macos/* dmg-staging/
+            hdiutil create -volname "RVR Studio" -srcfolder dmg-staging -ov -format UDZO artifacts/RVR-Studio-Setup-macos.dmg
+          else
+            mkdir -p dmg-staging
+            cp -R "$APP_PATH" dmg-staging/
+            # Create Applications symlink for drag-install
+            ln -s /Applications dmg-staging/Applications
+            hdiutil create -volname "RVR Studio" -srcfolder dmg-staging -ov -format UDZO artifacts/RVR-Studio-Setup-macos.dmg
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: desktop-macos
-          path: artifacts/RVR-Studio-Desktop-macos.zip
+          path: artifacts/RVR-Studio-Setup-macos.dmg
 
   build-linux:
-    name: Build Linux App
+    name: Linux (self-contained)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET 9
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore
-        run: dotnet restore tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj
-
-      - name: Build & Publish (Linux - Blazor Server fallback)
+      - name: Publish (Linux x64 — Blazor Server)
         run: |
-          dotnet publish tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj \
+          dotnet publish ${{ env.PROJECT }} \
             -f net9.0 \
             -c Release \
             -r linux-x64 \
             --self-contained \
-            -o artifacts/linux
+            -p:PublishSingleFile=true \
+            -p:EnableCompressionInSingleFile=true \
+            -o artifacts/linux-x64
 
-      - name: Create tar.gz
-        run: tar -czf artifacts/RVR-Studio-Desktop-linux-x64.tar.gz -C artifacts/linux .
+      - name: Create AppImage structure
+        run: |
+          mkdir -p RVR-Studio.AppDir/usr/bin
+          mkdir -p RVR-Studio.AppDir/usr/share/icons/hicolor/256x256/apps
+
+          # Copy binary
+          cp artifacts/linux-x64/* RVR-Studio.AppDir/usr/bin/ 2>/dev/null || true
+          chmod +x RVR-Studio.AppDir/usr/bin/*
+
+          # Desktop entry
+          cat > RVR-Studio.AppDir/RVR-Studio.desktop << 'DESKTOP'
+          [Desktop Entry]
+          Name=RVR Studio
+          Exec=RVR.Studio.Desktop
+          Icon=rvr-studio
+          Type=Application
+          Categories=Development;
+          DESKTOP
+
+          # AppRun
+          cat > RVR-Studio.AppDir/AppRun << 'APPRUN'
+          #!/bin/bash
+          SELF=$(readlink -f "$0")
+          HERE=${SELF%/*}
+          exec "${HERE}/usr/bin/RVR.Studio.Desktop" "$@"
+          APPRUN
+          chmod +x RVR-Studio.AppDir/AppRun
+
+          # Package as tar.gz (AppImage tooling optional)
+          tar -czf artifacts/RVR-Studio-linux-x64.tar.gz -C RVR-Studio.AppDir .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: desktop-linux
-          path: artifacts/RVR-Studio-Desktop-linux-x64.tar.gz
+          path: artifacts/RVR-Studio-linux-x64.tar.gz
 
   publish-release:
-    name: Attach to GitHub Release
+    name: Attach installers to Release
     needs: [build-windows, build-macos, build-linux]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
@@ -124,15 +167,15 @@ jobs:
           merge-multiple: true
 
       - name: List artifacts
-        run: ls -la artifacts/
+        run: ls -lah artifacts/
 
-      - name: Upload to Release
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/RVR-Studio-Desktop-win-x64.zip
-            artifacts/RVR-Studio-Desktop-macos.zip
-            artifacts/RVR-Studio-Desktop-linux-x64.tar.gz
+            artifacts/RVR-Studio-Setup-win-x64.exe
+            artifacts/RVR-Studio-Setup-macos.dmg
+            artifacts/RVR-Studio-linux-x64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
