@@ -1,5 +1,7 @@
 @page "/studio/new"
 @rendermode InteractiveServer
+@inject HttpClient Http
+@inject NavigationManager Navigation
 
 <PageTitle>New Solution — RVR Studio</PageTitle>
 
@@ -220,13 +222,18 @@
         </div>
     }
 
+    @if (!string.IsNullOrEmpty(GenerationError))
+    {
+        <div class="alert alert-danger mt-4">@GenerationError</div>
+    }
+
     @if (GenerationComplete)
     {
         <div class="alert alert-success mt-4">
             <h5>Solution generated successfully!</h5>
             <p>Your RIVORA solution <strong>@Profile.Name</strong> has been created.</p>
             <div class="d-flex gap-2 mt-3">
-                <a href="/api/studio/download/@Profile.Name" class="btn btn-primary">Download .zip</a>
+                <a href="@DownloadUrl" class="btn btn-primary" download>Download .zip</a>
                 <button class="btn btn-outline-secondary" @onclick="CopyCliCommand">Copy CLI Command</button>
             </div>
         </div>
@@ -270,13 +277,47 @@
         IsGenerating = true;
         StateHasChanged();
 
-        // Simulate generation (in real implementation, call the shared SolutionProfile engine)
-        await Task.Delay(2000);
+        try
+        {
+            // Call the Studio API to generate the solution
+            var request = new
+            {
+                name = Profile.Name,
+                @namespace = Profile.Namespace,
+                appType = Profile.AppType,
+                database = Profile.Database,
+                modules = SelectedModules.ToList(),
+                security = SelectedSecurity.ToList(),
+                tenancyMode = Profile.TenancyMode,
+                aiMode = Profile.AiMode,
+                devOps = SelectedDevOps.ToList()
+            };
+
+            var baseUri = Navigation.BaseUri.TrimEnd('/');
+            var response = await Http.PostAsJsonAsync($"{baseUri}/api/studio/generate", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Trigger download
+                DownloadUrl = $"{baseUri}/api/studio/download/{Profile.Name}";
+                GenerationComplete = true;
+            }
+            else
+            {
+                GenerationError = $"Generation failed: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            GenerationError = $"Error: {ex.Message}";
+        }
 
         IsGenerating = false;
-        GenerationComplete = true;
         StateHasChanged();
     }
+
+    private string? DownloadUrl { get; set; }
+    private string? GenerationError { get; set; }
 
     private string GenerateCliCommand()
     {

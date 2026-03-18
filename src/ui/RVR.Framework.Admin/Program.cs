@@ -1,4 +1,5 @@
 using RVR.Framework.Admin.Components;
+using RVR.Framework.Admin.Endpoints;
 using RVR.Framework.Infrastructure.Data;
 using RVR.Framework.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddHttpClient();
 
 // Register a no-op tenant provider for the admin dashboard
 builder.Services.AddSingleton<ITenantProvider, AdminTenantProvider>();
@@ -33,6 +35,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+app.MapStudioEndpoints();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 app.Run();
 
