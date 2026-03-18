@@ -23,18 +23,15 @@ jobs:
           - name: Windows
             os: windows-latest
             rid: win-x64
-            artifact: RVR-Studio-Setup-win-x64.exe
-            ext: exe
+            artifact: RVR-Studio-Setup-win-x64
           - name: macOS
             os: macos-latest
             rid: osx-x64
             artifact: RVR-Studio-Setup-macos
-            ext: dmg
           - name: Linux
             os: ubuntu-latest
             rid: linux-x64
-            artifact: RVR-Studio-linux-x64.tar.gz
-            ext: tar.gz
+            artifact: RVR-Studio-linux-x64
 
     steps:
       - uses: actions/checkout@v4
@@ -44,11 +41,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore
-        run: dotnet restore RVR.Framework.sln
-
-      - name: Build
-        run: dotnet build RVR.Framework.sln -c Release --no-restore
+      - name: Restore (RID-specific)
+        run: dotnet restore RVR.Framework.sln -r ${{ matrix.rid }}
 
       - name: Publish
         run: >
@@ -56,28 +50,22 @@ jobs:
           -c Release
           -r ${{ matrix.rid }}
           --self-contained
-          --no-build
-          -p:PublishSingleFile=true
-          -p:EnableCompressionInSingleFile=true
-          -p:IncludeNativeLibrariesForSelfExtract=true
+          --no-restore
           -p:AssemblyName=RVR.Studio.Desktop
           -o artifacts/publish
 
-      - name: Package (Windows .exe)
-        if: matrix.ext == 'exe'
+      - name: Package (Windows)
+        if: matrix.name == 'Windows'
         shell: pwsh
         run: |
-          Copy-Item artifacts/publish/RVR.Studio.Desktop.exe artifacts/${{ matrix.artifact }}
+          Compress-Archive -Path artifacts/publish/* -DestinationPath "artifacts/${{ matrix.artifact }}.zip"
 
-      - name: Package (macOS .dmg)
-        if: matrix.ext == 'dmg'
+      - name: Package (macOS)
+        if: matrix.name == 'macOS'
         run: |
-          mkdir -p dmg-staging
-          cp artifacts/publish/RVR.Studio.Desktop dmg-staging/
-          chmod +x dmg-staging/RVR.Studio.Desktop
-          # Create .app bundle
           mkdir -p "dmg-staging/RVR Studio.app/Contents/MacOS"
-          cp dmg-staging/RVR.Studio.Desktop "dmg-staging/RVR Studio.app/Contents/MacOS/"
+          cp artifacts/publish/RVR.Studio.Desktop "dmg-staging/RVR Studio.app/Contents/MacOS/"
+          chmod +x "dmg-staging/RVR Studio.app/Contents/MacOS/RVR.Studio.Desktop"
           cat > "dmg-staging/RVR Studio.app/Contents/Info.plist" << 'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -90,21 +78,20 @@ jobs:
           </dict>
           </plist>
           PLIST
-          rm dmg-staging/RVR.Studio.Desktop
           ln -s /Applications dmg-staging/Applications
           hdiutil create -volname "RVR Studio" -srcfolder dmg-staging -ov -format UDZO "artifacts/${{ matrix.artifact }}.dmg"
 
-      - name: Package (Linux .tar.gz)
-        if: matrix.ext == 'tar.gz'
+      - name: Package (Linux)
+        if: matrix.name == 'Linux'
         run: |
           chmod +x artifacts/publish/RVR.Studio.Desktop
-          tar -czf "artifacts/${{ matrix.artifact }}" -C artifacts/publish .
+          tar -czf "artifacts/${{ matrix.artifact }}.tar.gz" -C artifacts/publish .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ matrix.rid }}
-          path: artifacts/${{ matrix.artifact }}*
+          path: artifacts/${{ matrix.artifact }}.*
 
   publish-release:
     name: Attach to Release
@@ -118,17 +105,14 @@ jobs:
           path: artifacts
           merge-multiple: true
 
-      - name: List artifacts
+      - name: List
         run: find artifacts/ -type f | sort
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          files: |
-            artifacts/RVR-Studio-Setup-win-x64.exe
-            artifacts/RVR-Studio-Setup-macos.dmg
-            artifacts/RVR-Studio-linux-x64.tar.gz
+          files: artifacts/*
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

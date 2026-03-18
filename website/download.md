@@ -6,18 +6,18 @@ RVR Studio Desktop est l'application officielle pour creer et gerer vos projets 
 
 | Plateforme | Fichier | Format |
 |------------|---------|--------|
-| **Windows** (x64) | [RVR-Studio-Setup-win-x64.exe](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.exe) | Executable (.exe) |
-| **macOS** | [RVR-Studio-Setup-macos.dmg](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.dmg) | Disk Image (.dmg) |
-| **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | AppImage (.tar.gz) |
+| **Windows** (x64) | [RVR-Studio-Setup-win-x64.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.zip) | ZIP |
+| **macOS** | [RVR-Studio-Setup-macos.dmg](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.dmg) | DMG |
+| **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | tar.gz |
 
 > Les installeurs sont attaches automatiquement a chaque [GitHub Release](https://github.com/khalilbenaz/RIVORA/releases).
 
 ## Installation
 
 ### Windows
-1. Telecharger `RVR-Studio-Setup-win-x64.exe`
-2. Lancer l'executable
-3. L'application demarre directement (portable, pas d'installation requise)
+1. Telecharger `RVR-Studio-Setup-win-x64.zip`
+2. Extraire dans un dossier
+3. Lancer `RVR.Studio.Desktop.exe` — ouvre automatiquement `http://localhost:5200`
 
 ### macOS
 1. Telecharger `RVR-Studio-Setup-macos.dmg`
