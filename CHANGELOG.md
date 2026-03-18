@@ -1,5 +1,23 @@
 # Changelog
 
+## [v4.0.0-preview.2] - 2026-03-18
+
+### Added - Distribution & Download
+
+#### CI/CD
+- **`build-desktop.yml`** : GitHub Actions workflow to build RVR Studio Desktop installers for Windows (.zip), macOS (.zip), and Linux (.tar.gz), attached to each GitHub Release
+
+#### Website
+- **Download page** : `/download` (FR) and `/en/download` (EN) pages on GitHub Pages with installer links, installation instructions, and alternative options (CLI, Codespaces)
+- **Nav link** : "Download" button added to VitePress navigation bar (both locales)
+
+#### Studio API
+- **`POST /api/studio/generate`** : Endpoint to generate a RIVORA solution ZIP from a JSON request (name, namespace, database, modules, etc.)
+- **`GET /api/studio/download/{name}`** : Endpoint to download a previously generated solution as ZIP
+- **SolutionWizard** updated to call the real API and provide download link
+
+---
+
 ## [v4.0.0-preview.1] - 2026-03-18
 
 ### Added - v4.0 Advanced Features (6 issues)

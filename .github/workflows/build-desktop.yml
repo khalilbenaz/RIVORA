@@ -1,0 +1,138 @@
+name: Build RVR Studio Desktop
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+
+      - name: Restore
+        run: dotnet restore tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj
+
+      - name: Build & Publish (Windows)
+        run: |
+          dotnet publish tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj `
+            -f net9.0-windows10.0.19041.0 `
+            -c Release `
+            -p:WindowsPackageType=None `
+            -p:RuntimeIdentifierOverride=win-x64 `
+            -o artifacts/windows
+
+      - name: Create ZIP
+        run: Compress-Archive -Path artifacts/windows/* -DestinationPath artifacts/RVR-Studio-Desktop-win-x64.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows
+          path: artifacts/RVR-Studio-Desktop-win-x64.zip
+
+  build-macos:
+    name: Build macOS App
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+
+      - name: Restore
+        run: dotnet restore tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj
+
+      - name: Build & Publish (macOS)
+        run: |
+          dotnet publish tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj \
+            -f net9.0-maccatalyst \
+            -c Release \
+            -o artifacts/macos
+
+      - name: Create ZIP
+        run: |
+          cd artifacts/macos
+          zip -r ../RVR-Studio-Desktop-macos.zip .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-macos
+          path: artifacts/RVR-Studio-Desktop-macos.zip
+
+  build-linux:
+    name: Build Linux App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj
+
+      - name: Build & Publish (Linux - Blazor Server fallback)
+        run: |
+          dotnet publish tools/RVR.Studio.Desktop/RVR.Studio.Desktop.csproj \
+            -f net9.0 \
+            -c Release \
+            -r linux-x64 \
+            --self-contained \
+            -o artifacts/linux
+
+      - name: Create tar.gz
+        run: tar -czf artifacts/RVR-Studio-Desktop-linux-x64.tar.gz -C artifacts/linux .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-linux
+          path: artifacts/RVR-Studio-Desktop-linux-x64.tar.gz
+
+  publish-release:
+    name: Attach to GitHub Release
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -la artifacts/
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            artifacts/RVR-Studio-Desktop-win-x64.zip
+            artifacts/RVR-Studio-Desktop-macos.zip
+            artifacts/RVR-Studio-Desktop-linux-x64.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

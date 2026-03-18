@@ -15,7 +15,8 @@ export default defineConfig({
           { text: 'Guide', link: '/guide/getting-started' },
           { text: 'Modules', link: '/modules/' },
           { text: 'CLI', link: '/cli/' },
-          { text: 'API Reference', link: '/api/' }
+          { text: 'API Reference', link: '/api/' },
+          { text: 'Telecharger', link: '/download' }
         ],
         sidebar: {
           '/guide/': [
@@ -91,7 +92,8 @@ export default defineConfig({
           { text: 'Guide', link: '/en/guide/getting-started' },
           { text: 'Modules', link: '/en/modules/' },
           { text: 'CLI', link: '/en/cli/' },
-          { text: 'API Reference', link: '/api/' }
+          { text: 'API Reference', link: '/api/' },
+          { text: 'Download', link: '/en/download' }
         ],
         sidebar: {
           '/en/guide/': [
