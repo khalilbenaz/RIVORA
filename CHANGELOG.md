@@ -1,5 +1,12 @@
 # Changelog
 
+## [v3.3.3] - 2026-03-18
+
+- docs: add missing website pages + fix NuGet CLI README packaging (c71ddb1)
+- fix: resolve all code scanning alerts (log injection + permissions) (d3bd64f)
+- docs: update CHANGELOG.md for v3.3.2 (794f83f)
+
+
 ## [v3.3.2] - 2026-03-18
 
 - chore: add explicit PackageId and IsPackable to all publishable projects (#97) (54b1c55)
