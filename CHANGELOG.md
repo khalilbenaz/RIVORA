@@ -1,5 +1,10 @@
 # Changelog
 
+## [v3.3.1] - 2026-03-18
+
+- feat: RIVORA v3.3.0 - resolve all 13 open issues (#84-#96) (7abb367)
+
+
 Tous les changements notables de RIVORA Framework sont documentés dans ce fichier.
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
