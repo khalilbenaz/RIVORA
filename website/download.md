@@ -7,22 +7,25 @@ RVR Studio Desktop est l'application officielle pour creer et gerer vos projets 
 | Plateforme | Fichier | Format |
 |------------|---------|--------|
 | **Windows** (x64) | [RVR-Studio-Setup-win-x64.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.zip) | ZIP |
-| **macOS** | [RVR-Studio-Setup-macos.dmg](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.dmg) | DMG |
+| **macOS** (x64) | [RVR-Studio-Setup-macos.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.tar.gz) | tar.gz |
 | **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | tar.gz |
 
 > Les installeurs sont attaches automatiquement a chaque [GitHub Release](https://github.com/khalilbenaz/RIVORA/releases).
+>
+> Prerequis : [.NET 9 Runtime](https://dotnet.microsoft.com/download/dotnet/9.0) installe sur la machine.
 
 ## Installation
 
 ### Windows
 1. Telecharger `RVR-Studio-Setup-win-x64.zip`
 2. Extraire dans un dossier
-3. Lancer `RVR.Studio.Desktop.exe` — ouvre automatiquement `http://localhost:5200`
+3. Lancer `install.bat` — installe dans `%LOCALAPPDATA%\RVR-Studio` et cree un raccourci Bureau
+4. Double-cliquer le raccourci **RVR Studio** — ouvre `http://localhost:5200`
 
 ### macOS
-1. Telecharger `RVR-Studio-Setup-macos.dmg`
-2. Ouvrir le DMG et glisser RVR Studio dans `/Applications`
-3. Lancer l'application
+1. Telecharger `RVR-Studio-Setup-macos.tar.gz`
+2. Extraire : `tar -xzf RVR-Studio-Setup-macos.tar.gz -C ~/rvr-studio`
+3. Lancer : `~/rvr-studio/rvr-studio.sh` — ouvre `http://localhost:5200`
 
 ### Linux
 ```bash
