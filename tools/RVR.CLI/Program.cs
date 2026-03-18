@@ -6,20 +6,58 @@ using RVR.CLI.Commands;
 
 // Display welcome banner
 AnsiConsole.Write(new FigletText("RVR CLI").Color(Color.Blue));
-AnsiConsole.MarkupLine("[grey]RIVORA Framework CLI v3.4.0 - Extended Edition[/]" + Environment.NewLine);
+AnsiConsole.MarkupLine("[grey]RIVORA Framework CLI v4.0.0 - Advanced Edition[/]" + Environment.NewLine);
 
 // Create root command
 var rootCommand = new RootCommand("RIVORA Framework CLI - Scaffolding and code generation for .NET applications");
 
-// === NEW COMMAND ===
-var newCommand = new Command("new", "Create a new RIVORA Framework project");
-var newProjectNameArg = new Argument<string>("name", "Name of the project");
-var newTemplateOption = new Option<string>("--template", () => "minimal", "Template to use (minimal, saas-starter, ai-rag)");
+// === NEW COMMAND (interactive wizard + non-interactive flags) ===
+var newCommand = new Command("new", "Create a new RIVORA Framework project (interactive wizard)");
+var newProjectNameArg = new Argument<string>("name", () => "MyApp", "Name of the project");
+var newTemplateOption = new Option<string>("--template", () => "minimal", "Template (minimal, saas-starter, ai-rag, microservices)");
 var newTenancyOption = new Option<string>("--tenancy", () => "row", "Multi-tenancy mode (row, schema, database)");
+var newTypeOption = new Option<string>("--type", () => "api", "App type (api, api-blazor, microservice, worker)");
+var newDbOption = new Option<string>("--db", () => "postgresql", "Database (postgresql, sqlserver, mysql, sqlite, mongodb, cosmosdb, none)");
+var newModulesOption = new Option<string>("--modules", () => "", "Comma-separated modules (Caching,HealthChecks,...)");
+var newSecurityOption = new Option<string>("--security", () => "", "Comma-separated security options (jwt,apikeys,identity-pro,...)");
+var newMultitenancyOption = new Option<string>("--multitenancy", () => "none", "Multi-tenancy mode (none, shared, schema, database)");
+var newDevopsOption = new Option<string>("--devops", () => "", "Comma-separated DevOps files (ci,docker-compose,dockerfile,editorconfig,gitignore)");
+var newAiOption = new Option<string>("--ai", () => "none", "AI mode (none, ai-base, ai-naturalquery, ai-agents, all)");
+var newOutputOption = new Option<string?>("--output", "Output directory");
 newCommand.AddArgument(newProjectNameArg);
 newCommand.AddOption(newTemplateOption);
 newCommand.AddOption(newTenancyOption);
-newCommand.SetHandler(async (name, template, tenancy) => await NewCommand.ExecuteAsync(name, template, tenancy), newProjectNameArg, newTemplateOption, newTenancyOption);
+newCommand.AddOption(newTypeOption);
+newCommand.AddOption(newDbOption);
+newCommand.AddOption(newModulesOption);
+newCommand.AddOption(newSecurityOption);
+newCommand.AddOption(newMultitenancyOption);
+newCommand.AddOption(newDevopsOption);
+newCommand.AddOption(newAiOption);
+newCommand.AddOption(newOutputOption);
+newCommand.SetHandler(async (context) =>
+{
+    var name = context.ParseResult.GetValueForArgument(newProjectNameArg);
+    var template = context.ParseResult.GetValueForOption(newTemplateOption)!;
+    var type = context.ParseResult.GetValueForOption(newTypeOption)!;
+    var db = context.ParseResult.GetValueForOption(newDbOption)!;
+    var modules = context.ParseResult.GetValueForOption(newModulesOption)!;
+    var security = context.ParseResult.GetValueForOption(newSecurityOption)!;
+    var multitenancy = context.ParseResult.GetValueForOption(newMultitenancyOption)!;
+    var devops = context.ParseResult.GetValueForOption(newDevopsOption)!;
+    var ai = context.ParseResult.GetValueForOption(newAiOption)!;
+    var output = context.ParseResult.GetValueForOption(newOutputOption);
+
+    // If non-default flags provided, use non-interactive mode
+    if (!string.IsNullOrEmpty(modules) || !string.IsNullOrEmpty(security) || !string.IsNullOrEmpty(devops) || ai != "none" || multitenancy != "none")
+    {
+        await NewCommand.ExecuteWithFlagsAsync(name, type, db, modules, security, multitenancy, devops, ai, output);
+    }
+    else
+    {
+        await NewCommand.ExecuteAsync(name, template, "row");
+    }
+});
 
 // === GENERATE COMMAND (with aliases) ===
 var generateCommand = new Command("generate", "Generate code (aliases: gen, g)");

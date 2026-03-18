@@ -4,7 +4,8 @@
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)
 ![Coverage](https://img.shields.io/badge/coverage-85%25-success?style=flat-square)
-![Version](https://img.shields.io/badge/version-3.3.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-4.0.0--preview-blue?style=flat-square)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in-Codespaces-blue?logo=github&style=flat-square)](https://codespaces.new/khalilbenaz/RIVORA)
 
 **Framework d'entreprise Cloud-Native pour .NET 9 - Clean Architecture, DDD et Multi-tenancy pour applications SaaS professionnelles.**
 
@@ -160,10 +161,21 @@ Infrastructure (Data)       EF Core 9, Repositories, Services externes
 
 ---
 
+## Quick Start with Codespaces
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/khalilbenaz/RIVORA)
+
+Click the button above to get a pre-configured development environment with .NET 9 SDK and RVR CLI installed.
+
+---
+
 ## RVR CLI
 
 ```bash
-# Scaffolding
+# Interactive wizard (recommended)
+rvr new
+
+# Or with flags
 rvr new MySaaS --template saas-starter
 rvr generate crud Invoice --props "Reference:string,Amount:decimal"
 rvr add-module Inventory
