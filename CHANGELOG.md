@@ -1,5 +1,457 @@
 # Changelog
 
+## [v4.0.0] - 2026-03-19
+
+### Added - Business Features (6 new pages)
+- **Chat** : Messagerie temps reel 1:1/groupe avec SignalR, rooms, bulles de messages, mobile responsive
+- **File Manager** : Drag & drop upload, grid/list view, thumbnails, dossiers, barre de progression
+- **Analytics Dashboard** : 3 graphiques SVG purs (bar, line, donut), stat cards avec tendances, top endpoints
+- **Calendar** : Grille mensuelle, evenements colores, formulaire inline, navigation mois
+- **Notes** : Masonry grid (style Google Keep), 5 couleurs pastel, pin/unpin, recherche
+- **Activity Feed** : Timeline verticale, 8 types d'activite, avatars, timestamps relatifs, filtres
+
+### Added - Flow Builder (visual + pipeline)
+- **Visual Node Editor** : Canvas drag & drop avec 8 types de noeuds (trigger, condition, action, transform, delay, webhook, email, log), connexions SVG bezier, palette, config panel
+- **Pipeline Mode** : Liste sequentielle d'etapes, ajout entre noeuds, reordonnement
+- **Flow Management** : Liste de flows, execution, historique step-by-step, 3 flows demo
+- **Routes** : `/admin/flows`, `/admin/flows/new`, `/admin/flows/:id`
+
+### Added - Project Creation Tools
+- **Project Wizard** : 6 etapes (template → config → modules → entities → flows → generation ZIP)
+- **6 Templates** : SaaS Starter, E-commerce, CRM, Blog/CMS, Internal Tools, API Backend
+- **Entity/CRUD Generator** : Designer visuel 3 panneaux, 8 generateurs de code (C# + TypeScript), diagramme ER SVG
+- **Kanban Board** : 5 colonnes drag & drop (Backlog → Done), priorites, labels, assignees
+
+### Added - Webhook System Complete
+- **Incoming Webhooks** : `POST /api/webhooks/incoming/{source}` avec validation signature HMAC-SHA256/SHA1 (timing-safe)
+- **Webhook Testing UI** : Logs expandables avec JSON viewer, replay, badges de signature
+- **Webhook Builder** : Editeur visuel de regles (trigger → conditions → target URL → payload template)
+- **In-memory store** : Configs + delivery logs (max 1000, auto-eviction)
+
+### Added - Developer Experience
+- **Vitest** : 41 tests unitaires frontend (Badge, StatCard, Pagination, Spinner, useSessionRefresh, authStore)
+- **Dark mode** : Toggle light/dark/system avec Tailwind v4 dark variant
+- **Toast notifications** : Success/error/warning/info avec auto-dismiss
+- **CSV Export** : Boutons export sur Users, Products, Audit Logs (avec protection injection formule)
+- **Web Push** : Notifications navigateur via Notification API + SignalR
+- **Component Showcase** : Page `/components` — Storybook leger
+- **Mobile bottom nav** : Navigation fixe en bas pour l'app client
+- **ErrorBoundary** : Fallback UI avec details en dev mode
+- **Axios retry** : Exponential backoff sur 429/503, respect Retry-After
+- **Session auto-refresh** : Warning countdown 5 min avant expiration JWT
+- **Pagination** : Composant reutilisable + integration Audit Logs (50/page)
+- **TableSkeleton** : Loading skeleton pour tables
+- **FormField** : Composant reutilisable avec validation
+- **WCAG Accessibility** : aria-labels, table captions, role=status, focus-visible
+- **ESLint config** : eslint.config.js pour ESLint 9+ (CI compatible)
+
+### Added - Backend Improvements
+- **EF Core Migration** : Colonne `ApiKey.KeyHash` + index
+- **JWT CVE fix** : `System.IdentityModel.Tokens.Jwt` 7.0.3 → 8.3.0
+- **Dockerfile** : Multi-stage frontend (node:22 + nginx:alpine, gzip, cache headers)
+- **CI/CD frontend** : Job GitHub Actions (lint, typecheck, build)
+- **Per-tenant rate limiting** : 200 req/min partitionne par X-Tenant-Id ou claim
+- **Grafana dashboard** : RIVORA API Monitoring (10 panneaux, metriques ASP.NET Core)
+- **Email templates** : 4 templates HTML responsive (welcome, password-reset, email-verification, invoice)
+- **Config validation** : ValidateOnStart() pour JwtSettings avec data annotations
+- **Playwright E2E** : 20 tests (landing, auth flows, admin pages)
+- **OpenAPI client** : openapi-typescript + script de generation
+- **PWA** : Manifest, icons SVG, service worker (cache-first assets, network-first API)
+- **i18n** : react-i18next FR/EN avec LanguageSwitcher
+
+### Added - Native AOT (25% → 89%)
+- Elimination patterns reflection : `Activator.CreateInstance`, `Type.GetType`, `AppDomain.GetAssemblies`, `MethodInfo.Invoke`
+- `OutboxEventTypeRegistry` statique pour deserialization AOT-safe
+- `[DynamicallyAccessedMembers]` sur 10+ fichiers
+- `[UnconditionalSuppressMessage]` sur RVRDbContext
+- `[RequiresUnreferencedCode]` sur Plugins
+- `JsonSerializerContext` source-generated sur AI Agents (SqlToolJsonContext, ReActJsonContext, HangfireJsonContext, AuditJsonContext)
+- 50/56 modules AOT-compatibles (89%)
+
+### Fixed - Security Audit (15 fixes)
+- Remove hardcoded JWT secrets, enforce env var + min 32 chars
+- Fix path traversal in StudioEndpoints (regex whitelist)
+- Hash API keys SHA-256, timing-safe comparison
+- Remove TrustServerCertificate=true (5 files)
+- Harden CSP (remove unsafe-inline)
+- Restrict CORS (explicit methods/headers)
+- Block reserved webhook headers
+- PBKDF2 for AES key derivation (100K iterations)
+- Zip bomb protection in PluginInstaller (100 MB max)
+- Bounded InMemory stores with auto-eviction
+
+### Fixed - Code Quality
+- Replace blocking `.Result` with async/await (PrivacyService)
+- Fix MemoryStream/AlternateView resource leaks (SmtpEmailSender)
+- Fix webhook serialization for polymorphic types
+
+---
+
+## [v4.0.0-preview.2] - 2026-03-19
+
+### Added - React Front End (Landing + Client SaaS + Back Office Admin)
+
+#### Front End (`frontend/`)
+- **Landing page publique** : Hero, 6 features, code preview terminal, 3 pricing plans, 3 temoignages, CTA, footer 4 colonnes, navbar sticky blur
+- **App client SaaS** : Login/Register split-screen, dashboard welcome + quick actions + getting started, parametres (profil, securite/2FA, cles API, notifications)
+- **Back Office admin** : Dashboard stats + audit logs, CRUD Users/Products, Tenants cards, Audit Logs filtres, Health monitoring auto-refresh 30s, Roles & Permissions matrice
+- **Stack** : React 19, TypeScript, Vite 6, TailwindCSS 4, Zustand, Axios, Lucide Icons, React Router 7
+- **Build** : 105 KB gzipped, 0 erreurs TypeScript, 0 vulnerabilites npm
+
+### Fixed - Security Audit (15 fixes)
+- **sec: remove hardcoded JWT secrets** from appsettings.json/Production.json, enforce env var with min 32 chars validation at startup
+- **sec: fix path traversal** in StudioEndpoints — regex whitelist (alphanumeric + dots/hyphens)
+- **sec: hash API keys** with SHA-256 before DB storage, auto-migrate legacy plaintext keys
+- **sec: remove TrustServerCertificate=true** from all connection strings (5 files), replace with Encrypt=true
+- **sec: harden CSP** — remove unsafe-inline, add object-src none, frame-ancestors none, base-uri self
+- **sec: restrict CORS** — dev limited to localhost:3000/5173/4200, prod with explicit methods/headers
+- **sec: block reserved webhook headers** — whitelist validation (Authorization, Host, Cookie blocked)
+- **sec: replace hardcoded postgres credentials** in generated code with CHANGE_ME placeholders
+- **sec: clear OAuth placeholder secrets** from appsettings.json
+- **sec: remove fallback connection string** in ServiceCollectionExtensions, throw if not configured
+- **sec: use PBKDF2 for AES key derivation** (100K iterations) instead of naive string padding
+- **sec: add zip bomb protection** to PluginInstaller (100 MB max) with path traversal validation
+- **sec: bound InMemory stores** — RefreshTokenStore (10K max), AuditStore (50K max) with auto-eviction
+- **sec: add IDisposable** to InMemory stores for ReaderWriterLockSlim cleanup
+- **sec: add KeyHash field** to ApiKey entity for secure hash-based lookup
+
+### Fixed - Code Quality (3 fixes)
+- **fix: replace blocking .Result** with async/await in PrivacyService.ExportPersonalDataAsync
+- **fix: MemoryStream resource leak** in SmtpEmailSender — proper try/finally + DisposeAsync
+- **fix: AlternateView leak** — wrap in using statement
+
+### Improved - UX/UI (18 enhancements)
+- **ui: API landing page** — dark mode, accessibility (aria, skip-link, semantic HTML), version update, init banner, live health check
+- **ui: Admin sidebar** — icons, mobile hamburger menu + overlay, gradient logo
+- **ui: Dashboard** — loading skeleton, refresh button, empty state illustrations
+- **ui: Users/Products** — inline spinner, improved badges (Actif/Inactif), euro symbol, tabular-nums
+- **ui: Health Dashboard** — auto-refresh toggle 30s, timestamp, sub-details in stat cards
+- **ui: CSS global** — CSS variables, smooth transitions, focus-visible, responsive breakpoints
+- **ui: All Blazor pages** — accented characters fixed (HTML entities)
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: make RVR Studio work without database — InMemory fallback + DB guard on all pages (122fd87)
+- docs: fix all download links (macOS .tar.gz), add Windows install.bat, add .NET 9 prerequisite (e90a1ab)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (1ba7ed6)
+- fix: Desktop CI — use proven restore+build+publish pipeline (framework-dependent) (51f415f)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (70efa6e)
+- fix: Desktop CI final — publish project directly with TreatWarningsAsErrors=false (d4f70ee)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (7829a75)
+- fix: Desktop CI final — restore solution with RID, then publish --no-restore (c6e477d)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e688d14)
+- fix: Desktop CI v7 — restore + build solution first, then publish --no-build (c954dc1)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e784a14)
+- fix: Desktop CI v6 — let publish do its own RID-aware restore (2c5a2ee)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (89ec321)
+- fix: Desktop CI v5 — add global.json (pin SDK 9.0) + restore solution first (f5f0918)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (55dd407)
+- fix: Desktop CI v4 — publish Admin project directly as self-contained app (f0fd326)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (f1b1cf8)
+- fix: Desktop CI v3 — explicit restore per TFM, exclude MAUI files on Linux (9a26e51)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (c8ac612)
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: Desktop CI — use proven restore+build+publish pipeline (framework-dependent) (51f415f)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (70efa6e)
+- fix: Desktop CI final — publish project directly with TreatWarningsAsErrors=false (d4f70ee)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (7829a75)
+- fix: Desktop CI final — restore solution with RID, then publish --no-restore (c6e477d)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e688d14)
+- fix: Desktop CI v7 — restore + build solution first, then publish --no-build (c954dc1)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e784a14)
+- fix: Desktop CI v6 — let publish do its own RID-aware restore (2c5a2ee)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (89ec321)
+- fix: Desktop CI v5 — add global.json (pin SDK 9.0) + restore solution first (f5f0918)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (55dd407)
+- fix: Desktop CI v4 — publish Admin project directly as self-contained app (f0fd326)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (f1b1cf8)
+- fix: Desktop CI v3 — explicit restore per TFM, exclude MAUI files on Linux (9a26e51)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (c8ac612)
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: Desktop CI final — publish project directly with TreatWarningsAsErrors=false (d4f70ee)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (7829a75)
+- fix: Desktop CI final — restore solution with RID, then publish --no-restore (c6e477d)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e688d14)
+- fix: Desktop CI v7 — restore + build solution first, then publish --no-build (c954dc1)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e784a14)
+- fix: Desktop CI v6 — let publish do its own RID-aware restore (2c5a2ee)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (89ec321)
+- fix: Desktop CI v5 — add global.json (pin SDK 9.0) + restore solution first (f5f0918)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (55dd407)
+- fix: Desktop CI v4 — publish Admin project directly as self-contained app (f0fd326)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (f1b1cf8)
+- fix: Desktop CI v3 — explicit restore per TFM, exclude MAUI files on Linux (9a26e51)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (c8ac612)
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: Desktop CI final — restore solution with RID, then publish --no-restore (c6e477d)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e688d14)
+- fix: Desktop CI v7 — restore + build solution first, then publish --no-build (c954dc1)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e784a14)
+- fix: Desktop CI v6 — let publish do its own RID-aware restore (2c5a2ee)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (89ec321)
+- fix: Desktop CI v5 — add global.json (pin SDK 9.0) + restore solution first (f5f0918)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (55dd407)
+- fix: Desktop CI v4 — publish Admin project directly as self-contained app (f0fd326)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (f1b1cf8)
+- fix: Desktop CI v3 — explicit restore per TFM, exclude MAUI files on Linux (9a26e51)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (c8ac612)
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: Desktop CI v7 — restore + build solution first, then publish --no-build (c954dc1)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (e784a14)
+- fix: Desktop CI v6 — let publish do its own RID-aware restore (2c5a2ee)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (89ec321)
+- fix: Desktop CI v5 — add global.json (pin SDK 9.0) + restore solution first (f5f0918)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (55dd407)
+- fix: Desktop CI v4 — publish Admin project directly as self-contained app (f0fd326)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (f1b1cf8)
+- fix: Desktop CI v3 — explicit restore per TFM, exclude MAUI files on Linux (9a26e51)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (c8ac612)
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: Desktop CI v6 — let publish do its own RID-aware restore (2c5a2ee)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (89ec321)
+- fix: Desktop CI v5 — add global.json (pin SDK 9.0) + restore solution first (f5f0918)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (55dd407)
+- fix: Desktop CI v4 — publish Admin project directly as self-contained app (f0fd326)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (f1b1cf8)
+- fix: Desktop CI v3 — explicit restore per TFM, exclude MAUI files on Linux (9a26e51)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (c8ac612)
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: Desktop CI v5 — add global.json (pin SDK 9.0) + restore solution first (f5f0918)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (55dd407)
+- fix: Desktop CI v4 — publish Admin project directly as self-contained app (f0fd326)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (f1b1cf8)
+- fix: Desktop CI v3 — explicit restore per TFM, exclude MAUI files on Linux (9a26e51)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (c8ac612)
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: Desktop CI v4 — publish Admin project directly as self-contained app (f0fd326)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (f1b1cf8)
+- fix: Desktop CI v3 — explicit restore per TFM, exclude MAUI files on Linux (9a26e51)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (c8ac612)
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: Desktop CI v3 — explicit restore per TFM, exclude MAUI files on Linux (9a26e51)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (c8ac612)
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: Desktop CI — single TargetFramework per platform to avoid cross-workload restore failures (0384d90)
+- feat: add Studio GUI — home page, module manager, sidebar navigation, full CSS (ed8cad0)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (6f055b3)
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- fix: Desktop build pipeline — proper .exe/.dmg/.tar.gz installers (b124db3)
+- docs: update CHANGELOG.md for v4.0.0-preview.1 (afc143c)
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+- docs: add Desktop download links to README (364a8cd)
+- feat: add Desktop distribution pipeline, download pages, and Studio API endpoint (aeb77c2)
+- feat: implement v4.0 Advanced features — wizard, Studio, Desktop, VS Code ext, Codespaces (#98 #99 #100 #105 #106 #107) (73b6778)
+- feat: implement v3.4.0 CLI commands — remove-module, seed, publish, env, upgrade (#101 #102 #103 #104 #108) (ed5646a)
+- docs: update CHANGELOG.md for v3.3.3 (7d593f1)
+
+
+## [v4.0.0-preview.2] - 2026-03-18
+
+### Added - Distribution & Download
+
+#### CI/CD
+- **`build-desktop.yml`** : GitHub Actions workflow to build RVR Studio Desktop installers for Windows (.zip), macOS (.zip), and Linux (.tar.gz), attached to each GitHub Release
+
+#### Website
+- **Download page** : `/download` (FR) and `/en/download` (EN) pages on GitHub Pages with installer links, installation instructions, and alternative options (CLI, Codespaces)
+- **Nav link** : "Download" button added to VitePress navigation bar (both locales)
+
+#### Studio API
+- **`POST /api/studio/generate`** : Endpoint to generate a RIVORA solution ZIP from a JSON request (name, namespace, database, modules, etc.)
+- **`GET /api/studio/download/{name}`** : Endpoint to download a previously generated solution as ZIP
+- **SolutionWizard** updated to call the real API and provide download link
+
+---
+
+## [v4.0.0-preview.1] - 2026-03-18
+
+### Added - v4.0 Advanced Features (6 issues)
+
+#### CLI - Interactive Wizard
+- **`rvr new` interactive wizard** : 10-step guided solution creation with Spectre.Console — app type, database, modules, security, multi-tenancy, AI, observability, DevOps. Generates full Clean Architecture solution that compiles on first `dotnet build`. Non-interactive mode via flags (`--type`, `--db`, `--modules`, `--security`, `--multitenancy`, `--devops`, `--ai`). Shows equivalent CLI command after wizard. (#98)
+
+#### RVR Studio
+- **Solution Wizard (Blazor)** : Multi-step wizard in RVR Studio web — same 8-step flow as CLI with visual card selection, module toggles, database picker, summary with "Copy CLI Command" button and ZIP download (#99)
+- **RVR Studio Desktop** : MAUI Blazor Hybrid project scaffold for cross-platform desktop app (Windows/macOS/Linux). Reuses Admin Blazor components for native desktop experience (#100)
+
+#### Developer Experience
+- **VS Code Extension (`rivora-vscode`)** : Official VS Code extension with 9 C# snippets (rvr-entity, rvr-handler, rvr-valueobject, rvr-domainevents, rvr-endpoint, rvr-test-unit, rvr-test-integration, rvr-seeder, rvr-module), 11 palette commands (New Solution, Add/Remove Module, AI Review, Generate Test, Doctor, Migrate, Seed, Publish, Upgrade, Env List). TypeScript project ready for VS Code Marketplace publishing (#105)
+- **GitHub Pages documentation** : Enhanced deploy-docs workflow to trigger on docs/ changes. VitePress site with full CLI reference, module docs, search, dark mode (#106)
+- **Playground (GitHub Codespaces)** : `.devcontainer/devcontainer.json` with .NET 9 SDK, RVR CLI pre-installed, ports forwarded. Minimal `samples/playground/` ready to run. "Open in Codespaces" support (#107)
+
+---
+
+## [v3.4.0] - 2026-03-18
+
+### Added - CLI Extended Edition (5 new commands)
+
+#### CLI - New Commands
+- **`rvr remove-module`** : Remove a module cleanly (inverse of `add-module`) — removes PackageReference, Program.cs registrations, appsettings sections, config files. Supports `--dry-run` and `--force` with dependency warnings (#101)
+- **`rvr seed`** : Standardized database seeding with profiles (dev/demo/test/perf), ordered execution via `IRvrDataSeeder`, `--reset` (truncate + reseed), `--dry-run`, `--tenant` multi-tenant support. Includes `rvr generate seed <Entity>` scaffolding (#102)
+- **`rvr publish`** : Unified publish pipeline (build + test + publish). Targets: Docker, NuGet, Azure, self-contained. Supports `--dry-run`, `--skip-tests`, `--registry`, `--tag`, auto-detection (#103)
+- **`rvr env`** : Complete environment management — `list`, `get`, `set`, `remove`, `switch`, `diff`, `secrets init/set`, `export` (dotenv/json/yaml), `import`. Automatic sensitive value masking (#104)
+- **`rvr upgrade`** : Migration assistant between major RIVORA versions — detects current version, applies automatic transformations (rename, TFM upgrade, config migration), reports manual steps. Supports `--dry-run`, `--to <version>`, `--list` (#108)
+
+#### Core
+- **`IRvrDataSeeder`** interface added to `RVR.Framework.Core.Seeding` for standardized seeding
+
+#### CLI Version
+- CLI version bumped to **3.4.0**
+
+---
+
+## [v3.3.3] - 2026-03-18
+
+- docs: add missing website pages + fix NuGet CLI README packaging (c71ddb1)
+- fix: resolve all code scanning alerts (log injection + permissions) (d3bd64f)
+- docs: update CHANGELOG.md for v3.3.2 (794f83f)
+
+## [v3.3.2] - 2026-03-18
+
+- chore: add explicit PackageId and IsPackable to all publishable projects (#97) (54b1c55)
+- docs: update CHANGELOG.md for v3.3.1 (ae08d6e)
+
+
+## [v3.3.1] - 2026-03-18
+
+- feat: RIVORA v3.3.0 - resolve all 13 open issues (#84-#96) (7abb367)
+
+
 Tous les changements notables de RIVORA Framework sont documentés dans ce fichier.
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
@@ -640,6 +1092,8 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 | Version | Date | Description |
 |---------|------|-------------|
+| [4.0.0](#v400---2026-03-19) | 2026-03-19 | 28-page React Frontend, Flow Builder, Project Wizard, Entity Generator, Kanban, Chat, Analytics, Webhooks, 89% AOT, 93 tests |
+| [4.0.0-preview.2](#v400-preview2---2026-03-19) | 2026-03-19 | React Front End, Security Audit (15 fixes), UX/UI (18 enhancements) |
 | [3.2.0](#320---2026-03-17) | 2026-03-17 | OAuth2/OIDC, GDPR, Event Sourcing, Saga, Keyset pagination, 14 features |
 | [3.1.0](#310---2026-03-16) | 2026-03-16 | Billing, Benchmarks, AI Design, Studio Modeling, Doc Portal |
 | [3.0.0](#300---2026-03-16) | 2026-03-16 | .NET 9 upgrade, 7 new modules, CLI AI Review, 19 features |

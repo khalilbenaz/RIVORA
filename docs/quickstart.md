@@ -1,46 +1,40 @@
-# Quickstart - RIVORA Framework
+# Quickstart - RIVORA Framework v4.0
 
 **Temps de lecture : 5 minutes**
 
-Ce guide vous accompagne pas à pas pour installer RIVORA Framework, créer votre premier projet et tester votre premier endpoint API.
+Ce guide vous accompagne pas a pas pour installer RIVORA Framework, lancer le backend, le frontend React, et creer votre premier projet.
 
 ---
 
-## 📋 Table des Matières
+## Table des Matieres
 
 - [Installation](#installation)
-- [Création du projet](#création-du-projet)
-- [Premier endpoint](#premier-endpoint)
+- [Lancer le backend](#lancer-le-backend)
+- [Lancer le frontend](#lancer-le-frontend)
+- [Creer un projet avec le wizard](#creer-un-projet-avec-le-wizard)
 - [Tests](#tests)
-- [Étapes suivantes](#étapes-suivantes)
+- [Etapes suivantes](#etapes-suivantes)
 
 ---
 
 ## Installation
 
-### Prérequis
-
-Avant de commencer, assurez-vous d'avoir installé :
+### Prerequis
 
 | Logiciel | Version | Lien |
 |----------|---------|------|
-| .NET SDK | 8.0+ | [Télécharger](https://dotnet.microsoft.com/download/dotnet/8.0) |
-| SQL Server | 2019+ ou LocalDB | [Télécharger](https://www.microsoft.com/sql-server) |
-| Git | Dernière version | [Télécharger](https://git-scm.com) |
-| VS Code / Visual Studio | Optionnel | [Télécharger](https://code.visualstudio.com) |
+| .NET SDK | 9.0+ | [Telecharger](https://dotnet.microsoft.com/download/dotnet/9.0) |
+| Node.js | 20+ | [Telecharger](https://nodejs.org) |
+| SQL Server, PostgreSQL, MySQL ou SQLite | Au choix | - |
+| Git | Derniere version | [Telecharger](https://git-scm.com) |
+| Docker | Optionnel | [Telecharger](https://www.docker.com) |
 
-### Vérification des prérequis
+### Verification
 
 ```bash
-# Vérifier .NET SDK
-dotnet --version
-# Doit afficher : 8.0.x
-
-# Vérifier Git
+dotnet --version   # 9.0.x
+node --version     # v20+
 git --version
-
-# Vérifier LocalDB (si utilisé)
-sqllocaldb info
 ```
 
 ### Cloner le repository
@@ -58,57 +52,111 @@ dotnet restore
 
 ---
 
-## Création du projet
-
-### Option 1 : Utiliser le template existant
-
-Le projet est déjà configuré. Passez directement à la configuration.
-
-### Option 2 : Créer un nouveau projet à partir du framework
+## Lancer le backend
 
 ```bash
-# Créer un nouveau dossier pour votre projet
-mkdir MonProjet
-cd MonProjet
+# Configurer les secrets (obligatoire depuis v4.0)
+cd src/api/RVR.Framework.Api
+dotnet user-secrets init
+dotnet user-secrets set "JwtSettings:SecretKey" "VotreCleSecreteDauMoins32Caracteres!!"
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
+  "Server=localhost;Database=RVRFrameworkDb;Trusted_Connection=True;Encrypt=True"
 
-# Copier la structure du framework
-cp -r ../RVR.Framework/src ./src
-cp -r ../RVR.Framework/tests ./tests
-cp ../RVR.Framework/Directory.Packages.props ./
-
-# Initialiser le repository Git
-git init
+# Lancer
+cd ../../..
+dotnet run --project src/api/RVR.Framework.Api
 ```
 
-### Configuration de la base de données
+API disponible sur `http://localhost:5220` (Swagger: `/swagger`, ReDoc: `/api-docs`)
 
-Éditez le fichier `src/RVR.Framework.Api/appsettings.json` :
+---
 
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=RVRFrameworkDb;Trusted_Connection=true;MultipleActiveResultSets=true;TrustServerCertificate=true"
-  },
-  "DatabaseSettings": {
-    "CommandTimeout": 30,
-    "EnableRetryOnFailure": true,
-    "MaxRetryCount": 3,
-    "MaxRetryDelay": "00:00:05",
-    "EnableSensitiveDataLogging": true,
-    "EnableDetailedErrors": true,
-    "MigrationsAssembly": "RVR.Framework.Infrastructure"
-  },
-  "JwtSettings": {
-    "SecretKey": "YourSuperSecretKeyThatShouldBeAtLeast32CharactersLong!",
-    "Issuer": "RVR.Framework",
-    "Audience": "RVR.Framework.Client",
-    "ExpirationMinutes": 60,
-    "RefreshTokenExpirationDays": 7
-  }
-}
+## Lancer le frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-> ⚠️ **Important** : En production, utilisez des variables d'environnement pour les secrets.
+Frontend disponible sur `http://localhost:3000` (proxy automatique vers l'API).
+
+### Pages principales
+
+| URL | Description |
+|-----|-------------|
+| `http://localhost:3000` | Landing page publique |
+| `http://localhost:3000/admin` | Back Office (28 pages) |
+| `http://localhost:3000/app` | App client SaaS |
+| `http://localhost:3000/admin/projects/new` | Project Wizard (6 templates) |
+| `http://localhost:3000/admin/generator` | Entity/CRUD Generator |
+| `http://localhost:3000/admin/flows` | Flow Builder |
+| `http://localhost:3000/admin/kanban` | Kanban Board |
+
+---
+
+## Creer un projet avec le wizard
+
+### Option 1 : Via le Front End (recommande)
+
+1. Ouvrir `http://localhost:3000/admin/projects/new`
+2. Choisir un template (SaaS, E-commerce, CRM, Blog, Internal Tools, API)
+3. Configurer le nom, namespace, base de donnees
+4. Selectionner les modules (securite, tenancy, billing, etc.)
+5. Definir les entites et champs
+6. Generer et telecharger le ZIP
+
+### Option 2 : Via le CLI
+
+```bash
+# Installer le CLI
+dotnet tool install --global RVR.CLI
+
+# Wizard interactif
+rvr new
+
+# Ou avec des flags
+rvr new MonSaaS --db postgresql --modules security,tenancy,jobs --auth jwt+2fa
+```
+
+### Option 3 : Via l'Entity Generator
+
+1. Ouvrir `http://localhost:3000/admin/generator`
+2. Definir vos entites visuellement (champs, types, relations)
+3. Previsualiser le code genere (8 fichiers : Entity, DTOs, Validator, Repository, Service, Controller, Page React, Client API)
+4. Telecharger tous les fichiers
+
+### Configuration de la base de donnees
+
+Les secrets ne doivent **jamais** etre dans `appsettings.json`. Utilisez `dotnet user-secrets` :
+
+```bash
+cd src/api/RVR.Framework.Api
+dotnet user-secrets init
+dotnet user-secrets set "JwtSettings:SecretKey" "VotreCleSecreteDauMoins32Caracteres!!"
+```
+
+#### Configurer OAuth (Azure AD, Keycloak, Auth0)
+
+```bash
+dotnet user-secrets set "OAuth:AzureAd:ClientSecret" "mon-client-secret"
+dotnet user-secrets set "OAuth:AzureAd:TenantId" "mon-tenant-id"
+```
+
+#### Commandes utiles
+
+```bash
+# Lister tous les secrets configurés
+dotnet user-secrets list
+
+# Supprimer un secret
+dotnet user-secrets remove "ConnectionStrings:DefaultConnection"
+
+# Supprimer tous les secrets
+dotnet user-secrets clear
+```
+
+> 💡 **Note** : Les User Secrets sont stockés localement dans `%APPDATA%\Microsoft\UserSecrets\` (Windows) ou `~/.microsoft/usersecrets/` (Linux/macOS). Ils ne sont **jamais** inclus dans le code source et sont automatiquement chargés en environnement `Development`.
 
 ### Créer la base de données
 
@@ -359,6 +407,7 @@ dotnet test /p:CollectCoverage=true \
 
 ### 🚀 Production checklist
 
+- [ ] Utiliser `dotnet user-secrets` pour le développement local (ne jamais committer de secrets)
 - [ ] Changer la `JwtSettings.SecretKey`
 - [ ] Configurer HTTPS
 - [ ] Mettre `EnableSensitiveDataLogging` à `false`
@@ -366,6 +415,7 @@ dotnet test /p:CollectCoverage=true \
 - [ ] Activer le rate limiting
 - [ ] Configurer le logging centralisé
 - [ ] Mettre en place les health checks
+- [ ] Utiliser des variables d'environnement ou Azure Key Vault pour les secrets en production
 
 ---
 
