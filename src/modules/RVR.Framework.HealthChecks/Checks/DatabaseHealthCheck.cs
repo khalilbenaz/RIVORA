@@ -2,6 +2,7 @@ namespace RVR.Framework.HealthChecks.Checks;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -116,7 +117,7 @@ public class EfCoreHealthCheck : IHealthCheck
         try
         {
             using var scope = _serviceProvider.CreateScope();
-            var dbContext = Activator.CreateInstance(_contextType);
+            var dbContext = scope.ServiceProvider.GetService(_contextType);
 
             if (dbContext is Microsoft.EntityFrameworkCore.DbContext efContext)
             {

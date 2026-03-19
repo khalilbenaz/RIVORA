@@ -2,90 +2,115 @@
 @using RVR.Framework.Infrastructure.Data
 @using RVR.Framework.Domain.Entities.Identity
 @inject RVRDbContext DbContext
+@inject DatabaseStatus DbStatus
 
 <h1>Utilisateurs</h1>
 
-<div class="toolbar">
-    <input type="text" placeholder="Rechercher par nom ou email..."
-           @bind="_searchTerm" @bind:event="oninput" @bind:after="Search"
-           class="search-input" />
-    <span class="result-count">@_users.Count resultat(s)</span>
-</div>
-
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Nom d'utilisateur</th>
-            <th>Email</th>
-            <th>Prenom</th>
-            <th>Nom</th>
-            <th>Actif</th>
-            <th>Email confirme</th>
-            <th>2FA</th>
-            <th>Date creation</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in _users)
-        {
-            <tr>
-                <td>@user.UserName</td>
-                <td>@user.Email</td>
-                <td>@user.FirstName</td>
-                <td>@user.LastName</td>
-                <td>
-                    <span class="@(user.IsActive ? "badge badge-success" : "badge badge-danger")">
-                        @(user.IsActive ? "Oui" : "Non")
-                    </span>
-                </td>
-                <td>
-                    <span class="@(user.EmailConfirmed ? "badge badge-success" : "badge badge-warning")">
-                        @(user.EmailConfirmed ? "Oui" : "Non")
-                    </span>
-                </td>
-                <td>@(user.TwoFactorEnabled ? "Oui" : "Non")</td>
-                <td>@user.CreatedAt.ToString("yyyy-MM-dd")</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@if (!_users.Any())
+@if (!DbStatus.IsConfigured)
 {
-    <p class="empty-state">Aucun utilisateur trouve.</p>
+    <div class="empty-state">Base de donn&eacute;es non configur&eacute;e.</div>
+}
+else
+{
+    <div class="toolbar">
+        <input type="text" placeholder="Rechercher par nom ou email..."
+               @bind="_searchTerm" @bind:event="oninput" @bind:after="Search"
+               class="search-input" aria-label="Rechercher des utilisateurs" />
+        <span class="result-count">@_users.Count r&eacute;sultat(s)</span>
+        @if (_loading)
+        {
+            <span class="spinner-border" style="width:1.25rem;height:1.25rem;border-width:2px;" aria-label="Chargement"></span>
+        }
+    </div>
+
+    <table class="data-table" aria-label="Liste des utilisateurs">
+        <thead>
+            <tr>
+                <th>Nom d'utilisateur</th>
+                <th>Email</th>
+                <th>Pr&eacute;nom</th>
+                <th>Nom</th>
+                <th>Actif</th>
+                <th>Email confirm&eacute;</th>
+                <th>2FA</th>
+                <th>Date cr&eacute;ation</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in _users)
+            {
+                <tr>
+                    <td><strong>@user.UserName</strong></td>
+                    <td>@user.Email</td>
+                    <td>@user.FirstName</td>
+                    <td>@user.LastName</td>
+                    <td>
+                        <span class="@(user.IsActive ? "badge badge-success" : "badge badge-danger")">
+                            @(user.IsActive ? "Actif" : "Inactif")
+                        </span>
+                    </td>
+                    <td>
+                        <span class="@(user.EmailConfirmed ? "badge badge-success" : "badge badge-warning")">
+                            @(user.EmailConfirmed ? "Oui" : "Non")
+                        </span>
+                    </td>
+                    <td>
+                        <span class="@(user.TwoFactorEnabled ? "badge badge-info" : "")">
+                            @(user.TwoFactorEnabled ? "Activ&eacute;" : "-")
+                        </span>
+                    </td>
+                    <td style="white-space: nowrap;">@user.CreatedAt.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (!_loading && !_users.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">&#128100;</div>
+            <p>Aucun utilisateur trouv&eacute;.</p>
+        </div>
+    }
 }
 
 @code {
     private string _searchTerm = string.Empty;
     private List<User> _users = new();
+    private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
     {
+        if (!DbStatus.IsConfigured) { _loading = false; return; }
         await LoadUsers();
     }
 
-    private async Task Search()
-    {
-        await LoadUsers();
-    }
+    private async Task Search() => await LoadUsers();
 
     private async Task LoadUsers()
     {
-        var query = DbContext.Users.AsQueryable();
+        _loading = true;
 
-        if (!string.IsNullOrWhiteSpace(_searchTerm))
+        try
         {
-            var term = _searchTerm.Trim().ToUpperInvariant();
-            query = query.Where(u =>
-                u.NormalizedUserName.Contains(term) ||
-                u.NormalizedEmail.Contains(term) ||
-                (u.FirstName != null && u.FirstName.ToUpper().Contains(term)) ||
-                (u.LastName != null && u.LastName.ToUpper().Contains(term)));
-        }
+            var query = DbContext.Users.AsQueryable();
 
-        _users = await query
-            .OrderBy(u => u.UserName)
-            .Take(100)
-            .ToListAsync();
+            if (!string.IsNullOrWhiteSpace(_searchTerm))
+            {
+                var term = _searchTerm.Trim().ToUpperInvariant();
+                query = query.Where(u =>
+                    u.NormalizedUserName.Contains(term) ||
+                    u.NormalizedEmail.Contains(term) ||
+                    (u.FirstName != null && u.FirstName.ToUpper().Contains(term)) ||
+                    (u.LastName != null && u.LastName.ToUpper().Contains(term)));
+            }
+
+            _users = await query
+                .OrderBy(u => u.UserName)
+                .Take(100)
+                .ToListAsync();
+        }
+        catch { _users = new(); }
+        finally { _loading = false; }
     }
 }

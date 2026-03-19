@@ -1,5 +1,6 @@
 namespace RVR.Framework.Features.Attributes;
 
+using System.Diagnostics.CodeAnalysis;
 using RVR.Framework.Features.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -78,8 +79,7 @@ internal class FeatureGateFilter : IAsyncActionFilter
                 var attribute = context.ActionDescriptor.EndpointMetadata
                     .OfType<FeatureGateAttribute>()
                     .FirstOrDefault(a => a.FeatureName == _featureName)
-                    ?? context.Controller.GetType().GetCustomAttributes(typeof(FeatureGateAttribute), true)
-                        .Cast<FeatureGateAttribute>()
+                    ?? GetFeatureGateAttributes(context.Controller.GetType())
                         .FirstOrDefault(a => a.FeatureName == _featureName);
 
                 var statusCode = attribute?.StatusCode ?? 404;
@@ -110,6 +110,12 @@ internal class FeatureGateFilter : IAsyncActionFilter
         await next();
     }
 
+    private static IEnumerable<FeatureGateAttribute> GetFeatureGateAttributes(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type controllerType)
+    {
+        return controllerType.GetCustomAttributes(typeof(FeatureGateAttribute), true)
+            .Cast<FeatureGateAttribute>();
+    }
 }
 
 /// <summary>

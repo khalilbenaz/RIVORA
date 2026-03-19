@@ -8,6 +8,8 @@
     <AssemblyName>RVR.Framework.Data.SqlServer</AssemblyName>
     <LangVersion>13.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>RVR.Framework.Data.SqlServer</PackageId>
+    <Description>SQL Server database provider for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>

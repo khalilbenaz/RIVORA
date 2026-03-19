@@ -90,6 +90,8 @@ Services disponibles :
 
 ## Etape suivante
 
+- [Creer son projet](/guide/create-project) pour demarrer votre propre application avec RIVORA
+- [Installation](/guide/installation) pour configurer la base de donnees et les secrets
 - [Architecture du projet](/guide/architecture) pour comprendre la structure
 - [Securite](/guide/security) pour configurer JWT et 2FA
 - [Multi-Tenancy](/guide/multi-tenancy) pour activer l'isolation des donnees

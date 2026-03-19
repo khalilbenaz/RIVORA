@@ -2,87 +2,108 @@
 @using RVR.Framework.Infrastructure.Data
 @using RVR.Framework.Domain.Entities.Products
 @inject RVRDbContext DbContext
+@inject DatabaseStatus DbStatus
 
 <h1>Produits</h1>
 
-<div class="toolbar">
-    <input type="text" placeholder="Rechercher par nom, SKU ou categorie..."
-           @bind="_searchTerm" @bind:event="oninput" @bind:after="Search"
-           class="search-input" />
-    <span class="result-count">@_products.Count resultat(s)</span>
-</div>
-
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Nom</th>
-            <th>SKU</th>
-            <th>Categorie</th>
-            <th>Prix</th>
-            <th>Stock</th>
-            <th>Actif</th>
-            <th>Date creation</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var product in _products)
-        {
-            <tr>
-                <td>@product.Name</td>
-                <td>@product.SKU</td>
-                <td>@product.Category</td>
-                <td style="text-align:right;">@product.Price.ToString("N2")</td>
-                <td style="text-align:right;">
-                    <span class="@(product.Stock == 0 ? "badge badge-danger" : product.Stock < 10 ? "badge badge-warning" : "")">
-                        @product.Stock
-                    </span>
-                </td>
-                <td>
-                    <span class="@(product.IsActive ? "badge badge-success" : "badge badge-danger")">
-                        @(product.IsActive ? "Oui" : "Non")
-                    </span>
-                </td>
-                <td>@product.CreatedAt.ToString("yyyy-MM-dd")</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@if (!_products.Any())
+@if (!DbStatus.IsConfigured)
 {
-    <p class="empty-state">Aucun produit trouve.</p>
+    <div class="empty-state">Base de donn&eacute;es non configur&eacute;e.</div>
+}
+else
+{
+    <div class="toolbar">
+        <input type="text" placeholder="Rechercher par nom, SKU ou cat&eacute;gorie..."
+               @bind="_searchTerm" @bind:event="oninput" @bind:after="Search"
+               class="search-input" aria-label="Rechercher des produits" />
+        <span class="result-count">@_products.Count r&eacute;sultat(s)</span>
+        @if (_loading)
+        {
+            <span class="spinner-border" style="width:1.25rem;height:1.25rem;border-width:2px;" aria-label="Chargement"></span>
+        }
+    </div>
+
+    <table class="data-table" aria-label="Liste des produits">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>SKU</th>
+                <th>Cat&eacute;gorie</th>
+                <th style="text-align:right;">Prix</th>
+                <th style="text-align:right;">Stock</th>
+                <th>Actif</th>
+                <th>Date cr&eacute;ation</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in _products)
+            {
+                <tr>
+                    <td><strong>@product.Name</strong></td>
+                    <td><code>@product.SKU</code></td>
+                    <td>@product.Category</td>
+                    <td style="text-align:right; font-variant-numeric: tabular-nums;">@product.Price.ToString("N2") &euro;</td>
+                    <td style="text-align:right;">
+                        <span class="@(product.Stock == 0 ? "badge badge-danger" : product.Stock < 10 ? "badge badge-warning" : "badge badge-success")">
+                            @product.Stock
+                        </span>
+                    </td>
+                    <td>
+                        <span class="@(product.IsActive ? "badge badge-success" : "badge badge-danger")">
+                            @(product.IsActive ? "Actif" : "Inactif")
+                        </span>
+                    </td>
+                    <td style="white-space: nowrap;">@product.CreatedAt.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (!_loading && !_products.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">&#128230;</div>
+            <p>Aucun produit trouv&eacute;.</p>
+        </div>
+    }
 }
 
 @code {
     private string _searchTerm = string.Empty;
     private List<Product> _products = new();
+    private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
     {
+        if (!DbStatus.IsConfigured) { _loading = false; return; }
         await LoadProducts();
     }
 
-    private async Task Search()
-    {
-        await LoadProducts();
-    }
+    private async Task Search() => await LoadProducts();
 
     private async Task LoadProducts()
     {
-        var query = DbContext.Products.AsQueryable();
+        _loading = true;
 
-        if (!string.IsNullOrWhiteSpace(_searchTerm))
+        try
         {
-            var term = _searchTerm.Trim().ToUpper();
-            query = query.Where(p =>
-                p.Name.ToUpper().Contains(term) ||
-                (p.SKU != null && p.SKU.ToUpper().Contains(term)) ||
-                (p.Category != null && p.Category.ToUpper().Contains(term)));
-        }
+            var query = DbContext.Products.AsQueryable();
 
-        _products = await query
-            .OrderBy(p => p.Name)
-            .Take(100)
-            .ToListAsync();
+            if (!string.IsNullOrWhiteSpace(_searchTerm))
+            {
+                var term = _searchTerm.Trim().ToUpper();
+                query = query.Where(p =>
+                    p.Name.ToUpper().Contains(term) ||
+                    (p.SKU != null && p.SKU.ToUpper().Contains(term)) ||
+                    (p.Category != null && p.Category.ToUpper().Contains(term)));
+            }
+
+            _products = await query
+                .OrderBy(p => p.Name)
+                .Take(100)
+                .ToListAsync();
+        }
+        catch { _products = new(); }
+        finally { _loading = false; }
     }
 }

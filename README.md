@@ -2,8 +2,8 @@
 
 ![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
-![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)
-![Coverage](https://img.shields.io/badge/coverage-93%25-success?style=flat-square)
+[![CI](https://github.com/khalilbenaz/RIVORA/actions/workflows/ci.yml/badge.svg)](https://github.com/khalilbenaz/RIVORA/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/khalilbenaz/RIVORA/graph/badge.svg)](https://codecov.io/gh/khalilbenaz/RIVORA)
 ![Version](https://img.shields.io/badge/version-4.0.0-blue?style=flat-square)
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in-Codespaces-blue?logo=github&style=flat-square)](https://codespaces.new/khalilbenaz/RIVORA)
 

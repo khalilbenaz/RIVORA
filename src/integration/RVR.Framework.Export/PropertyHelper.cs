@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace RVR.Framework.Export;
@@ -11,7 +12,7 @@ internal static class PropertyHelper
     /// Gets the public instance properties of <typeparamref name="T"/> filtered
     /// by the include/exclude rules in the given <see cref="ExportOptions"/>.
     /// </summary>
-    public static PropertyInfo[] GetFilteredProperties<T>(ExportOptions options)
+    public static PropertyInfo[] GetFilteredProperties<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(ExportOptions options)
     {
         var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 

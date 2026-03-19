@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>RVR.AOT.Minimal</RootNamespace>
+
+    <!-- Native AOT Configuration -->
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!-- AOT Optimizations -->
+    <TrimMode>link</TrimMode>
+    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Only AOT-compatible RIVORA modules -->
+    <ProjectReference Include="../../src/core/RVR.Framework.Core/RVR.Framework.Core.csproj" />
+    <ProjectReference Include="../../src/core/RVR.Framework.Domain/RVR.Framework.Domain.csproj" />
+    <ProjectReference Include="../../src/modules/RVR.Framework.ApiKeys/RVR.Framework.ApiKeys.csproj" />
+  </ItemGroup>
+
+</Project>

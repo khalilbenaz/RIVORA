@@ -7,6 +7,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <PackageId>RVR.Framework.Features</PackageId>
+    <Description>Feature flags for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>

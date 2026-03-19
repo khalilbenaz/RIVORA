@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using RVR.Framework.Webhooks.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -57,7 +58,7 @@ public class WebhookService : IWebhookService
             Data = data
         };
 
-        var payload = JsonSerializer.Serialize(webhookEvent, JsonOptions);
+        var payload = JsonSerializer.Serialize(webhookEvent, WebhookJsonOptions.Default);
 
         _logger.LogInformation(
             "Publishing event {EventType} (id={EventId}) to {Count} subscription(s) via background channel",
@@ -118,4 +119,18 @@ public class WebhookService : IWebhookService
     {
         return _store.GetDeliveriesAsync(subscriptionId, take, ct);
     }
+}
+
+/// <summary>
+/// JSON serializer options for webhook payloads.
+/// Uses default reflection-based serialization to support arbitrary payload types
+/// (anonymous objects, DTOs, etc.) while maintaining camelCase naming.
+/// </summary>
+internal static class WebhookJsonOptions
+{
+    public static readonly JsonSerializerOptions Default = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = false,
+    };
 }

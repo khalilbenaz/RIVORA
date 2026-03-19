@@ -1,29 +1,63 @@
 @inherits LayoutComponentBase
 
 <div class="admin-wrapper">
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar" aria-label="Navigation principale">
         <div class="sidebar-header">
-            <h3>RVR Admin</h3>
+            <h3>RVR Studio</h3>
+            <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')" aria-label="Toggle navigation">
+                <span class="toggle-icon">&laquo;</span>
+            </button>
         </div>
         <ul class="sidebar-nav">
+            <li class="nav-section">Studio</li>
             <li>
-                <NavLink href="/" Match="NavLinkMatch.All" class="nav-link">Dashboard</NavLink>
+                <NavLink href="/studio" Match="NavLinkMatch.All" class="nav-link">
+                    <span class="nav-icon" aria-hidden="true">&#9733;</span> Accueil
+                </NavLink>
             </li>
             <li>
-                <NavLink href="/users" class="nav-link">Utilisateurs</NavLink>
+                <NavLink href="/studio/new" class="nav-link">
+                    <span class="nav-icon" aria-hidden="true">+</span> Nouvelle Solution
+                </NavLink>
             </li>
             <li>
-                <NavLink href="/products" class="nav-link">Produits</NavLink>
+                <NavLink href="/studio/modules" class="nav-link">
+                    <span class="nav-icon" aria-hidden="true">&#9881;</span> Modules
+                </NavLink>
+            </li>
+            <li class="nav-section">Administration</li>
+            <li>
+                <NavLink href="/" Match="NavLinkMatch.All" class="nav-link">
+                    <span class="nav-icon" aria-hidden="true">&#9632;</span> Dashboard
+                </NavLink>
             </li>
             <li>
-                <NavLink href="/audit" class="nav-link">Audit Logs</NavLink>
+                <NavLink href="/users" class="nav-link">
+                    <span class="nav-icon" aria-hidden="true">&#9679;</span> Utilisateurs
+                </NavLink>
             </li>
             <li>
-                <NavLink href="/health" class="nav-link">Health</NavLink>
+                <NavLink href="/products" class="nav-link">
+                    <span class="nav-icon" aria-hidden="true">&#9830;</span> Produits
+                </NavLink>
+            </li>
+            <li>
+                <NavLink href="/audit" class="nav-link">
+                    <span class="nav-icon" aria-hidden="true">&#9998;</span> Audit Logs
+                </NavLink>
+            </li>
+            <li>
+                <NavLink href="/health" class="nav-link">
+                    <span class="nav-icon" aria-hidden="true">&#9829;</span> Health
+                </NavLink>
             </li>
         </ul>
     </nav>
-    <main class="main-content">
+    <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('mobile-open')" aria-label="Menu">
+        &#9776;
+    </button>
+    <div class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('mobile-open')"></div>
+    <main class="main-content" role="main">
         @Body
     </main>
 </div>

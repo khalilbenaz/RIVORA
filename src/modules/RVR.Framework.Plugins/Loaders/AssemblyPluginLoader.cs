@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Logging;
@@ -23,6 +24,13 @@ public class AssemblyPluginLoader : IPluginLoader
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// This method is not compatible with Native AOT. It uses <see cref="AssemblyLoadContext.LoadFromAssemblyPath"/>,
+    /// <see cref="Assembly.GetTypes"/>, and <see cref="Activator.CreateInstance(Type)"/> which rely on
+    /// unreferenced code and dynamic code generation that are unavailable in AOT-compiled applications.
+    /// </remarks>
+    [RequiresUnreferencedCode("Plugin loading requires scanning assemblies for types implementing IPlugin, which is incompatible with trimming.")]
+    [RequiresDynamicCode("Plugin loading uses Activator.CreateInstance which requires dynamic code generation.")]
     public IReadOnlyList<IPlugin> LoadPlugins(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);

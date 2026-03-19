@@ -258,7 +258,7 @@ public class HangfireJobScheduler : IJobScheduler
             Status = JobStatus.Pending,
             MaxRetries = _options.DefaultMaxRetries,
             Queue = _options.DefaultQueue,
-            Data = parameters.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(parameters) : null
+            Data = parameters.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(parameters, HangfireJsonContext.Default.IDictionaryStringString) : null
         };
     }
 
@@ -291,3 +291,9 @@ public class HangfireJobScheduler : IJobScheduler
         };
     }
 }
+
+/// <summary>
+/// AOT-compatible JSON serializer context for Hangfire job data.
+/// </summary>
+[System.Text.Json.Serialization.JsonSerializable(typeof(IDictionary<string, string>))]
+internal partial class HangfireJsonContext : System.Text.Json.Serialization.JsonSerializerContext { }

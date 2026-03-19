@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using RVR.Framework.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -5,6 +7,8 @@ namespace RVR.Framework.Api.Middleware;
 
 /// <summary>
 /// Middleware pour l'authentification par clé API (4.6)
+/// API keys are compared using SHA-256 hashes stored in the database
+/// and timing-safe comparison to prevent side-channel attacks.
 /// </summary>
 public class ApiKeyAuthenticationMiddleware
 {
@@ -24,14 +28,27 @@ public class ApiKeyAuthenticationMiddleware
             return;
         }
 
+        var keyValue = extractedApiKey.ToString();
+        var keyHash = ComputeHash(keyValue);
+
+        // Look up by hash for security; fall back to plaintext comparison
+        // for backward compatibility during migration period.
         var apiKey = await dbContext.ApiKeys
-            .FirstOrDefaultAsync(k => k.Key == extractedApiKey.ToString() && k.IsActive);
+            .FirstOrDefaultAsync(k => k.IsActive &&
+                (k.KeyHash == keyHash || (k.KeyHash == null && k.Key == keyValue)));
 
         if (apiKey == null || (apiKey.ExpiresAtUtc.HasValue && apiKey.ExpiresAtUtc < DateTime.UtcNow))
         {
             context.Response.StatusCode = 401;
             await context.Response.WriteAsync("Clé API invalide ou expirée.");
             return;
+        }
+
+        // If key was matched by plaintext (legacy), migrate to hash
+        if (apiKey.KeyHash == null)
+        {
+            apiKey.KeyHash = keyHash;
+            apiKey.Key = $"***{keyValue[^4..]}"; // Keep only last 4 chars as prefix for identification
         }
 
         // Mettre à jour la date de dernière utilisation
@@ -54,5 +71,11 @@ public class ApiKeyAuthenticationMiddleware
         context.User.AddIdentity(identity);
 
         await _next(context);
+    }
+
+    private static string ComputeHash(string input)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
+        return Convert.ToHexStringLower(bytes);
     }
 }

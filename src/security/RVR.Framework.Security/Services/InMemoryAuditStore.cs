@@ -12,18 +12,34 @@ using RVR.Framework.Security.Interfaces;
 /// <summary>
 /// In-memory implementation of <see cref="IAuditStore"/>.
 /// Uses thread-safe concurrent collections for storage.
+/// Enforces a maximum capacity to prevent unbounded memory growth.
 /// </summary>
-public class InMemoryAuditStore : IAuditStore
+public class InMemoryAuditStore : IAuditStore, IDisposable
 {
+    private const int MaxCapacity = 50_000;
+
     private readonly ConcurrentBag<AuditEntry> _entries = new();
     private readonly ReaderWriterLockSlim _lock = new();
 
     /// <inheritdoc/>
     public Task StoreAsync(AuditEntry entry, CancellationToken cancellationToken = default)
     {
-        if (entry == null)
+        ArgumentNullException.ThrowIfNull(entry);
+
+        // Prevent unbounded growth: silently drop oldest entries when at capacity
+        if (_entries.Count >= MaxCapacity)
         {
-            throw new ArgumentNullException(nameof(entry));
+            _lock.EnterWriteLock();
+            try
+            {
+                // Drain oldest 10% to avoid constant eviction
+                var toDrain = MaxCapacity / 10;
+                for (var i = 0; i < toDrain && _entries.TryTake(out _); i++) { }
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
+            }
         }
 
         _entries.Add(entry);
@@ -155,5 +171,10 @@ public class InMemoryAuditStore : IAuditStore
         {
             _lock.ExitWriteLock();
         }
+    }
+
+    public void Dispose()
+    {
+        _lock.Dispose();
     }
 }

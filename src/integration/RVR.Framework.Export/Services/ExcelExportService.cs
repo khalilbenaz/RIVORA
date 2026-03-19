@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using ClosedXML.Excel;
@@ -12,7 +13,7 @@ internal sealed class ExcelExportService
     /// <summary>
     /// Exports a collection of objects to an XLSX byte array.
     /// </summary>
-    public byte[] Export<T>(IEnumerable<T> data, ExportOptions options)
+    public byte[] Export<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, ExportOptions options)
     {
         var properties = PropertyHelper.GetFilteredProperties<T>(options);
 
@@ -65,7 +66,7 @@ internal sealed class ExcelExportService
         return stream.ToArray();
     }
 
-    private static void SetCellValue<T>(IXLCell cell, PropertyInfo property, T item, ExportOptions options)
+    private static void SetCellValue<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IXLCell cell, PropertyInfo property, T item, ExportOptions options)
     {
         var value = property.GetValue(item);
 

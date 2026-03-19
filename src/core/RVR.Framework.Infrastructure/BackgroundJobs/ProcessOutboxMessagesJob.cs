@@ -62,10 +62,10 @@ public class ProcessOutboxMessagesJob : IJob
 
             try
             {
-                var eventType = Type.GetType(message.Type);
+                var eventType = OutboxEventTypeRegistry.Resolve(message.Type);
                 if (eventType == null)
                 {
-                    _logger.LogWarning("Unknown event type: {Type}", message.Type);
+                    _logger.LogWarning("Unknown event type: {Type}. Ensure it is registered in OutboxEventTypeRegistry at startup.", message.Type);
                     message.Error = $"Unknown event type: {message.Type}";
                     message.LastError = message.Error;
                     message.Status = OutboxMessageStatus.DeadLetter;
@@ -73,7 +73,9 @@ public class ProcessOutboxMessagesJob : IJob
                     continue;
                 }
 
-                var domainEvent = JsonSerializer.Deserialize(message.Content, eventType);
+                // For full Native AOT compatibility, configure a JsonSerializerContext
+                // with all outbox event types and pass it via JsonSerializerOptions.TypeInfoResolver.
+                var domainEvent = JsonSerializer.Deserialize(message.Content, eventType, new JsonSerializerOptions());
                 if (domainEvent == null)
                 {
                     _logger.LogWarning("Failed to deserialize event: {Type}", message.Type);

@@ -81,7 +81,7 @@ public class PrivacyService : IPrivacyService
     }
 
     /// <inheritdoc/>
-    public Task<Dictionary<string, object?>> ExportPersonalDataAsync(
+    public async Task<Dictionary<string, object?>> ExportPersonalDataAsync(
         string subjectId,
         CancellationToken cancellationToken = default)
     {
@@ -94,14 +94,16 @@ public class PrivacyService : IPrivacyService
 
         // Return consent records as the base exported data.
         // In a real implementation, this would aggregate data from all registered data sources.
+        var consentRecords = await _consentStore.GetBySubjectAsync(subjectId, cancellationToken);
+
         var exportData = new Dictionary<string, object?>
         {
             ["subjectId"] = subjectId,
             ["exportedAt"] = DateTime.UtcNow,
-            ["consentRecords"] = _consentStore.GetBySubjectAsync(subjectId, cancellationToken).Result
+            ["consentRecords"] = consentRecords
         };
 
-        return Task.FromResult(exportData);
+        return exportData;
     }
 
     /// <inheritdoc/>

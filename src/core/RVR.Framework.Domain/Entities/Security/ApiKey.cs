@@ -15,6 +15,10 @@ public class ApiKey : Entity<Guid>
     }
 
     public string Key { get; set; } = string.Empty;
+    /// <summary>
+    /// SHA-256 hash of the API key. Used for secure lookup instead of plaintext comparison.
+    /// </summary>
+    public string? KeyHash { get; set; }
     public string Name { get; set; } = string.Empty;
     public Guid? TenantId { get; set; }
     public Guid? UserId { get; set; }

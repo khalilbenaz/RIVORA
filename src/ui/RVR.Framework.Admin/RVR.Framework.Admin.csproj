@@ -7,6 +7,9 @@
     <RootNamespace>RVR.Framework.Admin</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\core\RVR.Framework.Domain\RVR.Framework.Domain.csproj" />
     <ProjectReference Include="..\..\core\RVR.Framework.Application\RVR.Framework.Application.csproj" />
     <ProjectReference Include="..\..\core\RVR.Framework.Infrastructure\RVR.Framework.Infrastructure.csproj" />

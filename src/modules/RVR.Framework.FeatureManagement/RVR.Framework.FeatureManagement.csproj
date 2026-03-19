@@ -16,6 +16,8 @@
     <LangVersion>13.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>RVR.Framework.FeatureManagement</PackageId>
+    <Description>Feature management integration for RIVORA Framework</Description>
   </PropertyGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
+using RVR.Framework.Core.Helpers;
 using RVR.Framework.SaaS.Models;
 
 namespace RVR.Framework.SaaS.Services;
@@ -57,7 +58,7 @@ public sealed class TenantLifecycleService : ITenantLifecycleService
         if (!_tenants.TryAdd(tenantId, record))
             return TenantProvisionResult.Failed("Failed to create tenant record.");
 
-        _logger.LogInformation("Provisioning tenant {TenantId} ({Name})", tenantId, request.Name);
+        _logger.LogInformation("Provisioning tenant {TenantId} ({Name})", tenantId, LogSanitizer.Sanitize(request.Name));
 
         // Step 1: Create database
         await CreateDatabaseAsync(record, ct);
@@ -69,7 +70,7 @@ public sealed class TenantLifecycleService : ITenantLifecycleService
         await CreateAdminUserAsync(record, ct);
         record.Onboarding.AdminUserCreated = true;
         record.Onboarding.CompletedSteps.Add("AdminUserCreated");
-        _logger.LogInformation("Tenant {TenantId}: admin user created for {Email}", tenantId, request.AdminEmail);
+        _logger.LogInformation("Tenant {TenantId}: admin user created for {Email}", tenantId, LogSanitizer.Sanitize(request.AdminEmail));
 
         // Step 3: Configure default settings
         await ConfigureDefaultSettingsAsync(record, ct);

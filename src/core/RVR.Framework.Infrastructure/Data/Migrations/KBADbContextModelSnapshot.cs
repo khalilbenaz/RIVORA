@@ -773,6 +773,50 @@ namespace RVR.Framework.Infrastructure.Data.Migrations
                     b.ToTable("RVR.PermissionGrants", (string)null);
                 });
 
+            modelBuilder.Entity("RVR.Framework.Domain.Entities.Security.ApiKey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiresAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KeyHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("LastUsedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KeyHash")
+                        .HasDatabaseName("IX_ApiKeys_KeyHash");
+
+                    b.ToTable("ApiKeys");
+                });
+
             modelBuilder.Entity("RVR.Framework.Domain.Entities.Products.Product", b =>
                 {
                     b.Property<Guid>("Id")

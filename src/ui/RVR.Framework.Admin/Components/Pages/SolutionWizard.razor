@@ -1,0 +1,394 @@
+@page "/studio/new"
+@rendermode InteractiveServer
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>New Solution — RVR Studio</PageTitle>
+
+<div class="container py-4">
+    <h2 class="mb-4">Create New RIVORA Solution</h2>
+
+    @if (CurrentStep <= TotalSteps)
+    {
+        <!-- Progress Bar -->
+        <div class="progress mb-4" style="height: 8px;">
+            <div class="progress-bar bg-primary" style="width: @((CurrentStep * 100 / TotalSteps))%"></div>
+        </div>
+        <p class="text-muted mb-3">Step @CurrentStep of @TotalSteps</p>
+    }
+
+    @switch (CurrentStep)
+    {
+        case 1:
+            <div class="card">
+                <div class="card-header bg-primary text-white">General Information</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Solution Name</label>
+                        <input type="text" class="form-control" @bind="Profile.Name" placeholder="MyApp" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Root Namespace</label>
+                        <input type="text" class="form-control" @bind="Profile.Namespace" placeholder="MyCompany.MyApp" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Application Type</label>
+                        <select class="form-select" @bind="Profile.AppType">
+                            <option value="api">API REST (Minimal API)</option>
+                            <option value="api-blazor">API + Blazor Admin</option>
+                            <option value="microservice">Microservice</option>
+                            <option value="worker">Worker Service</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            break;
+
+        case 2:
+            <div class="card">
+                <div class="card-header bg-primary text-white">Database Provider</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        @foreach (var db in DatabaseOptions)
+                        {
+                            <div class="col-md-4">
+                                <div class="card h-100 @(Profile.Database == db.Value ? "border-primary" : "")"
+                                     style="cursor: pointer;" @onclick="() => Profile.Database = db.Value">
+                                    <div class="card-body text-center">
+                                        <h5>@db.Label</h5>
+                                        <small class="text-muted">@db.Description</small>
+                                        @if (Profile.Database == db.Value)
+                                        {
+                                            <div class="mt-2"><span class="badge bg-primary">Selected</span></div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            break;
+
+        case 3:
+            <div class="card">
+                <div class="card-header bg-primary text-white">Modules</div>
+                <div class="card-body">
+                    @foreach (var group in ModuleGroups)
+                    {
+                        <h6 class="mt-3">@group.Category</h6>
+                        <div class="row g-2">
+                            @foreach (var module in group.Modules)
+                            {
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                               checked="@SelectedModules.Contains(module)"
+                                               @onchange="(e) => ToggleModule(module, (bool)(e.Value ?? false))" />
+                                        <label class="form-check-label">@module</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            break;
+
+        case 4:
+            <div class="card">
+                <div class="card-header bg-primary text-white">Security</div>
+                <div class="card-body">
+                    @foreach (var opt in SecurityOptions)
+                    {
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox"
+                                   checked="@SelectedSecurity.Contains(opt.Value)"
+                                   @onchange="(e) => ToggleSecurity(opt.Value, (bool)(e.Value ?? false))" />
+                            <label class="form-check-label"><strong>@opt.Label</strong> — @opt.Description</label>
+                        </div>
+                    }
+                </div>
+            </div>
+            break;
+
+        case 5:
+            <div class="card">
+                <div class="card-header bg-primary text-white">Multi-tenancy & SaaS</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Multi-tenancy Mode</label>
+                        <select class="form-select" @bind="Profile.TenancyMode">
+                            <option value="none">Disabled</option>
+                            <option value="shared">Shared Database (Row-Level)</option>
+                            <option value="schema">Schema per Tenant</option>
+                            <option value="database">Database per Tenant</option>
+                        </select>
+                    </div>
+                    @if (Profile.TenancyMode != "none")
+                    {
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" @bind="Profile.IncludeBilling" />
+                            <label class="form-check-label">Include Billing module (Stripe)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" @bind="Profile.IncludeSaaS" />
+                            <label class="form-check-label">Include SaaS module</label>
+                        </div>
+                    }
+                </div>
+            </div>
+            break;
+
+        case 6:
+            <div class="card">
+                <div class="card-header bg-primary text-white">AI</div>
+                <div class="card-body">
+                    <select class="form-select" @bind="Profile.AiMode">
+                        <option value="none">No AI module</option>
+                        <option value="ai-base">AI (LLM integration)</option>
+                        <option value="ai-naturalquery">AI + NaturalQuery (Text-to-SQL)</option>
+                        <option value="ai-agents">AI + Agents</option>
+                        <option value="all">Full AI Suite (AI + NaturalQuery + Agents + Guardrails)</option>
+                    </select>
+                </div>
+            </div>
+            break;
+
+        case 7:
+            <div class="card">
+                <div class="card-header bg-primary text-white">DevOps</div>
+                <div class="card-body">
+                    @foreach (var opt in DevOpsOptions)
+                    {
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox"
+                                   checked="@SelectedDevOps.Contains(opt.Value)"
+                                   @onchange="(e) => ToggleDevOps(opt.Value, (bool)(e.Value ?? false))" />
+                            <label class="form-check-label">@opt.Label</label>
+                        </div>
+                    }
+                </div>
+            </div>
+            break;
+
+        case 8:
+            <!-- Summary -->
+            <div class="card">
+                <div class="card-header bg-success text-white">Summary</div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr><th>Name</th><td>@Profile.Name</td></tr>
+                        <tr><th>Namespace</th><td>@Profile.Namespace</td></tr>
+                        <tr><th>Type</th><td>@Profile.AppType</td></tr>
+                        <tr><th>Database</th><td>@Profile.Database</td></tr>
+                        <tr><th>Modules</th><td>@(SelectedModules.Count > 0 ? string.Join(", ", SelectedModules) : "None")</td></tr>
+                        <tr><th>Security</th><td>@(SelectedSecurity.Count > 0 ? string.Join(", ", SelectedSecurity) : "None")</td></tr>
+                        <tr><th>Multi-tenancy</th><td>@Profile.TenancyMode</td></tr>
+                        <tr><th>AI</th><td>@Profile.AiMode</td></tr>
+                        <tr><th>DevOps</th><td>@(SelectedDevOps.Count > 0 ? string.Join(", ", SelectedDevOps) : "None")</td></tr>
+                    </table>
+
+                    <h6 class="mt-3">Equivalent CLI Command:</h6>
+                    <div class="bg-dark text-light p-3 rounded">
+                        <code>@GenerateCliCommand()</code>
+                        <button class="btn btn-sm btn-outline-light ms-2" @onclick="CopyCliCommand">Copy</button>
+                    </div>
+                </div>
+            </div>
+            break;
+    }
+
+    <!-- Navigation -->
+    <div class="d-flex justify-content-between mt-4">
+        <button class="btn btn-outline-secondary" @onclick="PreviousStep" disabled="@(CurrentStep <= 1)">
+            Previous
+        </button>
+        @if (CurrentStep < TotalSteps)
+        {
+            <button class="btn btn-primary" @onclick="NextStep">Next</button>
+        }
+        else
+        {
+            <button class="btn btn-success" @onclick="Generate">Generate Solution</button>
+        }
+    </div>
+
+    @if (IsGenerating)
+    {
+        <div class="mt-4 text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Generating solution...</p>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(GenerationError))
+    {
+        <div class="alert alert-danger mt-4">@GenerationError</div>
+    }
+
+    @if (GenerationComplete)
+    {
+        <div class="alert alert-success mt-4">
+            <h5>Solution generated successfully!</h5>
+            <p>Your RIVORA solution <strong>@Profile.Name</strong> has been created.</p>
+            <div class="d-flex gap-2 mt-3">
+                <a href="@DownloadUrl" class="btn btn-primary" download>Download .zip</a>
+                <button class="btn btn-outline-secondary" @onclick="CopyCliCommand">Copy CLI Command</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private int CurrentStep { get; set; } = 1;
+    private const int TotalSteps = 8;
+    private bool IsGenerating { get; set; }
+    private bool GenerationComplete { get; set; }
+
+    private WizardProfile Profile { get; set; } = new();
+    private HashSet<string> SelectedModules { get; set; } = new();
+    private HashSet<string> SelectedSecurity { get; set; } = new() { "jwt" };
+    private HashSet<string> SelectedDevOps { get; set; } = new() { "ci", "gitignore" };
+
+    private void NextStep() => CurrentStep = Math.Min(CurrentStep + 1, TotalSteps);
+    private void PreviousStep() => CurrentStep = Math.Max(CurrentStep - 1, 1);
+
+    private void ToggleModule(string module, bool isChecked)
+    {
+        if (isChecked) SelectedModules.Add(module);
+        else SelectedModules.Remove(module);
+    }
+
+    private void ToggleSecurity(string opt, bool isChecked)
+    {
+        if (isChecked) SelectedSecurity.Add(opt);
+        else SelectedSecurity.Remove(opt);
+    }
+
+    private void ToggleDevOps(string opt, bool isChecked)
+    {
+        if (isChecked) SelectedDevOps.Add(opt);
+        else SelectedDevOps.Remove(opt);
+    }
+
+    private async Task Generate()
+    {
+        IsGenerating = true;
+        StateHasChanged();
+
+        try
+        {
+            // Call the Studio API to generate the solution
+            var request = new
+            {
+                name = Profile.Name,
+                @namespace = Profile.Namespace,
+                appType = Profile.AppType,
+                database = Profile.Database,
+                modules = SelectedModules.ToList(),
+                security = SelectedSecurity.ToList(),
+                tenancyMode = Profile.TenancyMode,
+                aiMode = Profile.AiMode,
+                devOps = SelectedDevOps.ToList()
+            };
+
+            var baseUri = Navigation.BaseUri.TrimEnd('/');
+            var response = await Http.PostAsJsonAsync($"{baseUri}/api/studio/generate", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Trigger download
+                DownloadUrl = $"{baseUri}/api/studio/download/{Profile.Name}";
+                GenerationComplete = true;
+            }
+            else
+            {
+                GenerationError = $"Generation failed: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            GenerationError = $"Error: {ex.Message}";
+        }
+
+        IsGenerating = false;
+        StateHasChanged();
+    }
+
+    private string? DownloadUrl { get; set; }
+    private string? GenerationError { get; set; }
+
+    private string GenerateCliCommand()
+    {
+        var cmd = $"rvr new {Profile.Name} --type {Profile.AppType} --db {Profile.Database}";
+        if (SelectedModules.Count > 0) cmd += $" --modules {string.Join(",", SelectedModules)}";
+        if (SelectedSecurity.Count > 0) cmd += $" --security {string.Join(",", SelectedSecurity)}";
+        if (Profile.TenancyMode != "none") cmd += $" --multitenancy {Profile.TenancyMode}";
+        if (SelectedDevOps.Count > 0) cmd += $" --devops {string.Join(",", SelectedDevOps)}";
+        if (Profile.AiMode != "none") cmd += $" --ai {Profile.AiMode}";
+        return cmd;
+    }
+
+    private void CopyCliCommand()
+    {
+        // JS interop would be needed for clipboard in production
+    }
+
+    // Data models
+    private record DbOption(string Value, string Label, string Description);
+    private record ModuleGroup(string Category, string[] Modules);
+    private record SecurityOption(string Value, string Label, string Description);
+    private record DevOpsOption(string Value, string Label);
+
+    private static readonly DbOption[] DatabaseOptions = new[]
+    {
+        new DbOption("postgresql", "PostgreSQL", "Popular open-source RDBMS"),
+        new DbOption("sqlserver", "SQL Server", "Microsoft enterprise database"),
+        new DbOption("mysql", "MySQL", "Open-source RDBMS"),
+        new DbOption("sqlite", "SQLite", "Lightweight embedded database"),
+        new DbOption("mongodb", "MongoDB", "Document database"),
+        new DbOption("cosmosdb", "CosmosDB", "Azure globally distributed DB"),
+    };
+
+    private static readonly ModuleGroup[] ModuleGroups = new[]
+    {
+        new ModuleGroup("Infrastructure", new[] { "Caching", "HealthChecks", "Storage", "Resilience", "Idempotency" }),
+        new ModuleGroup("Messaging", new[] { "Events", "Messaging", "Notifications", "Webhooks" }),
+        new ModuleGroup("Jobs", new[] { "Jobs.Hangfire", "Jobs.Quartz" }),
+        new ModuleGroup("Architecture", new[] { "EventSourcing", "Saga" }),
+        new ModuleGroup("Features", new[] { "FeatureManagement", "Localization.Dynamic", "Search", "Workflow" }),
+        new ModuleGroup("Real-Time", new[] { "RealTime" }),
+    };
+
+    private static readonly SecurityOption[] SecurityOptions = new[]
+    {
+        new SecurityOption("jwt", "JWT Authentication", "Token-based authentication with refresh tokens"),
+        new SecurityOption("apikeys", "API Keys", "SHA256 hashed API key management"),
+        new SecurityOption("identity-pro", "Identity Pro", "2FA/TOTP, OAuth2, OIDC, session management"),
+        new SecurityOption("privacy-gdpr", "Privacy (GDPR)", "Personal data management, DSAR, consent"),
+        new SecurityOption("ip-allowlist", "IP Allowlist", "IP-based access control per tenant"),
+        new SecurityOption("rate-limiting", "Rate Limiting", "Request throttling per IP/user"),
+    };
+
+    private static readonly DevOpsOption[] DevOpsOptions = new[]
+    {
+        new DevOpsOption("ci", "GitHub Actions CI"),
+        new DevOpsOption("docker-compose", "docker-compose.dev.yml"),
+        new DevOpsOption("dockerfile", "Dockerfile"),
+        new DevOpsOption("editorconfig", ".editorconfig"),
+        new DevOpsOption("gitignore", ".gitignore"),
+    };
+
+    private class WizardProfile
+    {
+        public string Name { get; set; } = "MyApp";
+        public string Namespace { get; set; } = "MyApp";
+        public string AppType { get; set; } = "api";
+        public string Database { get; set; } = "postgresql";
+        public string TenancyMode { get; set; } = "none";
+        public bool IncludeBilling { get; set; }
+        public bool IncludeSaaS { get; set; }
+        public string AiMode { get; set; } = "none";
+    }
+}

@@ -5,6 +5,8 @@
     <LangVersion>13.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>RVR.Framework.Identity.Pro</PackageId>
+    <Description>Advanced identity management with session tracking and impersonation</Description>
   </PropertyGroup>
 
   <ItemGroup>

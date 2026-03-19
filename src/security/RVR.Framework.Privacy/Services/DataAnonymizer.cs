@@ -1,6 +1,8 @@
 namespace RVR.Framework.Privacy.Services;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using RVR.Framework.Privacy.Attributes;
 
@@ -22,7 +24,7 @@ public class DataAnonymizer : IDataAnonymizer
     }
 
     /// <inheritdoc/>
-    public T AnonymizeEntity<T>(T entity) where T : class
+    public T AnonymizeEntity<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(T entity) where T : class
     {
         if (entity == null)
         {
@@ -108,8 +110,8 @@ public class DataAnonymizer : IDataAnonymizer
             return null;
         }
 
-        // For unknown value types, return default
-        return Activator.CreateInstance(propertyType);
+        // For unknown value types, return default (AOT-safe)
+        return RuntimeHelpers.GetUninitializedObject(propertyType);
     }
 
     private static string GetAnonymizedString(string propertyName)

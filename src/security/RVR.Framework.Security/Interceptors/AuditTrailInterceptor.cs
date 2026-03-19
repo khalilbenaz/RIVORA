@@ -2,9 +2,11 @@ namespace RVR.Framework.Security.Interceptors;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using RVR.Framework.Security.Entities;
@@ -270,7 +272,8 @@ public class AuditTrailInterceptor : SaveChangesInterceptor
 
     private string GetEntityKey(EntityEntry entry)
     {
-        var keyProperties = entry.Entity.GetType().GetProperties()
+        var entityType = entry.Entity.GetType();
+        var keyProperties = GetPropertiesForAudit(entityType)
             .Where(p => p.Name.EndsWith("Id", StringComparison.OrdinalIgnoreCase) ||
                        p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.KeyAttribute), false).Any())
             .ToList();
@@ -282,6 +285,12 @@ public class AuditTrailInterceptor : SaveChangesInterceptor
 
         var keyValues = keyProperties.Select(p => p.GetValue(entry.Entity)?.ToString()).Where(v => v != null);
         return string.Join("-", keyValues);
+    }
+
+    private static PropertyInfo[] GetPropertiesForAudit(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type type)
+    {
+        return type.GetProperties();
     }
 
     private string GetValues(EntityEntry entry)
@@ -301,18 +310,22 @@ public class AuditTrailInterceptor : SaveChangesInterceptor
         return Serialize(values);
     }
 
-    private static string Serialize(object? value)
+    private static readonly JsonSerializerOptions AuditJsonOptions = new()
+    {
+        WriteIndented = false,
+        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
+        TypeInfoResolver = AuditJsonContext.Default
+    };
+
+    private static string Serialize(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] object? value)
     {
         if (value == null)
         {
             return string.Empty;
         }
 
-        return JsonSerializer.Serialize(value, new JsonSerializerOptions
-        {
-            WriteIndented = false,
-            ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
-        });
+        return JsonSerializer.Serialize(value, AuditJsonOptions);
     }
 
     private string? GetUserId()
@@ -472,4 +485,13 @@ public class AuditTrailInterceptorOptions
     {
         return !_excludedProperties.Contains(propertyName.ToLowerInvariant());
     }
+}
+
+/// <summary>
+/// AOT-compatible JSON serializer context for audit trail property values.
+/// </summary>
+[JsonSerializable(typeof(Dictionary<string, object?>))]
+[JsonSourceGenerationOptions(WriteIndented = false)]
+internal partial class AuditJsonContext : JsonSerializerContext
+{
 }
