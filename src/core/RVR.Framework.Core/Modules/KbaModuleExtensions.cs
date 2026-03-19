@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,16 +9,13 @@ public static class KbaModuleExtensions
     private static readonly List<IRvrModule> _modules = new();
 
     /// <summary>
-    /// Découvre et enregistre tous les modules RVR dans les assemblies spécifiés
+    /// Registers RVR modules explicitly (AOT-compatible).
+    /// Pass module instances directly instead of relying on assembly scanning.
     /// </summary>
-    public static IServiceCollection AddRvrModules(this IServiceCollection services, IConfiguration configuration, params Assembly[] assemblies)
+    public static IServiceCollection AddRvrModules(this IServiceCollection services, IConfiguration configuration, params IRvrModule[] modules)
     {
-        var moduleTypes = assemblies.SelectMany(a => a.GetTypes())
-            .Where(t => typeof(IRvrModule).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
-
-        foreach (var type in moduleTypes)
+        foreach (var module in modules)
         {
-            var module = (IRvrModule)Activator.CreateInstance(type)!;
             module.ConfigureServices(services, configuration);
             _modules.Add(module);
         }

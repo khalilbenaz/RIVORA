@@ -1,0 +1,86 @@
+name: Native AOT Compatibility Check
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'samples/aot-minimal/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  aot-publish:
+    name: AOT Publish Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install native AOT prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang zlib1g-dev
+
+      - name: Restore dependencies
+        run: dotnet restore samples/aot-minimal/RVR.AOT.Minimal.csproj
+
+      - name: Publish with Native AOT
+        id: aot-publish
+        run: |
+          dotnet publish samples/aot-minimal/RVR.AOT.Minimal.csproj \
+            -c Release \
+            -r linux-x64 \
+            --no-restore \
+            2>&1 | tee aot-output.log
+
+          # Check for AOT/trimming warnings (IL2XXX, IL3XXX)
+          if grep -E "(IL[23][0-9]{3})" aot-output.log > aot-warnings.log 2>/dev/null; then
+            echo "has_warnings=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::Native AOT warnings detected. See details below."
+          else
+            echo "has_warnings=false" >> "$GITHUB_OUTPUT"
+            echo "No AOT warnings detected."
+          fi
+
+      - name: Report AOT warnings as annotations
+        if: steps.aot-publish.outputs.has_warnings == 'true'
+        run: |
+          echo "## Native AOT Warnings" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "The following AOT/trimming warnings were detected during publish:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat aot-warnings.log >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+          # Emit warnings as GitHub annotations
+          while IFS= read -r line; do
+            echo "::warning::$line"
+          done < aot-warnings.log
+
+      - name: Verify binary was produced
+        run: |
+          BINARY="samples/aot-minimal/bin/Release/net9.0/linux-x64/publish/RVR.AOT.Minimal"
+          if [ -f "$BINARY" ]; then
+            SIZE=$(du -h "$BINARY" | cut -f1)
+            echo "Native AOT binary produced successfully: $SIZE"
+            echo "## AOT Build Success" >> "$GITHUB_STEP_SUMMARY"
+            echo "Binary size: $SIZE" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Native AOT binary was not produced"
+            exit 1
+          fi
+
+      - name: Report success
+        if: steps.aot-publish.outputs.has_warnings == 'false'
+        run: |
+          echo "## Native AOT Check Passed" >> "$GITHUB_STEP_SUMMARY"
+          echo "No AOT compatibility warnings detected." >> "$GITHUB_STEP_SUMMARY"

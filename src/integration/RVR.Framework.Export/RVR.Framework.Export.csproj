@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>RVR.Framework.Export</PackageId>
+    <Description>PDF, Excel and CSV export for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>

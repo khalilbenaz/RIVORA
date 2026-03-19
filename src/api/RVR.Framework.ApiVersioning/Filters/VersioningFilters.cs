@@ -1,6 +1,7 @@
 namespace RVR.Framework.ApiVersioning.Filters;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using RVR.Framework.ApiVersioning.Attributes;
@@ -83,7 +84,7 @@ public class ApiVersionResponseFilter : IAsyncResultFilter
         var action = context.ActionDescriptor.DisplayName;
 
         // Check for Deprecated attribute on controller
-        var controllerDeprecatedAttr = controller.GetCustomAttributes(true)
+        var controllerDeprecatedAttr = GetCustomAttributesFromType(controller)
             .OfType<DeprecatedAttribute>()
             .FirstOrDefault();
 
@@ -104,7 +105,7 @@ public class ApiVersionResponseFilter : IAsyncResultFilter
         }
 
         // Check for ApiVersion attribute with deprecation
-        var apiVersionAttr = controller.GetCustomAttributes(true)
+        var apiVersionAttr = GetCustomAttributesFromType(controller)
             .OfType<ApiVersionAttribute>()
             .FirstOrDefault(a => a.Deprecated);
 
@@ -123,6 +124,12 @@ public class ApiVersionResponseFilter : IAsyncResultFilter
                 httpContext.Response.Headers["Deprecation-Message"] = apiVersionAttr.DeprecationMessage;
             }
         }
+    }
+
+    private static object[] GetCustomAttributesFromType(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type type)
+    {
+        return type.GetCustomAttributes(true);
     }
 }
 

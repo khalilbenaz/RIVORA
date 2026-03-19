@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
@@ -12,7 +13,7 @@ internal sealed class CsvExportService
     /// <summary>
     /// Exports a collection of objects to a CSV byte array.
     /// </summary>
-    public byte[] Export<T>(IEnumerable<T> data, ExportOptions options)
+    public byte[] Export<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, ExportOptions options)
     {
         var properties = PropertyHelper.GetFilteredProperties<T>(options);
 
@@ -31,7 +32,7 @@ internal sealed class CsvExportService
         return Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
     }
 
-    private static string FormatCsvValue<T>(PropertyInfo property, T item, ExportOptions options)
+    private static string FormatCsvValue<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(PropertyInfo property, T item, ExportOptions options)
     {
         var value = property.GetValue(item);
 

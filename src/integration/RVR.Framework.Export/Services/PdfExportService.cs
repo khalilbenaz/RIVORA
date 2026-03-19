@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using QuestPDF.Fluent;
@@ -14,7 +15,7 @@ internal sealed class PdfExportService
     /// <summary>
     /// Exports a collection of objects to a PDF byte array.
     /// </summary>
-    public byte[] Export<T>(IEnumerable<T> data, ExportOptions options)
+    public byte[] Export<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, ExportOptions options)
     {
         var properties = PropertyHelper.GetFilteredProperties<T>(options);
         var dataList = data.ToList();
@@ -108,7 +109,7 @@ internal sealed class PdfExportService
         return document.GeneratePdf();
     }
 
-    private static string FormatValue<T>(PropertyInfo property, T item, ExportOptions options)
+    private static string FormatValue<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(PropertyInfo property, T item, ExportOptions options)
     {
         var value = property.GetValue(item);
 

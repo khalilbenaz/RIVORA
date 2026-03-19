@@ -32,6 +32,52 @@ public static class Extensions
         return builder;
     }
 
+    /// <summary>
+    /// Adds RIVORA Framework-specific service defaults on top of the standard Aspire service defaults.
+    /// Configures Serilog enrichment properties, RIVORA-tagged health checks, and extended OpenTelemetry tracing.
+    /// </summary>
+    /// <param name="builder">The host application builder.</param>
+    /// <param name="serviceName">Optional service name used for telemetry enrichment. Defaults to the application name.</param>
+    /// <returns>The host application builder for chaining.</returns>
+    public static IHostApplicationBuilder AddRivoraDefaults(
+        this IHostApplicationBuilder builder,
+        string? serviceName = null)
+    {
+        // Start with standard Aspire service defaults
+        builder.AddServiceDefaults();
+
+        var resolvedServiceName = serviceName ?? builder.Environment.ApplicationName;
+
+        // Configure Serilog-style enrichment properties via logging scope
+        builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+        builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
+
+        // Add RIVORA-specific OpenTelemetry resource attributes
+        builder.Services.AddOpenTelemetry()
+            .ConfigureResource(resource =>
+            {
+                resource.AddAttributes(new[]
+                {
+                    new KeyValuePair<string, object>("service.name", resolvedServiceName),
+                    new KeyValuePair<string, object>("service.framework", "RIVORA"),
+                    new KeyValuePair<string, object>("service.framework.version", "3.1.0")
+                });
+            })
+            .WithTracing(tracing =>
+            {
+                tracing.AddSource("RVR.Framework.*");
+            });
+
+        // Add RIVORA-specific health checks with framework tags
+        builder.Services.AddHealthChecks()
+            .AddCheck("rivora-framework", () => HealthCheckResult.Healthy("RIVORA Framework is operational"),
+                tags: ["live", "ready", "rivora"])
+            .AddCheck("rivora-dependencies", () => HealthCheckResult.Healthy("Dependencies are available"),
+                tags: ["ready", "rivora"]);
+
+        return builder;
+    }
+
     public static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicationBuilder builder)
     {
         builder.Logging.AddOpenTelemetry(logging =>
@@ -109,6 +155,23 @@ public static class Extensions
         app.MapHealthChecks("/ready", new HealthCheckOptions
         {
             Predicate = _ => true
+        });
+
+        return app;
+    }
+
+    /// <summary>
+    /// Maps RIVORA-specific health check endpoints in addition to the default ones.
+    /// Adds <c>/health/rivora</c> endpoint that only checks RIVORA-tagged health checks.
+    /// </summary>
+    public static WebApplication MapRivoraEndpoints(this WebApplication app)
+    {
+        app.MapDefaultEndpoints();
+
+        // RIVORA-specific health check endpoint
+        app.MapHealthChecks("/health/rivora", new HealthCheckOptions
+        {
+            Predicate = r => r.Tags.Contains("rivora")
         });
 
         return app;

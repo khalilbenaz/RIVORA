@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using RVR.Framework.Core.Security;
 using RVR.Framework.Domain;
@@ -90,6 +91,10 @@ public class RVRDbContext : DbContext
     // Business Entities
     public DbSet<Product> Products => Set<Product>();
 
+    [UnconditionalSuppressMessage("AOT", "IL2070:UnrecognizedReflectionPattern",
+        Justification = "Domain entities with DomainEvents are known at compile time and tracked by EF Core.")]
+    [UnconditionalSuppressMessage("AOT", "IL2075:UnrecognizedReflectionPattern",
+        Justification = "Domain entities with DomainEvents/ClearDomainEvents are known at compile time and tracked by EF Core.")]
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // Gestion du Soft Delete
@@ -138,6 +143,8 @@ public class RVRDbContext : DbContext
     /// <summary>
     /// Configuration du modèle
     /// </summary>
+    [UnconditionalSuppressMessage("AOT", "IL2070:UnrecognizedReflectionPattern",
+        Justification = "Attribute scanning for EncryptedAtRest occurs during EF Core model building which manages type metadata.")]
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -206,11 +213,23 @@ public class RVRDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(RVRDbContext).Assembly);
     }
 
+    private static byte[] DeriveKey(string encryptionKey)
+    {
+        // Use PBKDF2 for proper key derivation instead of naive string padding
+        var salt = "RVR.Framework.AES256"u8.ToArray();
+        return System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2(
+            encryptionKey,
+            salt,
+            iterations: 100_000,
+            System.Security.Cryptography.HashAlgorithmName.SHA256,
+            outputLength: 32);
+    }
+
     private static string EncryptString(string plainText, string encryptionKey)
     {
         if (string.IsNullOrEmpty(plainText)) return plainText;
         using var aes = Aes.Create();
-        aes.Key = System.Text.Encoding.UTF8.GetBytes(encryptionKey.PadRight(32).Substring(0, 32));
+        aes.Key = DeriveKey(encryptionKey);
         aes.GenerateIV();
         using var encryptor = aes.CreateEncryptor();
         var plainBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
@@ -226,7 +245,7 @@ public class RVRDbContext : DbContext
         if (string.IsNullOrEmpty(cipherText)) return cipherText;
         var fullCipher = Convert.FromBase64String(cipherText);
         using var aes = Aes.Create();
-        aes.Key = System.Text.Encoding.UTF8.GetBytes(encryptionKey.PadRight(32).Substring(0, 32));
+        aes.Key = DeriveKey(encryptionKey);
         var iv = new byte[aes.BlockSize / 8];
         var cipher = new byte[fullCipher.Length - iv.Length];
         Buffer.BlockCopy(fullCipher, 0, iv, 0, iv.Length);

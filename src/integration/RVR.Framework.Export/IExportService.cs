@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace RVR.Framework.Export;
 
 /// <summary>
@@ -12,7 +14,7 @@ public interface IExportService
     /// <param name="data">The data collection to export.</param>
     /// <param name="options">Optional export configuration.</param>
     /// <returns>A byte array containing the CSV file content.</returns>
-    byte[] ExportToCsv<T>(IEnumerable<T> data, ExportOptions? options = null);
+    byte[] ExportToCsv<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, ExportOptions? options = null);
 
     /// <summary>
     /// Exports the given data collection to Excel (XLSX) format.
@@ -21,7 +23,7 @@ public interface IExportService
     /// <param name="data">The data collection to export.</param>
     /// <param name="options">Optional export configuration.</param>
     /// <returns>A byte array containing the XLSX file content.</returns>
-    byte[] ExportToExcel<T>(IEnumerable<T> data, ExportOptions? options = null);
+    byte[] ExportToExcel<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, ExportOptions? options = null);
 
     /// <summary>
     /// Exports the given data collection to PDF format.
@@ -30,7 +32,7 @@ public interface IExportService
     /// <param name="data">The data collection to export.</param>
     /// <param name="options">Optional export configuration.</param>
     /// <returns>A byte array containing the PDF file content.</returns>
-    byte[] ExportToPdf<T>(IEnumerable<T> data, ExportOptions? options = null);
+    byte[] ExportToPdf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IEnumerable<T> data, ExportOptions? options = null);
 }
 
 /// <summary>

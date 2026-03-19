@@ -2,106 +2,127 @@
 @using RVR.Framework.Infrastructure.Data
 @using RVR.Framework.Domain.Entities.Auditing
 @inject RVRDbContext DbContext
+@inject DatabaseStatus DbStatus
 
 <h1>Audit Logs</h1>
 
-<div class="toolbar">
-    <input type="text" placeholder="Filtrer par URL ou methode HTTP..."
-           @bind="_searchTerm" @bind:event="oninput" @bind:after="Search"
-           class="search-input" />
-    <select @bind="_statusFilter" @bind:after="Search" class="filter-select">
-        <option value="">Tous les statuts</option>
-        <option value="success">Succes (2xx)</option>
-        <option value="error">Erreurs (4xx/5xx)</option>
-    </select>
-    <span class="result-count">@_logs.Count resultat(s)</span>
-</div>
-
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Utilisateur</th>
-            <th>IP</th>
-            <th>Methode</th>
-            <th>URL</th>
-            <th>Status</th>
-            <th>Duree (ms)</th>
-            <th>Exception</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var log in _logs)
-        {
-            <tr class="@(log.HttpStatusCode >= 400 ? "row-error" : "")">
-                <td style="white-space:nowrap;">@log.ExecutionDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                <td>@(log.UserId?.ToString("N")[..8] ?? "-")</td>
-                <td>@log.IpAddress</td>
-                <td>
-                    <span class="badge badge-method">@log.HttpMethod</span>
-                </td>
-                <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="@log.Url">
-                    @log.Url
-                </td>
-                <td>
-                    <span class="@GetStatusBadgeClass(log.HttpStatusCode)">
-                        @log.HttpStatusCode
-                    </span>
-                </td>
-                <td style="text-align:right;">@log.ExecutionTime</td>
-                <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="@log.ExceptionMessage">
-                    @(log.ExceptionMessage ?? "-")
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@if (!_logs.Any())
+@if (!DbStatus.IsConfigured)
 {
-    <p class="empty-state">Aucun log d'audit trouve.</p>
+    <div class="empty-state">Base de donn&eacute;es non configur&eacute;e.</div>
+}
+else
+{
+    <div class="toolbar">
+        <input type="text" placeholder="Filtrer par URL ou m&eacute;thode HTTP..."
+               @bind="_searchTerm" @bind:event="oninput" @bind:after="Search"
+               class="search-input" aria-label="Filtrer les logs" />
+        <select @bind="_statusFilter" @bind:after="Search" class="filter-select" aria-label="Filtrer par statut">
+            <option value="">Tous les statuts</option>
+            <option value="success">Succ&egrave;s (2xx)</option>
+            <option value="error">Erreurs (4xx/5xx)</option>
+        </select>
+        <span class="result-count">@_logs.Count r&eacute;sultat(s)</span>
+        @if (_loading)
+        {
+            <span class="spinner-border" style="width:1.25rem;height:1.25rem;border-width:2px;" aria-label="Chargement"></span>
+        }
+    </div>
+
+    <table class="data-table" aria-label="Logs d'audit">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Utilisateur</th>
+                <th>IP</th>
+                <th>M&eacute;thode</th>
+                <th>URL</th>
+                <th>Status</th>
+                <th style="text-align:right;">Dur&eacute;e (ms)</th>
+                <th>Exception</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in _logs)
+            {
+                <tr class="@(log.HttpStatusCode >= 400 ? "row-error" : "")">
+                    <td style="white-space:nowrap;">@log.ExecutionDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@(log.UserId?.ToString("N")[..8] ?? "-")</td>
+                    <td>@log.IpAddress</td>
+                    <td>
+                        <span class="badge badge-method">@log.HttpMethod</span>
+                    </td>
+                    <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="@log.Url">
+                        @log.Url
+                    </td>
+                    <td>
+                        <span class="@GetStatusBadgeClass(log.HttpStatusCode)">
+                            @log.HttpStatusCode
+                        </span>
+                    </td>
+                    <td style="text-align:right; font-variant-numeric: tabular-nums;">@log.ExecutionTime</td>
+                    <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="@log.ExceptionMessage">
+                        @(log.ExceptionMessage ?? "-")
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (!_loading && !_logs.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">&#128196;</div>
+            <p>Aucun log d'audit trouv&eacute;.</p>
+        </div>
+    }
 }
 
 @code {
     private string _searchTerm = string.Empty;
     private string _statusFilter = string.Empty;
     private List<AuditLog> _logs = new();
+    private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
     {
+        if (!DbStatus.IsConfigured) { _loading = false; return; }
         await LoadLogs();
     }
 
-    private async Task Search()
-    {
-        await LoadLogs();
-    }
+    private async Task Search() => await LoadLogs();
 
     private async Task LoadLogs()
     {
-        var query = DbContext.AuditLogs.AsQueryable();
+        _loading = true;
 
-        if (!string.IsNullOrWhiteSpace(_searchTerm))
+        try
         {
-            var term = _searchTerm.Trim().ToUpper();
-            query = query.Where(l =>
-                (l.Url != null && l.Url.ToUpper().Contains(term)) ||
-                (l.HttpMethod != null && l.HttpMethod.ToUpper().Contains(term)));
-        }
+            var query = DbContext.AuditLogs.AsQueryable();
 
-        if (_statusFilter == "success")
-        {
-            query = query.Where(l => l.HttpStatusCode != null && l.HttpStatusCode >= 200 && l.HttpStatusCode < 400);
-        }
-        else if (_statusFilter == "error")
-        {
-            query = query.Where(l => l.HttpStatusCode != null && l.HttpStatusCode >= 400);
-        }
+            if (!string.IsNullOrWhiteSpace(_searchTerm))
+            {
+                var term = _searchTerm.Trim().ToUpper();
+                query = query.Where(l =>
+                    (l.Url != null && l.Url.ToUpper().Contains(term)) ||
+                    (l.HttpMethod != null && l.HttpMethod.ToUpper().Contains(term)));
+            }
 
-        _logs = await query
-            .OrderByDescending(l => l.ExecutionDate)
-            .Take(200)
-            .ToListAsync();
+            if (_statusFilter == "success")
+            {
+                query = query.Where(l => l.HttpStatusCode != null && l.HttpStatusCode >= 200 && l.HttpStatusCode < 400);
+            }
+            else if (_statusFilter == "error")
+            {
+                query = query.Where(l => l.HttpStatusCode != null && l.HttpStatusCode >= 400);
+            }
+
+            _logs = await query
+                .OrderByDescending(l => l.ExecutionDate)
+                .Take(200)
+                .ToListAsync();
+        }
+        catch { _logs = new(); }
+        finally { _loading = false; }
     }
 
     private static string GetStatusBadgeClass(int? statusCode)

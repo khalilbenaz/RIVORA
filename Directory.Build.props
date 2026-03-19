@@ -3,5 +3,20 @@
     <!-- Suppress NU1507: Multiple package sources warning when using central package management -->
     <!-- This is expected as the dev environment has both nuget.org and a private feed -->
     <NoWarn>$(NoWarn);NU1507</NoWarn>
+
+    <!-- Shared NuGet package metadata -->
+    <Authors>Khalil BENAZZOUZZ</Authors>
+    <Company>RIVORA</Company>
+    <Product>RIVORA Framework</Product>
+    <Copyright>Copyright © RIVORA $(CurrentYear). All rights reserved.</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/khalilbenaz/RVR.Framework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/khalilbenaz/RVR.Framework</PackageProjectUrl>
+    <PackageTags>rivora;framework;dotnet;enterprise;modular;clean-architecture</PackageTags>
+    <Description>RIVORA Framework - Enterprise .NET 9 Modular Framework</Description>
+
+    <!-- Not packable by default - opt-in via src/Directory.Build.props -->
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 </Project>

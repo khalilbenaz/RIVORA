@@ -8,6 +8,8 @@
     <AssemblyName>RVR.Framework.Data.MySQL</AssemblyName>
     <LangVersion>13.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>RVR.Framework.Data.MySQL</PackageId>
+    <Description>MySQL database provider for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>

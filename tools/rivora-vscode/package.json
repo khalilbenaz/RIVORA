@@ -1,0 +1,121 @@
+{
+  "name": "rivora-vscode",
+  "displayName": "RIVORA Framework",
+  "description": "Official VS Code extension for RIVORA Framework - snippets, commands, IntelliSense",
+  "version": "1.0.0",
+  "publisher": "khalilbenaz",
+  "license": "MIT",
+  "icon": "images/rivora-icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/khalilbenaz/RVR.Framework"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "rivora",
+    "rvr",
+    "ddd",
+    "csharp",
+    "dotnet",
+    "clean-architecture",
+    "modular-monolith"
+  ],
+  "activationEvents": [
+    "onLanguage:csharp",
+    "onCommand:rivora.newSolution",
+    "onCommand:rivora.addModule",
+    "onCommand:rivora.removeModule",
+    "onCommand:rivora.aiReview",
+    "onCommand:rivora.generateTest",
+    "onCommand:rivora.doctor",
+    "onCommand:rivora.migrate",
+    "onCommand:rivora.seed",
+    "onCommand:rivora.publish",
+    "onCommand:rivora.upgrade",
+    "onCommand:rivora.envList"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rivora.newSolution",
+        "title": "RIVORA: New Solution",
+        "category": "RIVORA"
+      },
+      {
+        "command": "rivora.addModule",
+        "title": "RIVORA: Add Module",
+        "category": "RIVORA"
+      },
+      {
+        "command": "rivora.removeModule",
+        "title": "RIVORA: Remove Module",
+        "category": "RIVORA"
+      },
+      {
+        "command": "rivora.aiReview",
+        "title": "RIVORA: AI Review",
+        "category": "RIVORA"
+      },
+      {
+        "command": "rivora.generateTest",
+        "title": "RIVORA: Generate Test",
+        "category": "RIVORA"
+      },
+      {
+        "command": "rivora.doctor",
+        "title": "RIVORA: Run Doctor",
+        "category": "RIVORA"
+      },
+      {
+        "command": "rivora.migrate",
+        "title": "RIVORA: Migrate Database",
+        "category": "RIVORA"
+      },
+      {
+        "command": "rivora.seed",
+        "title": "RIVORA: Seed Data",
+        "category": "RIVORA"
+      },
+      {
+        "command": "rivora.publish",
+        "title": "RIVORA: Publish",
+        "category": "RIVORA"
+      },
+      {
+        "command": "rivora.upgrade",
+        "title": "RIVORA: Upgrade",
+        "category": "RIVORA"
+      },
+      {
+        "command": "rivora.envList",
+        "title": "RIVORA: List Environments",
+        "category": "RIVORA"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "csharp",
+        "path": "./snippets/csharp.json"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}

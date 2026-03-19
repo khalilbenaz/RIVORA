@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
     {
         // Charger la chaîne de connexion depuis ConnectionStrings
         var connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? "Server=(localdb)\\mssqllocaldb;Database=RVRFrameworkDb;Trusted_Connection=true;MultipleActiveResultSets=true;TrustServerCertificate=true";
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured. Set it in appsettings.json or via environment variables.");
 
         // Charger les configurations de la base de données
         var dbSection = configuration.GetSection("DatabaseSettings");

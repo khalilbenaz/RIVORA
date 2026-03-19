@@ -5,66 +5,127 @@
 <div class="container-fluid mt-4">
     <div class="row mb-5 text-center">
         <div class="col-12">
-            <h1 class="display-4 fw-bold text-primary">RVR Studio</h1>
-            <p class="lead text-muted">La plateforme de développement accéléré pour vos applications .NET 8</p>
+            <h1 class="display-4 fw-bold" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">RVR Studio</h1>
+            <p class="lead text-muted">Plateforme de d&eacute;veloppement acc&eacute;l&eacute;r&eacute; pour .NET 9 &mdash; v4.0.0</p>
         </div>
     </div>
 
     <div class="row g-4">
-        <!-- Solution Creator Card -->
-        <div class="col-md-6">
+        <!-- Solution Creator -->
+        <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
-                            <span class="fs-1">🚀</span>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                            <span class="fs-2">&#128640;</span>
                         </div>
-                        <h2 class="card-title h3 mb-0">Solution Creator</h2>
+                        <h2 class="card-title h5 mb-0">Solution Creator</h2>
                     </div>
-                    <p class="card-text text-muted mb-4">
-                        Démarrez un nouveau projet en quelques secondes. Choisissez entre une architecture monolithe modulaire 
-                        ou une structure microservices cloud-native.
+                    <p class="card-text text-muted small mb-3">
+                        Cr&eacute;ez un projet complet en quelques clics avec 6 templates pr&ecirc;ts &agrave; l'emploi.
                     </p>
-                    <ul class="list-unstyled mb-4">
-                        <li>✅ Templates Clean Architecture</li>
-                        <li>✅ Support Microservices & Gateway</li>
-                        <li>✅ Configuration Multitenant automatique</li>
+                    <ul class="list-unstyled small mb-3">
+                        <li>&#10003; 6 templates (SaaS, E-commerce, CRM...)</li>
+                        <li>&#10003; 25+ modules s&eacute;lectionnables</li>
+                        <li>&#10003; G&eacute;n&eacute;ration ZIP + commande CLI</li>
                     </ul>
-                    <a href="solution-creator" class="btn btn-primary w-100 py-2 fw-bold">Créer une Solution</a>
+                    <a href="solution-creator" class="btn btn-primary w-100 py-2 fw-bold">Cr&eacute;er une Solution</a>
                 </div>
             </div>
         </div>
 
-        <!-- Entity Builder Card -->
-        <div class="col-md-6">
+        <!-- Entity Builder -->
+        <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
-                            <span class="fs-1">🛠️</span>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-3 me-3">
+                            <span class="fs-2">&#9881;</span>
                         </div>
-                        <h2 class="card-title h3 mb-0">Entity Builder</h2>
+                        <h2 class="card-title h5 mb-0">Entity Builder</h2>
                     </div>
-                    <p class="card-text text-muted mb-4">
-                        Générez vos entités métier graphiquement. Studio écrit physiquement le code dans vos couches 
-                        Domain, Application et API, et gère vos migrations.
+                    <p class="card-text text-muted small mb-3">
+                        G&eacute;n&eacute;rez vos entit&eacute;s m&eacute;tier et tout le CRUD automatiquement.
                     </p>
-                    <ul class="list-unstyled mb-4">
-                        <li>✅ Génération Full-Stack (C#, DTOs, API)</li>
-                        <li>✅ Gestion des migrations EF Core</li>
-                        <li>✅ Support Audit & Multi-tenancy</li>
+                    <ul class="list-unstyled small mb-3">
+                        <li>&#10003; 8 fichiers g&eacute;n&eacute;r&eacute;s (C# + TypeScript)</li>
+                        <li>&#10003; Diagramme ER visuel</li>
+                        <li>&#10003; Support Audit &amp; Multi-tenancy</li>
                     </ul>
-                    <a href="entity-builder" class="btn btn-success w-100 py-2 fw-bold">Générer une Entité</a>
+                    <a href="entity-builder" class="btn btn-success w-100 py-2 fw-bold">G&eacute;n&eacute;rer une Entit&eacute;</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Domain Modeling -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-3 me-3">
+                            <span class="fs-2">&#9733;</span>
+                        </div>
+                        <h2 class="card-title h5 mb-0">Domain Modeling</h2>
+                    </div>
+                    <p class="card-text text-muted small mb-3">
+                        Mod&eacute;lisez vos bounded contexts et g&eacute;n&eacute;rez le code DDD.
+                    </p>
+                    <ul class="list-unstyled small mb-3">
+                        <li>&#10003; Entities, Value Objects, Events</li>
+                        <li>&#10003; Export Mermaid, PlantUML, C#</li>
+                        <li>&#10003; IA assist&eacute;e (Claude, OpenAI)</li>
+                    </ul>
+                    <a href="domain-modeling" class="btn btn-warning w-100 py-2 fw-bold">Mod&eacute;liser</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mt-5">
+    <!-- Quick links -->
+    <div class="row mt-5 g-3">
+        <div class="col-md-3">
+            <a href="http://localhost:3000/admin/flows" target="_blank" class="card text-decoration-none shadow-sm border-0 h-100">
+                <div class="card-body text-center py-4">
+                    <span class="fs-1">&#9881;</span>
+                    <h6 class="mt-2 text-dark">Flow Builder</h6>
+                    <small class="text-muted">Automatisations visuelles</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="http://localhost:3000/admin/kanban" target="_blank" class="card text-decoration-none shadow-sm border-0 h-100">
+                <div class="card-body text-center py-4">
+                    <span class="fs-1">&#128203;</span>
+                    <h6 class="mt-2 text-dark">Kanban Board</h6>
+                    <small class="text-muted">Gestion de t&acirc;ches</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="http://localhost:3000/admin/analytics" target="_blank" class="card text-decoration-none shadow-sm border-0 h-100">
+                <div class="card-body text-center py-4">
+                    <span class="fs-1">&#128200;</span>
+                    <h6 class="mt-2 text-dark">Analytics</h6>
+                    <small class="text-muted">Tableaux de bord</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="http://localhost:3000/admin/chat" target="_blank" class="card text-decoration-none shadow-sm border-0 h-100">
+                <div class="card-body text-center py-4">
+                    <span class="fs-1">&#128172;</span>
+                    <h6 class="mt-2 text-dark">Chat</h6>
+                    <small class="text-muted">Messagerie temps r&eacute;el</small>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row mt-4">
         <div class="col-12">
             <div class="alert alert-info border-0 shadow-sm">
-                <h5 class="alert-heading fw-bold">💡 Astuce</h5>
-                <p class="mb-0">RVR Studio utilise le <b>RVR CLI</b> en arrière-plan pour garantir que tout le code généré suit strictement les standards du framework.</p>
+                <h5 class="alert-heading fw-bold">&#128161; Nouveau dans v4.0</h5>
+                <p class="mb-0">Le <b>React Front End</b> est disponible sur <code>http://localhost:3000</code> avec 28 pages : Flow Builder, Project Wizard, Kanban, Chat, Analytics, Calendar, Notes et plus.</p>
             </div>
         </div>
     </div>
@@ -72,5 +133,5 @@
 
 <style>
     .card { transition: transform 0.2s, box-shadow 0.2s; }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.12) !important; }
 </style>

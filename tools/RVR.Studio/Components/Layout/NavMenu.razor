@@ -1,83 +1,100 @@
-<div class="top-row ps-3 navbar navbar-dark bg-dark shadow-sm">
+<div class="top-row ps-3 navbar navbar-dark shadow-sm" style="background: linear-gradient(135deg, #1e293b, #0f172a);">
     <div class="container-fluid d-flex align-items-center">
-        <span class="fs-4 me-2">💎</span>
+        <span class="fs-4 me-2" style="background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">R</span>
         <a class="navbar-brand fw-bold text-white mb-0" href="">RVR Studio</a>
-        <span class="badge bg-primary ms-2" style="font-size: 0.6rem;">PRO</span>
+        <span class="badge bg-primary ms-2" style="font-size: 0.6rem;">v4.0</span>
     </div>
 </div>
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable bg-dark text-white h-100" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable h-100" style="background: #1e293b;" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column py-3">
         <!-- Main Dashboard -->
         <div class="nav-item px-3 mb-2">
             <NavLink class="nav-link rounded text-light" href="" Match="NavLinkMatch.All">
-                Dashboard
+                <span class="me-2">&#9632;</span> Dashboard
             </NavLink>
         </div>
 
-        <!-- GENERATORS SECTION -->
-        <div class="nav-item px-3 mt-4 mb-2">
-            <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Scaffolding</small>
+        <!-- SCAFFOLDING -->
+        <div class="nav-item px-3 mt-3 mb-2">
+            <small class="text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.08em; color: #64748b;">Scaffolding</small>
         </div>
 
         <div class="nav-item px-3 mb-1">
             <NavLink class="nav-link rounded text-light" href="solution-creator">
-                Solution Creator
+                <span class="me-2">&#10010;</span> Solution Creator
             </NavLink>
         </div>
 
         <div class="nav-item px-3 mb-1">
             <NavLink class="nav-link rounded text-light" href="entity-builder">
-                Entity Builder
+                <span class="me-2">&#9881;</span> Entity Builder
             </NavLink>
         </div>
 
         <div class="nav-item px-3 mb-1">
             <NavLink class="nav-link rounded text-light" href="domain-modeling">
-                Domain Modeling
+                <span class="me-2">&#9733;</span> Domain Modeling
             </NavLink>
         </div>
 
-        <!-- ENTERPRISE MODULES SECTION -->
-        <div class="nav-item px-3 mt-4 mb-2">
-            <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Enterprise Modules</small>
+        <!-- ENTERPRISE -->
+        <div class="nav-item px-3 mt-3 mb-2">
+            <small class="text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.08em; color: #64748b;">Enterprise</small>
         </div>
 
         <div class="nav-item px-3 mb-1">
             <NavLink class="nav-link rounded text-light" href="saas/subscriptions">
-                SaaS Subscriptions
+                <span class="me-2">&#9830;</span> SaaS Subscriptions
             </NavLink>
         </div>
 
         <div class="nav-item px-3 mb-1">
             <NavLink class="nav-link rounded text-light" href="audit-logs">
-                Audit Logs
+                <span class="me-2">&#9998;</span> Audit Logs
             </NavLink>
         </div>
 
         <div class="nav-item px-3 mb-1">
             <NavLink class="nav-link rounded text-light" href="localization/translations">
-                Dynamic Translations
+                <span class="me-2">&#127760;</span> Translations
             </NavLink>
         </div>
 
         <div class="nav-item px-3 mb-1">
             <NavLink class="nav-link rounded text-light" href="storage/files">
-                Blob Storage
+                <span class="me-2">&#128193;</span> File Storage
             </NavLink>
         </div>
 
-        <!-- DATA & QUERIES SECTION -->
-        <div class="nav-item px-3 mt-4 mb-2">
-            <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Data & Queries</small>
+        <!-- DATA & QUERIES -->
+        <div class="nav-item px-3 mt-3 mb-2">
+            <small class="text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.08em; color: #64748b;">Data & Queries</small>
         </div>
 
         <div class="nav-item px-3 mb-1">
             <NavLink class="nav-link rounded text-light" href="query-builder">
-                Query Builder
+                <span class="me-2">&#128269;</span> Query Builder
             </NavLink>
+        </div>
+
+        <!-- LINKS -->
+        <div class="nav-item px-3 mt-3 mb-2">
+            <small class="text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.08em; color: #64748b;">Links</small>
+        </div>
+
+        <div class="nav-item px-3 mb-1">
+            <a class="nav-link rounded text-light" href="http://localhost:3000" target="_blank">
+                <span class="me-2">&#127758;</span> React Front End
+            </a>
+        </div>
+
+        <div class="nav-item px-3 mb-1">
+            <a class="nav-link rounded text-light" href="https://khalilbenaz.github.io/RIVORA/" target="_blank">
+                <span class="me-2">&#128214;</span> Documentation
+            </a>
         </div>
     </nav>
 </div>

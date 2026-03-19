@@ -8,6 +8,8 @@
     <LangVersion>13.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);NU1903</NoWarn>
+    <PackageId>RVR.Framework.Plugins</PackageId>
+    <Description>Plugin system with NuGet discovery for RIVORA Framework</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +25,9 @@
     <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
   </ItemGroup>
 
 </Project>

@@ -5,12 +5,22 @@
     <LangVersion>13.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>RVR.Framework.SaaS</PackageId>
+    <Description>SaaS features including tenant onboarding and cross-tenant analytics</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Stripe.net" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../core/RVR.Framework.Core/RVR.Framework.Core.csproj" />
   </ItemGroup>
 
 </Project>

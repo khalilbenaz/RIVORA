@@ -1,5 +1,6 @@
 namespace RVR.Framework.NaturalQuery.Services;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -37,7 +38,7 @@ public sealed class ExpressionBuilder
     /// <summary>
     /// Applies a <see cref="QueryPlan"/> to an <see cref="IQueryable{T}"/> source.
     /// </summary>
-    public IQueryable<T> Apply<T>(IQueryable<T> source, QueryPlan plan) where T : class
+    public IQueryable<T> Apply<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IQueryable<T> source, QueryPlan plan) where T : class
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(plan);
@@ -61,7 +62,7 @@ public sealed class ExpressionBuilder
 
     // ── Filters ──────────────────────────────────────────────────────
 
-    private IQueryable<T> ApplyFilters<T>(IQueryable<T> source, List<FilterCondition> filters) where T : class
+    private IQueryable<T> ApplyFilters<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IQueryable<T> source, List<FilterCondition> filters) where T : class
     {
         if (filters.Count == 0) return source;
 
@@ -95,7 +96,7 @@ public sealed class ExpressionBuilder
         return source.Where(lambda);
     }
 
-    private Expression? BuildFilterExpression<T>(ParameterExpression parameter, FilterCondition filter)
+    private Expression? BuildFilterExpression<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(ParameterExpression parameter, FilterCondition filter)
     {
         var property = typeof(T).GetProperty(filter.PropertyName, BindingFlags.Public | BindingFlags.Instance);
         if (property is null)
@@ -194,7 +195,7 @@ public sealed class ExpressionBuilder
 
     // ── Sorts ────────────────────────────────────────────────────────
 
-    private static IQueryable<T> ApplySorts<T>(IQueryable<T> source, List<SortCondition> sorts) where T : class
+    private static IQueryable<T> ApplySorts<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(IQueryable<T> source, List<SortCondition> sorts) where T : class
     {
         if (sorts.Count == 0) return source;
 

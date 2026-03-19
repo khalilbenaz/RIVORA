@@ -76,6 +76,14 @@ public class WebhookSender
                     {
                         var key = header[..separatorIndex].Trim();
                         var value = header[(separatorIndex + 1)..].Trim();
+
+                        // Block reserved/sensitive headers to prevent injection
+                        if (IsReservedHeader(key))
+                        {
+                            _logger.LogWarning("Skipping reserved webhook header '{HeaderName}'", key);
+                            continue;
+                        }
+
                         request.Headers.TryAddWithoutValidation(key, value);
                     }
                 }
@@ -102,6 +110,16 @@ public class WebhookSender
             return (0, false, ex.Message, duration);
         }
     }
+
+    private static readonly HashSet<string> ReservedHeaders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Authorization", "Host", "Connection", "Content-Length", "Content-Type",
+        "Transfer-Encoding", "Cookie", "Set-Cookie", "Proxy-Authorization",
+        "X-Webhook-Id", "X-Webhook-Timestamp"
+    };
+
+    private static bool IsReservedHeader(string headerName)
+        => ReservedHeaders.Contains(headerName);
 
     private static string ComputeSignature(string payload, string secret)
     {

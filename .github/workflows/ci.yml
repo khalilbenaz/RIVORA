@@ -11,12 +11,22 @@ on:
       - 'feat/*'
       - 'bugfix/*'
       - 'hotfix/*'
+    paths:
+      - 'frontend/**'
+      - 'src/**'
+      - '*.sln'
+      - '.github/workflows/ci.yml'
     tags:
       - 'v*'
   pull_request:
     branches:
       - main
       - develop
+    paths:
+      - 'frontend/**'
+      - 'src/**'
+      - '*.sln'
+      - '.github/workflows/ci.yml'
   workflow_dispatch:
 
 permissions:
@@ -127,6 +137,16 @@ jobs:
           # Count coverage files
           COVERAGE_FILES=$(find . -name "coverage.cobertura.xml" -type f 2>/dev/null | wc -l)
           echo "Coverage reports generated: $COVERAGE_FILES" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: '**/TestResults/**/coverage.cobertura.xml'
+          flags: backend
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Check coverage threshold (80%)
         run: |
@@ -291,11 +311,64 @@ jobs:
           category: rivora-ai-review
         continue-on-error: true
 
+  # Job: Frontend Build & Lint
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Type check
+        working-directory: frontend
+        run: npx tsc --noEmit
+
+      - name: Run unit tests with coverage
+        working-directory: frontend
+        run: npx vitest run --coverage --coverage.reporter=lcov --coverage.reportsDirectory=./coverage
+
+      - name: Upload frontend coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: frontend/coverage/lcov.info
+          flags: frontend
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 7
+
   # Summary Job
   summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [unit-tests, integration-tests, code-quality, security, ai-review]
+    needs: [unit-tests, integration-tests, code-quality, security, ai-review, frontend]
     if: always()
 
     steps:
@@ -311,6 +384,7 @@ jobs:
           echo "| Code Quality | ${{ needs.code-quality.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Security Scan | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| AI Code Review | ${{ needs.ai-review.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend | ${{ needs.frontend.result }} |" >> $GITHUB_STEP_SUMMARY
 
   # Job 6: Publish NuGet Packages (Only on tags)
   publish-nuget:
@@ -331,11 +405,30 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Pack RVR.CLI
+      - name: Pack all framework modules
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          echo "Packing RVR.CLI version $VERSION"
-          dotnet pack tools/RVR.CLI/RVR.CLI.csproj -c Release -o ./artifacts /p:PackageVersion=$VERSION
+          echo "Packing all packable projects with version $VERSION"
+          dotnet pack RVR.Framework.sln -c Release -o ./artifacts /p:PackageVersion=$VERSION
+
+      - name: List generated packages
+        run: |
+          echo "## Generated NuGet Packages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          ls -la ./artifacts/*.nupkg
+          ls -la ./artifacts/*.nupkg >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Validate package count
+        run: |
+          PACKAGE_COUNT=$(ls ./artifacts/*.nupkg 2>/dev/null | wc -l)
+          echo "Total packages generated: $PACKAGE_COUNT"
+          if [ "$PACKAGE_COUNT" -le 1 ]; then
+            echo "::error::Expected more than 1 NuGet package but found $PACKAGE_COUNT. Ensure all framework modules are packable."
+            exit 1
+          fi
+          echo "Package validation passed: $PACKAGE_COUNT packages generated."
 
       - name: Push to NuGet.org
         env:
@@ -351,3 +444,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: dotnet nuget push "./artifacts/*.nupkg" --api-key "$GITHUB_TOKEN" --source "https://nuget.pkg.github.com/khalilbenaz/index.json" --skip-duplicate
+
+      - name: Upload NuGet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./artifacts/*.nupkg
+          retention-days: 30

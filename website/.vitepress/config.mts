@@ -15,13 +15,15 @@ export default defineConfig({
           { text: 'Guide', link: '/guide/getting-started' },
           { text: 'Modules', link: '/modules/' },
           { text: 'CLI', link: '/cli/' },
-          { text: 'API Reference', link: '/api/' }
+          { text: 'API Reference', link: '/api/' },
+          { text: 'Telecharger', link: '/download' }
         ],
         sidebar: {
           '/guide/': [
             { text: 'Introduction', items: [
               { text: 'Demarrage rapide', link: '/guide/getting-started' },
               { text: 'Installation', link: '/guide/installation' },
+              { text: 'Creer son projet', link: '/guide/create-project' },
               { text: 'Architecture', link: '/guide/architecture' }
             ]},
             { text: 'Concepts', items: [
@@ -58,8 +60,10 @@ export default defineConfig({
               { text: 'Webhooks', link: '/modules/webhooks' },
               { text: 'GraphQL', link: '/modules/graphql' },
               { text: 'Billing', link: '/modules/billing' },
+              { text: 'SMS', link: '/modules/sms' },
               { text: 'Localisation', link: '/modules/localization' },
-              { text: 'Audit Logging UI', link: '/modules/audit' }
+              { text: 'Audit Logging UI', link: '/modules/audit' },
+              { text: 'Plugin System', link: '/modules/plugins' }
             ]},
             { text: 'Domaine', items: [
               { text: 'Event Sourcing', link: '/modules/eventsourcing' },
@@ -72,6 +76,8 @@ export default defineConfig({
             ]},
             { text: 'AI & Integration', items: [
               { text: 'AI & NaturalQuery', link: '/modules/ai' },
+              { text: 'AI Guardrails', link: '/modules/guardrails' },
+              { text: 'AI Agents', link: '/modules/agents' },
               { text: 'RivoraApiClient', link: '/modules/client' }
             ]}
           ]
@@ -86,13 +92,15 @@ export default defineConfig({
           { text: 'Guide', link: '/en/guide/getting-started' },
           { text: 'Modules', link: '/en/modules/' },
           { text: 'CLI', link: '/en/cli/' },
-          { text: 'API Reference', link: '/api/' }
+          { text: 'API Reference', link: '/api/' },
+          { text: 'Download', link: '/en/download' }
         ],
         sidebar: {
           '/en/guide/': [
             { text: 'Introduction', items: [
               { text: 'Quick Start', link: '/en/guide/getting-started' },
               { text: 'Installation', link: '/en/guide/installation' },
+              { text: 'Create a Project', link: '/guide/create-project' },
               { text: 'Architecture', link: '/en/guide/architecture' }
             ]},
             { text: 'Concepts', items: [

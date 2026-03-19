@@ -1,4 +1,5 @@
 using RVR.Framework.Admin.Components;
+using RVR.Framework.Admin.Endpoints;
 using RVR.Framework.Infrastructure.Data;
 using RVR.Framework.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -6,22 +7,37 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddHttpClient();
 
 // Register a no-op tenant provider for the admin dashboard
 builder.Services.AddSingleton<ITenantProvider, AdminTenantProvider>();
 
-// Register the RVRDbContext with connection string from configuration
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Server=(localdb)\\mssqllocaldb;Database=RVRFrameworkDb;Trusted_Connection=true;MultipleActiveResultSets=true;TrustServerCertificate=true";
+// Database is optional — Studio features (wizard, modules, download) work without it.
+// Admin features (dashboard, users, products, audit) require a database connection.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var hasDatabase = !string.IsNullOrEmpty(connectionString);
 
-builder.Services.AddDbContext<RVRDbContext>(options =>
+if (hasDatabase)
 {
-    options.UseSqlServer(connectionString, sql =>
+    builder.Services.AddDbContext<RVRDbContext>(options =>
     {
-        sql.MigrationsAssembly("RVR.Framework.Infrastructure");
+        options.UseSqlServer(connectionString!, sql =>
+        {
+            sql.MigrationsAssembly("RVR.Framework.Infrastructure");
+        });
+        options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
     });
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-});
+}
+else
+{
+    // Register a dummy DbContext with in-memory provider so DI doesn't crash
+    builder.Services.AddDbContext<RVRDbContext>(options =>
+    {
+        options.UseInMemoryDatabase("RvrStudioFallback");
+    });
+}
+
+builder.Services.AddSingleton(new DatabaseStatus { IsConfigured = hasDatabase });
 
 var app = builder.Build();
 
@@ -33,6 +49,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+app.MapStudioEndpoints();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 app.Run();
 
@@ -43,4 +60,12 @@ internal sealed class AdminTenantProvider : ITenantProvider
 {
     public TenantInfo? GetCurrentTenant() => null;
     public string? GetConnectionString() => null;
+}
+
+/// <summary>
+/// Tracks whether a real database is configured.
+/// </summary>
+public class DatabaseStatus
+{
+    public bool IsConfigured { get; init; }
 }

@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
+    <PackageId>RVR.Framework.Domain</PackageId>
+    <Description>Domain layer with entities, value objects, domain events and specifications</Description>
   </PropertyGroup>
 
   <ItemGroup>

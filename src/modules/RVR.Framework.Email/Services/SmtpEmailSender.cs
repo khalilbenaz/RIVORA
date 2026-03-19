@@ -54,7 +54,7 @@ public sealed class SmtpEmailSender : IEmailSender, IDisposable
 
             if (message.TextBody is not null)
             {
-                var plainView = AlternateView.CreateAlternateViewFromString(
+                using var plainView = AlternateView.CreateAlternateViewFromString(
                     message.TextBody, null, "text/plain");
                 mailMessage.AlternateViews.Add(plainView);
             }
@@ -65,16 +65,28 @@ public sealed class SmtpEmailSender : IEmailSender, IDisposable
             mailMessage.IsBodyHtml = false;
         }
 
-        foreach (var attachment in message.Attachments)
+        var streams = new List<MemoryStream>();
+        try
         {
-            var stream = new MemoryStream(attachment.Content);
-            mailMessage.Attachments.Add(new Attachment(stream, attachment.FileName, attachment.ContentType));
+            foreach (var attachment in message.Attachments)
+            {
+                var stream = new MemoryStream(attachment.Content);
+                streams.Add(stream);
+                mailMessage.Attachments.Add(new Attachment(stream, attachment.FileName, attachment.ContentType));
+            }
+
+            _logger.LogInformation("Sending email to {Recipients} with subject '{Subject}'",
+                string.Join(", ", message.To), message.Subject);
+
+            await _client.SendMailAsync(mailMessage, ct);
         }
-
-        _logger.LogInformation("Sending email to {Recipients} with subject '{Subject}'",
-            string.Join(", ", message.To), message.Subject);
-
-        await _client.SendMailAsync(mailMessage, ct);
+        finally
+        {
+            foreach (var stream in streams)
+            {
+                await stream.DisposeAsync();
+            }
+        }
     }
 
     /// <inheritdoc />

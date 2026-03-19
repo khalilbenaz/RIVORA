@@ -1,95 +1,159 @@
 @page "/health"
 @using RVR.Framework.Infrastructure.Data
 @inject RVRDbContext DbContext
+@inject DatabaseStatus DbStatus
+@implements IDisposable
 
-<h1>Health Dashboard</h1>
-
-<div class="stats-grid">
-    <div class="stat-card @(_dbHealthy ? "" : "stat-card-error")">
-        <p class="stat-label">Base de donnees</p>
-        <p class="stat-value" style="font-size:1.5rem;">@(_dbHealthy ? "OK" : "Erreur")</p>
-        <p class="stat-detail">@_dbResponseTime ms</p>
-    </div>
-    <div class="stat-card">
-        <p class="stat-label">Utilisateurs</p>
-        <p class="stat-value">@_userCount</p>
-    </div>
-    <div class="stat-card">
-        <p class="stat-label">Produits actifs</p>
-        <p class="stat-value">@_activeProductCount</p>
-    </div>
-    <div class="stat-card">
-        <p class="stat-label">Tenants actifs</p>
-        <p class="stat-value">@_activeTenantCount</p>
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+    <h1 style="margin: 0;">Health Dashboard</h1>
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <label style="font-size: 0.8125rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.375rem;">
+            <input type="checkbox" @bind="_autoRefresh" @bind:after="ToggleAutoRefresh" style="accent-color: #3b82f6;" />
+            Auto-refresh (30s)
+        </label>
+        <button class="btn-refresh" @onclick="Refresh" disabled="@_loading">
+            @if (_loading) { <span class="spinner-border" style="width:1rem;height:1rem;border-width:2px;"></span> }
+            Rafra&icirc;chir
+        </button>
     </div>
 </div>
 
-<h2 style="margin-top:2rem;">Statistiques detaillees</h2>
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Verification</th>
-            <th>Statut</th>
-            <th>Detail</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Connexion base de donnees</td>
-            <td>
-                <span class="@(_dbHealthy ? "badge badge-success" : "badge badge-danger")">
-                    @(_dbHealthy ? "Sain" : "Erreur")
-                </span>
-            </td>
-            <td>Temps de reponse : @_dbResponseTime ms</td>
-        </tr>
-        <tr>
-            <td>Utilisateurs totaux</td>
-            <td><span class="badge badge-success">@_userCount</span></td>
-            <td>dont @_activeUserCount actif(s)</td>
-        </tr>
-        <tr>
-            <td>Produits totaux</td>
-            <td><span class="badge badge-success">@_productCount</span></td>
-            <td>dont @_activeProductCount actif(s), @_outOfStockCount en rupture de stock</td>
-        </tr>
-        <tr>
-            <td>Tenants totaux</td>
-            <td><span class="badge badge-success">@_tenantCount</span></td>
-            <td>dont @_activeTenantCount actif(s)</td>
-        </tr>
-        <tr>
-            <td>Audit Logs</td>
-            <td><span class="badge badge-success">@_auditLogCount</span></td>
-            <td>dont @_errorLogCount en erreur (4xx/5xx)</td>
-        </tr>
-    </tbody>
-</table>
+@if (!DbStatus.IsConfigured)
+{
+    <div class="empty-state">Base de donn&eacute;es non configur&eacute;e.</div>
+}
+else if (_loading && !_loaded)
+{
+    <div class="stats-grid">
+        @for (int i = 0; i < 4; i++)
+        {
+            <div class="stat-card"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-value"></div></div>
+        }
+    </div>
+}
+else
+{
+    <div class="stats-grid">
+        <div class="stat-card @(_dbHealthy ? "" : "stat-card-error")">
+            <p class="stat-label">Base de donn&eacute;es</p>
+            <p class="stat-value" style="font-size:1.5rem; color: @(_dbHealthy ? "#22c55e" : "#ef4444")">
+                @(_dbHealthy ? "OK" : "Erreur")
+            </p>
+            <p class="stat-detail">@_dbResponseTime ms</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Utilisateurs</p>
+            <p class="stat-value">@_userCount</p>
+            <p class="stat-detail">@_activeUserCount actif(s)</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Produits actifs</p>
+            <p class="stat-value">@_activeProductCount</p>
+            <p class="stat-detail">@_outOfStockCount en rupture</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Tenants actifs</p>
+            <p class="stat-value">@_activeTenantCount</p>
+            <p class="stat-detail">@_tenantCount total</p>
+        </div>
+    </div>
 
-<div style="margin-top:1rem;">
-    <button class="btn-refresh" @onclick="Refresh">Rafraichir</button>
-</div>
+    <h2 style="margin-top:2rem;">D&eacute;tails</h2>
+    <table class="data-table" aria-label="Health checks d&eacute;taill&eacute;s">
+        <thead>
+            <tr>
+                <th>V&eacute;rification</th>
+                <th>Statut</th>
+                <th>D&eacute;tail</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Connexion base de donn&eacute;es</td>
+                <td>
+                    <span class="@(_dbHealthy ? "badge badge-success" : "badge badge-danger")">
+                        @(_dbHealthy ? "Sain" : "Erreur")
+                    </span>
+                </td>
+                <td>Temps de r&eacute;ponse : @_dbResponseTime ms</td>
+            </tr>
+            <tr>
+                <td>Utilisateurs totaux</td>
+                <td><span class="badge badge-success">@_userCount</span></td>
+                <td>dont @_activeUserCount actif(s)</td>
+            </tr>
+            <tr>
+                <td>Produits totaux</td>
+                <td><span class="badge badge-success">@_productCount</span></td>
+                <td>dont @_activeProductCount actif(s), @_outOfStockCount en rupture de stock</td>
+            </tr>
+            <tr>
+                <td>Tenants totaux</td>
+                <td><span class="badge badge-success">@_tenantCount</span></td>
+                <td>dont @_activeTenantCount actif(s)</td>
+            </tr>
+            <tr>
+                <td>Audit Logs</td>
+                <td><span class="badge @(_errorLogCount > 0 ? "badge-warning" : "badge-success")">@_auditLogCount</span></td>
+                <td>dont @_errorLogCount en erreur (4xx/5xx)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    @if (_lastRefresh.HasValue)
+    {
+        <p style="margin-top: 0.75rem; font-size: 0.8125rem; color: var(--text-muted);">
+            Derni&egrave;re mise &agrave; jour : @_lastRefresh.Value.ToString("HH:mm:ss")
+        </p>
+    }
+}
 
 @code {
+    private bool _loading = true;
+    private bool _loaded;
+    private bool _autoRefresh;
     private bool _dbHealthy;
     private long _dbResponseTime;
     private int _userCount, _activeUserCount;
     private int _productCount, _activeProductCount, _outOfStockCount;
     private int _tenantCount, _activeTenantCount;
     private int _auditLogCount, _errorLogCount;
+    private DateTime? _lastRefresh;
+    private Timer? _timer;
 
     protected override async Task OnInitializedAsync()
     {
+        if (!DbStatus.IsConfigured) { _loading = false; return; }
         await LoadHealthData();
     }
 
-    private async Task Refresh()
+    private async Task Refresh() => await LoadHealthData();
+
+    private void ToggleAutoRefresh()
     {
-        await LoadHealthData();
+        if (_autoRefresh)
+        {
+            _timer = new Timer(async _ =>
+            {
+                await InvokeAsync(async () =>
+                {
+                    await LoadHealthData();
+                    StateHasChanged();
+                });
+            }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+        }
+        else
+        {
+            _timer?.Dispose();
+            _timer = null;
+        }
     }
 
     private async Task LoadHealthData()
     {
+        _loading = true;
+        StateHasChanged();
+
         var sw = System.Diagnostics.Stopwatch.StartNew();
         try
         {
@@ -102,20 +166,28 @@
             sw.Stop();
             _dbHealthy = false;
             _dbResponseTime = sw.ElapsedMilliseconds;
+            _loading = false;
+            _loaded = true;
             return;
         }
 
         _userCount = await DbContext.Users.CountAsync();
         _activeUserCount = await DbContext.Users.CountAsync(u => u.IsActive);
-
         _productCount = await DbContext.Products.CountAsync();
         _activeProductCount = await DbContext.Products.CountAsync(p => p.IsActive);
         _outOfStockCount = await DbContext.Products.CountAsync(p => p.Stock == 0);
-
         _tenantCount = await DbContext.Tenants.CountAsync();
         _activeTenantCount = await DbContext.Tenants.CountAsync(t => t.IsActive);
-
         _auditLogCount = await DbContext.AuditLogs.CountAsync();
         _errorLogCount = await DbContext.AuditLogs.CountAsync(a => a.HttpStatusCode != null && a.HttpStatusCode >= 400);
+
+        _lastRefresh = DateTime.Now;
+        _loading = false;
+        _loaded = true;
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
     }
 }

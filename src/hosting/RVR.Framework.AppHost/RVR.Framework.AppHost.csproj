@@ -11,10 +11,16 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\api\RVR.Framework.Api\RVR.Framework.Api.csproj" IsAspireProjectResource="true" />
+    <ProjectReference Include="..\..\ui\RVR.Framework.Admin\RVR.Framework.Admin.csproj" IsAspireProjectResource="true" />
+    <ProjectReference Include="..\RVR.Framework.Aspire\RVR.Framework.Aspire.csproj" />
   </ItemGroup>
 
 </Project>

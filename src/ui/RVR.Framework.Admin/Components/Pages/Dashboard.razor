@@ -1,74 +1,135 @@
 @page "/"
 @using RVR.Framework.Infrastructure.Data
 @inject RVRDbContext DbContext
+@inject DatabaseStatus DbStatus
 
 <h1>Dashboard</h1>
 
-<div class="stats-grid">
-    <div class="stat-card">
-        <p class="stat-label">Utilisateurs</p>
-        <p class="stat-value">@_userCount</p>
+@if (!DbStatus.IsConfigured)
+{
+    <div class="stat-card" style="border-color: #fbbf24; background: #fffbeb; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <p style="margin: 0 0 0.5rem; font-weight: 600; color: #92400e;">Base de donn&eacute;es non configur&eacute;e</p>
+        <p style="margin: 0; color: #78716c; font-size: 0.875rem;">
+            Les statistiques ne sont pas disponibles. Configurez
+            <code>ConnectionStrings:DefaultConnection</code> dans <code>appsettings.json</code>.
+        </p>
+        <p style="margin: 0.75rem 0 0; font-size: 0.875rem;">
+            <a href="/studio" style="color: #3b82f6; font-weight: 500;">Acc&eacute;der &agrave; RVR Studio</a> (fonctionne sans base de donn&eacute;es)
+        </p>
     </div>
-    <div class="stat-card">
-        <p class="stat-label">Produits</p>
-        <p class="stat-value">@_productCount</p>
-    </div>
-    <div class="stat-card">
-        <p class="stat-label">Tenants</p>
-        <p class="stat-value">@_tenantCount</p>
-    </div>
-    <div class="stat-card">
-        <p class="stat-label">Audit Logs</p>
-        <p class="stat-value">@_auditCount</p>
-    </div>
-</div>
-
-<h2 style="margin-top:2rem;">Derniers Audit Logs</h2>
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Methode</th>
-            <th>URL</th>
-            <th>Status</th>
-            <th>Duree (ms)</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (_recentLogs is not null)
+}
+else if (_loading)
+{
+    <div class="stats-grid">
+        @for (int i = 0; i < 4; i++)
         {
-            @foreach (var log in _recentLogs)
-            {
-                <tr>
-                    <td>@log.ExecutionDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                    <td>@log.HttpMethod</td>
-                    <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">@log.Url</td>
-                    <td>
-                        <span class="@(log.HttpStatusCode >= 400 ? "badge badge-danger" : "badge badge-success")">
-                            @log.HttpStatusCode
-                        </span>
-                    </td>
-                    <td>@log.ExecutionTime</td>
-                </tr>
-            }
+            <div class="stat-card">
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-value"></div>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+}
+else
+{
+    <div class="stats-grid">
+        <div class="stat-card">
+            <p class="stat-label">Utilisateurs</p>
+            <p class="stat-value">@_userCount</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Produits</p>
+            <p class="stat-value">@_productCount</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Tenants</p>
+            <p class="stat-value">@_tenantCount</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Audit Logs</p>
+            <p class="stat-value">@_auditCount</p>
+        </div>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2rem; margin-bottom: 0.75rem;">
+        <h2 style="margin: 0;">Derniers Audit Logs</h2>
+        <button class="btn-refresh" @onclick="LoadData" disabled="@_loading">Rafra&icirc;chir</button>
+    </div>
+
+    @if (_recentLogs is not null && _recentLogs.Any())
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>M&eacute;thode</th>
+                    <th>URL</th>
+                    <th>Status</th>
+                    <th>Dur&eacute;e (ms)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in _recentLogs)
+                {
+                    <tr>
+                        <td style="white-space: nowrap;">@log.ExecutionDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td><span class="badge badge-method">@log.HttpMethod</span></td>
+                        <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="@log.Url">@log.Url</td>
+                        <td>
+                            <span class="@(log.HttpStatusCode >= 400 ? "badge badge-danger" : "badge badge-success")">
+                                @log.HttpStatusCode
+                            </span>
+                        </td>
+                        <td style="text-align: right;">@log.ExecutionTime</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">&#128203;</div>
+            <p>Aucun audit log disponible pour le moment.</p>
+        </div>
+    }
+}
 
 @code {
+    private bool _loading = true;
     private int _userCount, _productCount, _tenantCount, _auditCount;
     private List<RVR.Framework.Domain.Entities.Auditing.AuditLog>? _recentLogs;
 
     protected override async Task OnInitializedAsync()
     {
-        _userCount = await DbContext.Users.CountAsync();
-        _productCount = await DbContext.Products.CountAsync();
-        _tenantCount = await DbContext.Tenants.CountAsync();
-        _auditCount = await DbContext.AuditLogs.CountAsync();
+        if (!DbStatus.IsConfigured) { _loading = false; return; }
+        await LoadData();
+    }
 
-        _recentLogs = await DbContext.AuditLogs
-            .OrderByDescending(a => a.ExecutionDate)
-            .Take(10)
-            .ToListAsync();
+    private async Task LoadData()
+    {
+        _loading = true;
+        StateHasChanged();
+
+        try
+        {
+            _userCount = await DbContext.Users.CountAsync();
+            _productCount = await DbContext.Products.CountAsync();
+            _tenantCount = await DbContext.Tenants.CountAsync();
+            _auditCount = await DbContext.AuditLogs.CountAsync();
+
+            _recentLogs = await DbContext.AuditLogs
+                .OrderByDescending(a => a.ExecutionDate)
+                .Take(10)
+                .ToListAsync();
+        }
+        catch
+        {
+            // Dashboard shows empty state on DB error
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 }

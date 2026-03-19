@@ -17,6 +17,7 @@ using Serilog;
 using RVR.Framework.Core.Modules;
 using RVR.Framework.RealTime.Hubs;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 using RVR.Framework.Api.Extensions;
 using RVR.Framework.Security.Extensions;
 using RVR.Framework.Security.Interfaces;
@@ -109,10 +110,10 @@ try
     // Configuration de la base de données optimisée
     builder.Services.AddOptimizedDbContext(builder.Configuration);
 
-    // Enregistrement des modules RVR (2.4)
+    // Enregistrement des modules RVR (2.4) — AOT-compatible explicit registration
     builder.Services.AddRvrModules(builder.Configuration,
-        typeof(RVR.Framework.RealTime.RealTimeModule).Assembly,
-        typeof(RVR.Framework.Notifications.NotificationsModule).Assembly);
+        new RVR.Framework.RealTime.RealTimeModule(),
+        new RVR.Framework.Notifications.NotificationsModule());
 
     // Compression de réponse
     builder.Services.AddResponseCompression(options =>
@@ -197,17 +198,37 @@ try
             opt.QueueLimit = 0;
             opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
         });
+
+        // Per-tenant rate limiting: 200 requests per minute per tenant
+        options.AddPolicy("per-tenant", httpContext =>
+        {
+            // Resolve tenant ID from X-Tenant-Id header first, then from the authenticated user's TenantId claim
+            var tenantId = httpContext.Request.Headers["X-Tenant-Id"].FirstOrDefault();
+            if (string.IsNullOrEmpty(tenantId))
+            {
+                tenantId = httpContext.User?.FindFirst("TenantId")?.Value;
+            }
+
+            // If no tenant ID is found, use a shared "anonymous" partition
+            var partitionKey = tenantId ?? "__anonymous__";
+
+            return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
+            {
+                Window = TimeSpan.FromMinutes(1),
+                PermitLimit = 200,
+                QueueLimit = 10,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            });
+        });
     });
 
     // Localization
     builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-    // Discovery des Minimal APIs (7.4)
+    // Discovery des Minimal APIs (7.4) — AOT-compatible explicit scan with suppression
     var endpointMapperType = typeof(RVR.Framework.Api.Interfaces.IMapEndpoints);
-    var endpointMappers = typeof(Program).Assembly.GetTypes()
-        .Where(t => endpointMapperType.IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
-
-    foreach (var mapper in endpointMappers)
+    foreach (var mapper in typeof(Program).Assembly.GetExportedTypes()
+        .Where(t => endpointMapperType.IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract))
     {
         builder.Services.AddScoped(endpointMapperType, mapper);
     }
@@ -226,7 +247,17 @@ try
 
     // Authentication JWT
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-    var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey non configurée");
+    var secretKey = jwtSettings["SecretKey"];
+    if (string.IsNullOrWhiteSpace(secretKey))
+    {
+        throw new InvalidOperationException(
+            "JWT SecretKey is not configured. Set it via environment variable 'JwtSettings__SecretKey' " +
+            "or user-secrets. Never hardcode secrets in appsettings.json.");
+    }
+    if (secretKey.Length < 32)
+    {
+        throw new InvalidOperationException("JWT SecretKey must be at least 32 characters long.");
+    }
 
     builder.Services.AddAuthentication(options =>
     {
@@ -249,6 +280,12 @@ try
             ClockSkew = TimeSpan.Zero
         };
     });
+
+    // Options validation – fail fast on missing/invalid configuration
+    builder.Services.AddOptions<RVR.Framework.Infrastructure.Configuration.JwtSettings>()
+        .Bind(builder.Configuration.GetSection("JwtSettings"))
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
 
     builder.Services.AddAuthorization();
 
@@ -326,17 +363,18 @@ try
         {
             if (builder.Environment.IsDevelopment())
             {
-                policy.AllowAnyOrigin()
+                policy.WithOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:4200")
                       .AllowAnyMethod()
-                      .AllowAnyHeader();
+                      .AllowAnyHeader()
+                      .AllowCredentials();
             }
             else
             {
                 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
                     ?? Array.Empty<string>();
                 policy.WithOrigins(allowedOrigins)
-                      .AllowAnyMethod()
-                      .AllowAnyHeader()
+                      .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                      .WithHeaders("Authorization", "Content-Type", "X-API-KEY", "X-Requested-With", "Accept", "X-Tenant-Id")
                       .AllowCredentials();
             }
         });

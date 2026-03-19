@@ -11,9 +11,12 @@ using RVR.Framework.Security.Interfaces;
 /// <summary>
 /// In-memory implementation of <see cref="IRefreshTokenStore"/>.
 /// Uses thread-safe concurrent collections for storage.
+/// Enforces a maximum capacity to prevent unbounded memory growth.
 /// </summary>
-public class InMemoryRefreshTokenStore : IRefreshTokenStore
+public class InMemoryRefreshTokenStore : IRefreshTokenStore, IDisposable
 {
+    private const int MaxCapacity = 10_000;
+
     private readonly ConcurrentDictionary<Guid, RefreshToken> _tokensById = new();
     private readonly ConcurrentDictionary<string, Guid> _tokensByValue = new();
     private readonly ReaderWriterLockSlim _lock = new();
@@ -29,6 +32,19 @@ public class InMemoryRefreshTokenStore : IRefreshTokenStore
         _lock.EnterWriteLock();
         try
         {
+            // Evict expired tokens when approaching capacity
+            if (_tokensById.Count >= MaxCapacity)
+            {
+                EvictExpiredTokensUnsafe();
+            }
+
+            if (_tokensById.Count >= MaxCapacity)
+            {
+                throw new InvalidOperationException(
+                    $"In-memory refresh token store has reached maximum capacity ({MaxCapacity}). " +
+                    "Consider using a persistent store (EfRefreshTokenStore) for production.");
+            }
+
             _tokensById[token.Id] = token;
             _tokensByValue[token.Token] = token.Id;
         }
@@ -38,6 +54,19 @@ public class InMemoryRefreshTokenStore : IRefreshTokenStore
         }
 
         return Task.CompletedTask;
+    }
+
+    private void EvictExpiredTokensUnsafe()
+    {
+        var expired = _tokensById.Values
+            .Where(t => t.IsExpired || t.IsRevoked)
+            .ToList();
+
+        foreach (var t in expired)
+        {
+            _tokensById.TryRemove(t.Id, out _);
+            _tokensByValue.TryRemove(t.Token, out _);
+        }
     }
 
     /// <inheritdoc/>
@@ -206,5 +235,10 @@ public class InMemoryRefreshTokenStore : IRefreshTokenStore
         {
             _lock.ExitWriteLock();
         }
+    }
+
+    public void Dispose()
+    {
+        _lock.Dispose();
     }
 }

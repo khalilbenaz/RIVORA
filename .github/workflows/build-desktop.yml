@@ -1,0 +1,135 @@
+name: Build RVR Studio Desktop
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_VERSION: '9.0.x'
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            artifact: RVR-Studio-Setup-win-x64.zip
+          - name: macOS
+            os: macos-latest
+            artifact: RVR-Studio-Setup-macos.tar.gz
+          - name: Linux
+            os: ubuntu-latest
+            artifact: RVR-Studio-linux-x64.tar.gz
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore RVR.Framework.sln
+
+      - name: Build
+        run: dotnet build RVR.Framework.sln -c Release --no-restore --verbosity minimal
+
+      - name: Publish
+        run: dotnet publish src/ui/RVR.Framework.Admin/RVR.Framework.Admin.csproj -c Release --no-build -o artifacts/publish
+
+      - name: Add launcher + installer (Windows)
+        if: matrix.name == 'Windows'
+        shell: pwsh
+        run: |
+          # Launcher script
+          @"
+          @echo off
+          echo Starting RVR Studio on http://localhost:5200 ...
+          start http://localhost:5200
+          dotnet "%~dp0RVR.Framework.Admin.dll"
+          "@ | Set-Content -Path artifacts/publish/RVR-Studio.bat
+
+          # Install script (extracts to Program Files + creates Start Menu shortcut)
+          @"
+          @echo off
+          echo === RVR Studio Installer ===
+          echo.
+          set INSTALL_DIR=%LOCALAPPDATA%\RVR-Studio
+          echo Installing to %INSTALL_DIR% ...
+          if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
+          xcopy /E /Y /Q "%~dp0*" "%INSTALL_DIR%\"
+          echo.
+          echo Creating shortcut...
+          powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut([Environment]::GetFolderPath('Desktop') + '\RVR Studio.lnk'); $s.TargetPath = '%INSTALL_DIR%\RVR-Studio.bat'; $s.WorkingDirectory = '%INSTALL_DIR%'; $s.Description = 'RVR Studio Desktop'; $s.Save()"
+          echo.
+          echo === Installation complete! ===
+          echo Desktop shortcut created. Double-click "RVR Studio" to start.
+          pause
+          "@ | Set-Content -Path artifacts/publish/install.bat
+
+          Compress-Archive -Path artifacts/publish/* -DestinationPath "artifacts/${{ matrix.artifact }}"
+
+      - name: Add launcher (macOS)
+        if: matrix.name == 'macOS'
+        run: |
+          cat > artifacts/publish/rvr-studio.sh << 'LAUNCHER'
+          #!/bin/bash
+          DIR="$(cd "$(dirname "$0")" && pwd)"
+          echo "Starting RVR Studio on http://localhost:5200 ..."
+          open http://localhost:5200 &
+          dotnet "$DIR/RVR.Framework.Admin.dll"
+          LAUNCHER
+          chmod +x artifacts/publish/rvr-studio.sh
+          tar -czf "artifacts/${{ matrix.artifact }}" -C artifacts/publish .
+
+      - name: Add launcher (Linux)
+        if: matrix.name == 'Linux'
+        run: |
+          cat > artifacts/publish/rvr-studio.sh << 'LAUNCHER'
+          #!/bin/bash
+          DIR="$(cd "$(dirname "$0")" && pwd)"
+          echo "Starting RVR Studio on http://localhost:5200 ..."
+          xdg-open http://localhost:5200 2>/dev/null &
+          dotnet "$DIR/RVR.Framework.Admin.dll"
+          LAUNCHER
+          chmod +x artifacts/publish/rvr-studio.sh
+          tar -czf "artifacts/${{ matrix.artifact }}" -C artifacts/publish .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.name }}
+          path: artifacts/${{ matrix.artifact }}
+
+  publish-release:
+    name: Attach to Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List
+        run: find artifacts/ -type f | sort
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: artifacts/*
+          fail_on_unmatched_files: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
