@@ -1,0 +1,1 @@
+import{_ as a,o as i,c as e,ag as t}from"./chunks/framework.CT-gmSiP.js";const k=JSON.parse('{"title":"rvr new","description":"","frontmatter":{},"headers":[],"relativePath":"cli/new.md","filePath":"cli/new.md"}'),n={name:"cli/new.md"};function p(d,s,l,h,r,o){return i(),e("div",null,[...s[0]||(s[0]=[t("",24)])])}const F=a(n,[["render",p]]);export{k as __pageData,F as default};
