@@ -18,7 +18,7 @@ public static class NewCommand
         var dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
-        WriteFile(path, content);
+        File.WriteAllText(path, content);
     }
 
     /// <summary>
