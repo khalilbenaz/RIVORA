@@ -1,0 +1,13 @@
+node_modules
+dist
+.env
+.env.local
+
+# Auto-generated OpenAPI types (regenerate with: npm run api:generate)
+# src/api/generated.d.ts
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
