@@ -3,8 +3,9 @@
 ![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)
-![Coverage](https://img.shields.io/badge/coverage-85%25-success?style=flat-square)
-![Version](https://img.shields.io/badge/version-3.3.0-blue?style=flat-square)
+![Coverage](https://img.shields.io/badge/coverage-93%25-success?style=flat-square)
+![Version](https://img.shields.io/badge/version-4.0.0-blue?style=flat-square)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in-Codespaces-blue?logo=github&style=flat-square)](https://codespaces.new/khalilbenaz/RIVORA)
 
 **Framework d'entreprise Cloud-Native pour .NET 9 - Clean Architecture, DDD et Multi-tenancy pour applications SaaS professionnelles.**
 
@@ -19,7 +20,61 @@ RIVORA Framework est un **accelerateur de developpement d'entreprise** complet c
 - **DX Inegalee** : RVR Studio (IDE visuel), RVR.CLI (scaffolding + AI review + migrations), client API type, GraphQL gateway.
 - **IA Integree** : Module RAG, NL Query Builder, AI code review (Architecture, DDD, Performance, Security analyzers).
 
-**Nouveau dans la v3.2.0** : OAuth2/OIDC (Azure AD, Keycloak, Auth0), GDPR Privacy Toolkit, Event Sourcing, Saga/Process Manager, Keyset pagination, Tenant Lifecycle Management, Dynamic Localization, AuditLogging.UI, Value Objects enrichis, `rvr generate client`, `rvr migrate` commands.
+**Nouveau dans la v4.0.0** : 28 pages React (Landing + SaaS + Back Office), Flow Builder visuel (node editor + pipeline), Project Wizard (6 templates), Entity/CRUD Generator, Kanban Board, Chat temps reel, Analytics Dashboard, Calendar, Notes, File Manager, Incoming Webhooks avec signature validation, 89% Native AOT, 93 tests (52 backend + 41 frontend), PWA, i18n FR/EN, dark mode.
+
+---
+
+## Front End (React + TypeScript)
+
+Le projet inclut un **front end complet** en React 19 + TypeScript + TailwindCSS 4 + Vite :
+
+### Pages publiques
+| Route | Page |
+|-------|------|
+| `/` | Landing page (hero, features, pricing, temoignages, CTA) |
+| `/app/login` | Connexion client |
+| `/app/register` | Inscription client |
+| `/components` | Showcase de tous les composants UI |
+
+### App client SaaS
+| Route | Page |
+|-------|------|
+| `/app` | Dashboard client (quick actions, getting started) |
+| `/app/settings` | Profil, securite/2FA, cles API, notifications push |
+
+### Back Office admin (28 pages)
+| Route | Page |
+|-------|------|
+| `/admin` | Dashboard (stats, audit logs recents) |
+| `/admin/users` | CRUD Utilisateurs + CSV export |
+| `/admin/products` | CRUD Produits + CSV export |
+| `/admin/tenants` | Gestion Tenants (cards) |
+| `/admin/audit` | Audit Logs (filtres, pagination, CSV) |
+| `/admin/health` | Health monitoring (auto-refresh 30s) |
+| `/admin/roles` | Roles & Permissions (matrice) |
+| `/admin/webhooks` | Webhooks (sortant + entrant + builder visuel) |
+| `/admin/flows` | Flow Builder (liste des flows) |
+| `/admin/flows/new` | Flow Editor (canvas visuel + pipeline) |
+| `/admin/chat` | Chat temps reel (rooms, messages, SignalR) |
+| `/admin/files` | File Manager (drag & drop, thumbnails, dossiers) |
+| `/admin/analytics` | Analytics Dashboard (graphiques SVG) |
+| `/admin/calendar` | Calendrier d'evenements (grille mensuelle) |
+| `/admin/notes` | Notes (masonry grid, pin, 5 couleurs) |
+| `/admin/activity` | Fil d'activite (timeline, 8 types, filtres) |
+| `/admin/kanban` | Kanban Board (drag & drop, 5 colonnes) |
+| `/admin/projects` | Mes Projets (liste, statut) |
+| `/admin/projects/new` | Project Wizard (6 etapes, 6 templates) |
+| `/admin/generator` | Entity/CRUD Generator (designer + code preview) |
+
+```bash
+cd frontend
+npm install
+npm run dev    # http://localhost:3000 (proxy vers API .NET)
+```
+
+**Stack** : React 19, TypeScript, Vite 6, TailwindCSS 4, Zustand, Axios, Lucide Icons, i18next, SignalR, Vitest, Playwright.
+
+**Features** : Dark mode, PWA, i18n FR/EN, push notifications, session auto-refresh, toast notifications, CSV export, pagination, skeleton loading, ErrorBoundary, retry 429/503, WCAG accessibility.
 
 ---
 
@@ -50,6 +105,7 @@ docker compose -f docker-compose.dev.yml up -d
 - **ReDoc** : `http://localhost:5220/api-docs`
 - **Health** : `http://localhost:5220/health`
 - **Admin** : `http://localhost:5200` (RVR.Framework.Admin)
+- **Front End** : `http://localhost:3000` (React SPA - `cd frontend && npm run dev`)
 
 ---
 
@@ -121,9 +177,26 @@ Infrastructure (Data)       EF Core 9, Repositories, Services externes
 |---------|-------------|
 | Module RAG | Ingestion, chunking, vector search, chat |
 | NL Query Builder | "produits actifs prix > 100" -> LINQ (FR/EN) |
+| AI Guardrails | Prompt injection detection, PII masking, content moderation, token budget |
+| AI Agents | Orchestration multi-agents, ReAct strategy, pipeline sequentiel/parallele |
 | CLI AI Review | Architecture, DDD, Performance, Security analyzers |
 | LLM Backends | OpenAI, Claude, Ollama (offline) |
 | SARIF Output | Integration CI/CD pipelines |
+
+### Multi-Tenancy & SaaS
+| Feature | Description |
+|---------|-------------|
+| Tenant Isolation | 3 strategies (colonne, schema, base separee) |
+| Tenant Onboarding | Provisioning automatise avec rollback Saga |
+| Cross-Tenant Analytics | Dashboard super-admin, metriques, export CSV |
+| SaaS Billing | Stripe subscriptions, checkout, portal |
+
+### Modules additionnels
+| Feature | Description |
+|---------|-------------|
+| SMS multi-provider | Twilio, Vonage, OVH, Azure Communication Services |
+| Plugin System | NuGet auto-discovery, signature verification, marketplace |
+| .NET Aspire | Integration native, orchestration complète |
 
 ### Integration
 | Feature | Description |
@@ -143,13 +216,26 @@ Infrastructure (Data)       EF Core 9, Repositories, Services externes
 
 ---
 
+## Quick Start with Codespaces
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/khalilbenaz/RIVORA)
+
+Click the button above to get a pre-configured development environment with .NET 9 SDK and RVR CLI installed.
+
+---
+
 ## RVR CLI
 
 ```bash
-# Scaffolding
+# Interactive wizard (recommended)
+rvr new
+
+# Or with flags
 rvr new MySaaS --template saas-starter
 rvr generate crud Invoice --props "Reference:string,Amount:decimal"
 rvr add-module Inventory
+rvr remove-module Caching                     # Retire proprement un module
+rvr remove-module Caching --dry-run           # Previsualiser les changements
 
 # AI Commands
 rvr ai chat --provider claude
@@ -163,21 +249,37 @@ rvr ai review --provider ollama               # AI suggestions (offline)
 rvr ai review --output sarif --output-file report.sarif  # CI integration
 rvr ai design --provider claude              # Interactive domain design
 
-# Client Generation
+# Client & Test Generation
 rvr generate client                           # OpenAPI -> typed C# client
-
-# Test Generation
 rvr generate test Invoice                     # xUnit + FluentAssertions tests
-rvr generate test Invoice --output ./tests    # Custom output directory
+rvr generate seed Product                     # Scaffolder un data seeder
 
-# Migrations
+# Database
 rvr migrate generate MigrationName            # Generate EF Core migration
 rvr migrate apply                             # Apply pending migrations
 rvr migrate list                              # List migrations
 rvr migrate rollback                          # Rollback last migration
+rvr seed --profile demo                       # Seeder la base de donnees
+rvr seed --reset --profile test               # Truncate + reseed
 
-# Benchmarks
-dotnet run --project tests/RVR.Framework.Benchmarks -c Release
+# Environnements & Secrets
+rvr env list                                  # Lister les environnements
+rvr env set DB:Host "localhost"               # Definir une variable
+rvr env diff Development Production           # Comparer deux envs
+rvr env secrets init                          # Initialiser User Secrets
+rvr env export --format dotenv                # Exporter en .env
+rvr env import --file .env                    # Importer depuis .env
+
+# Publication
+rvr publish --target docker                   # Build + push Docker
+rvr publish --target nuget                    # Pack + push NuGet
+rvr publish --target self-contained           # Binaires autonomes
+rvr publish --dry-run                         # Previsualiser les commandes
+
+# Upgrade
+rvr upgrade --list                            # Migrations disponibles
+rvr upgrade --to 4.0 --dry-run               # Previsualiser la migration
+rvr upgrade --to 4.0                          # Migrer vers v4.0
 
 # DevOps
 rvr doctor
@@ -186,22 +288,39 @@ rvr benchmark
 
 ---
 
+## Telecharger RVR Studio Desktop
+
+| Plateforme | Fichier | Format |
+|------------|---------|--------|
+| **Windows** (x64) | [RVR-Studio-Setup-win-x64.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.zip) | ZIP |
+| **macOS** (x64) | [RVR-Studio-Setup-macos.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.tar.gz) | tar.gz |
+| **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | tar.gz |
+
+> Prerequis : [.NET 9 Runtime](https://dotnet.microsoft.com/download/dotnet/9.0) installe sur la machine.
+
+> Tous les installeurs sont disponibles sur la page [Releases](https://github.com/khalilbenaz/RIVORA/releases).
+
+---
+
 ## Documentation
 
 | Guide | Contenu |
 |-------|---------|
 | [Quickstart](docs/quickstart.md) | Installation en 5 minutes |
+| [Creer son projet](website/guide/create-project.md) | Guide pas-a-pas pour demarrer avec RIVORA |
+| [Architecture (C4)](docs/ARCHITECTURE.md) | Diagrammes C4, dependances, flux HTTP |
+| [Native AOT](docs/NATIVE-AOT.md) | Audit AOT, patterns, compatibilite |
 | [Guide Complet](docs/GUIDE-COMPLET.md) | Architecture et patterns detailles |
 | [Project Context](docs/project-context.md) | Vue d'ensemble technique complete |
-| [Rapport v3.0](docs/RAPPORT-ANOMALIES-AMELIORATIONS.md) | Anomalies corrigees + features implementees |
 | [Modules](docs/modules/) | Documentation par module |
 | [CLI](docs/cli/) | Reference commandes CLI |
+| [Site web](https://khalilbenaz.github.io/RIVORA/) | Documentation complete en ligne |
 
 ---
 
 ## Known Limitations
 
-- **Native AOT**: Not all modules are fully AOT-compatible yet. EF Core and some reflection-heavy modules (AI, GraphQL) require JIT.
+- **Native AOT**: 14 modules compatibles, 27 partiellement, 15 non-compatibles. Voir [docs/NATIVE-AOT.md](docs/NATIVE-AOT.md) pour le detail.
 - **AI Review CLI**: Requires an API key for OpenAI or Claude. Ollama can be used offline but with reduced analysis quality.
 - **SaaS Billing**: Only Stripe is supported. Other payment providers are on the roadmap.
 - **Database Providers**: While 4 providers are supported (SQL Server, PostgreSQL, MySQL, SQLite), advanced features like Event Sourcing are optimized for SQL Server and PostgreSQL.

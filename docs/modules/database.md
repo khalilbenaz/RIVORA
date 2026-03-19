@@ -262,6 +262,27 @@ public class AppDbContext : SqliteDbContext
 }
 ```
 
+### Sécuriser la chaîne de connexion avec User Secrets
+
+En développement, utilisez `dotnet user-secrets` pour ne pas stocker de mots de passe dans `appsettings.json` :
+
+```bash
+# Initialiser (une seule fois par projet)
+cd src/api/RVR.Framework.Api
+dotnet user-secrets init
+
+# Définir la chaîne de connexion
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
+  "Server=localhost;Database=MyApp;User Id=sa;Password=MonMotDePasse;TrustServerCertificate=True;"
+
+# Vérifier les secrets configurés
+dotnet user-secrets list
+```
+
+Les User Secrets surchargent automatiquement `appsettings.json` en environnement `Development`. Ils sont stockés hors du projet et ne sont jamais commités.
+
+> **Production** : Utilisez des variables d'environnement ou un coffre-fort (Azure Key Vault, AWS Secrets Manager, HashiCorp Vault).
+
 ### Options de configuration
 
 | Option | Type | Default | Description |
