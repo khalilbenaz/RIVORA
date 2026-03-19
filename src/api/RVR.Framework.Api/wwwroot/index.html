@@ -3,130 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RIVORA Framework API - Clean Architecture .NET 9">
     <title>RIVORA Framework API - Accueil</title>
     <style>
-        * {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a6fd6;
+            --accent: #764ba2;
+            --bg: #f8f9ff;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0f172a;
+                --card-bg: #1e293b;
+                --text: #f1f5f9;
+                --text-muted: #94a3b8;
+                --border: #334155;
+                --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            }
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            color: var(--text);
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 50px;
-            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 48px;
+            max-width: 920px;
             width: 100%;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
         }
 
         .logo {
             font-size: 48px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .subtitle {
-            color: #666;
+            color: var(--text-muted);
             font-size: 18px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .version {
             display: inline-block;
-            background: #667eea;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
-            padding: 5px 15px;
+            padding: 4px 16px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
+        }
+
+        /* Init banner */
+        .init-banner {
+            display: none;
+            background: linear-gradient(135deg, #fef3c7, #fffbeb);
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            text-align: center;
+            animation: slideDown 0.3s ease;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .init-banner {
+                background: linear-gradient(135deg, #422006, #1c1917);
+                border-color: #b45309;
+            }
+            .init-banner p { color: #fde68a !important; }
+            .init-banner a { color: #fbbf24 !important; }
+        }
+
+        .init-banner.visible { display: block; }
+
+        .init-banner p {
+            margin: 0;
+            color: #92400e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .init-banner a {
+            color: #b45309;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-        
-        @media (max-width: 768px) {
-            .card-grid {
-                grid-template-columns: 1fr;
-            }
+            gap: 16px;
+            margin-bottom: 32px;
         }
 
         .card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            padding: 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 14px;
+            padding: 28px 24px;
             color: white;
             text-decoration: none;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform var(--transition), box-shadow var(--transition);
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
+            cursor: pointer;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        .card:hover, .card:focus-visible {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.35);
+            outline: none;
+        }
+
+        .card:active {
+            transform: translateY(-1px);
         }
 
         .card-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+            font-size: 40px;
+            margin-bottom: 12px;
+            line-height: 1;
         }
 
         .card-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
         }
 
         .card-description {
-            font-size: 14px;
+            font-size: 13px;
             opacity: 0.9;
+            line-height: 1.4;
         }
 
         .info-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
-            margin-top: 30px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px;
+            margin-top: 24px;
         }
 
         .info-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-        }
-
-        .info-title::before {
-            content: "🚀";
-            margin-right: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
         }
 
         .info-list {
@@ -135,125 +202,157 @@
 
         .info-list li {
             padding: 10px 0;
-            border-bottom: 1px solid #e0e0e0;
-            color: #555;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
             display: flex;
             align-items: center;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
-        .info-list li:last-child {
-            border-bottom: none;
-        }
+        .info-list li:last-child { border-bottom: none; }
 
         .info-list li::before {
-            content: "✓";
-            color: #667eea;
+            content: "\2713";
+            color: var(--primary);
             font-weight: bold;
-            margin-right: 10px;
-            font-size: 18px;
+            margin-right: 12px;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .info-list code {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin: 0 4px;
         }
 
         .status-badge {
             display: inline-block;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 10px;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-        }
+        .status-success { background: #dcfce7; color: #166534; }
 
         .footer {
             text-align: center;
-            margin-top: 40px;
-            color: #666;
-            font-size: 14px;
+            margin-top: 32px;
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.8;
         }
 
         .footer a {
-            color: #667eea;
+            color: var(--primary);
             text-decoration: none;
+            font-weight: 500;
+            transition: color var(--transition);
         }
 
-        .footer a:hover {
-            text-decoration: underline;
+        .footer a:hover { text-decoration: underline; }
+
+        /* Loading indicator */
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+            background: var(--text-muted);
+            transition: background var(--transition);
         }
+        .status-dot.ok { background: var(--success); }
+        .status-dot.warn { background: var(--warning); }
+        .status-dot.error { background: var(--danger); }
+
+        /* Skip link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            z-index: 100;
+            border-radius: 0 0 8px 0;
+            transition: top 0.2s;
+        }
+        .skip-link:focus { top: 0; }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 30px 20px;
-            }
-
-            .logo {
-                font-size: 36px;
-            }
-
-            .card-grid {
-                grid-template-columns: 1fr;
-            }
+            .container { padding: 28px 20px; }
+            .logo { font-size: 32px; }
+            .card-grid { grid-template-columns: 1fr; }
+            .info-section { padding: 20px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <a href="#main" class="skip-link">Aller au contenu</a>
+
+    <div class="container" id="main" role="main">
+        <header class="header">
             <div class="logo">RIVORA Framework</div>
-            <div class="subtitle">Clean Architecture API .NET 8</div>
-            <span class="version">v1.0.0</span>
+            <div class="subtitle">Clean Architecture API .NET 9</div>
+            <span class="version">v4.0.0-preview.1</span>
+        </header>
+
+        <div id="initBanner" class="init-banner" role="alert" aria-live="polite">
+            <p>
+                <strong>Initialisation requise</strong> &mdash;
+                <a href="/swagger/index.html#/Initialization/InitializeFirstAdmin">Cr&eacute;er le premier administrateur</a>
+            </p>
         </div>
 
-        <div class="card-grid">
-            <a href="/api-explorer.html" class="card">
-                <div class="card-icon">🚀</div>
+        <nav class="card-grid" aria-label="Navigation principale">
+            <a href="/api-explorer.html" class="card" aria-label="API Explorer - Tests interactifs">
+                <div class="card-icon" aria-hidden="true">&#x1F680;</div>
                 <div class="card-title">API Explorer</div>
                 <div class="card-description">Tests interactifs de tous les endpoints</div>
             </a>
 
-            <a href="/swagger" class="card">
-                <div class="card-icon">🔧</div>
+            <a href="/swagger" class="card" aria-label="Documentation Swagger UI">
+                <div class="card-icon" aria-hidden="true">&#x1F527;</div>
                 <div class="card-title">Swagger UI</div>
-                <div class="card-description">Documentation Swagger classique</div>
+                <div class="card-description">Documentation OpenAPI interactive</div>
             </a>
 
-            <a href="/api-docs" class="card">
-                <div class="card-icon">📚</div>
+            <a href="/api-docs" class="card" aria-label="Documentation ReDoc">
+                <div class="card-icon" aria-hidden="true">&#x1F4DA;</div>
                 <div class="card-title">Documentation ReDoc</div>
-                <div class="card-description">Documentation complète et élégante</div>
+                <div class="card-description">Documentation compl&egrave;te et &eacute;l&eacute;gante</div>
             </a>
 
-            <a href="/api/init/status" class="card" target="_blank">
-                <div class="card-icon">⚙️</div>
-                <div class="card-title">Statut du système</div>
-                <div class="card-description">Vérifier l'initialisation</div>
+            <a href="/health" class="card" aria-label="Health checks du syst&egrave;me">
+                <div class="card-icon" aria-hidden="true">
+                    <span class="status-dot" id="statusDot"></span>&#x2764;&#xFE0F;
+                </div>
+                <div class="card-title">Sant&eacute; du syst&egrave;me</div>
+                <div class="card-description" id="healthStatus">V&eacute;rification en cours&hellip;</div>
             </a>
-        </div>
+        </nav>
 
-        <div class="info-section">
-            <div class="info-title">Démarrage rapide</div>
-            <ul class="info-list">
-                <li>
-                    <strong>Étape 1 :</strong> Vérifiez le statut d'initialisation du système
-                </li>
-                <li>
-                    <strong>Étape 2 :</strong> Si nécessaire, créez le premier utilisateur admin via <code>POST /api/init/first-admin</code>
-                </li>
-                <li>
-                    <strong>Étape 3 :</strong> Authentifiez-vous via <code>POST /api/auth/login</code> pour obtenir un token JWT
-                </li>
-                <li>
-                    <strong>Étape 4 :</strong> Utilisez le token pour accéder aux endpoints protégés
-                </li>
-                <li>
-                    <strong>Étape 5 :</strong> Testez l'API via Swagger UI ou ReDoc
-                </li>
-            </ul>
-        </div>
+        <section class="info-section" aria-label="Guide de d&eacute;marrage">
+            <div class="info-title">D&eacute;marrage rapide</div>
+            <ol class="info-list">
+                <li>V&eacute;rifiez le statut d'initialisation du syst&egrave;me</li>
+                <li>Cr&eacute;ez le premier admin via <code>POST /api/init/first-admin</code></li>
+                <li>Authentifiez-vous via <code>POST /api/auth/login</code></li>
+                <li>Utilisez le token JWT pour acc&eacute;der aux endpoints prot&eacute;g&eacute;s</li>
+            </ol>
+        </section>
 
-        <div class="info-section">
+        <section class="info-section" aria-label="Endpoints principaux">
             <div class="info-title">Endpoints principaux</div>
             <ul class="info-list">
                 <li>
@@ -264,41 +363,53 @@
                     <strong>Authentication :</strong> <code>/api/auth/*</code>
                     <span class="status-badge status-success">Public</span>
                 </li>
-                <li>
-                    <strong>Users :</strong> <code>/api/users/*</code>
-                </li>
-                <li>
-                    <strong>Products :</strong> <code>/api/products/*</code>
-                </li>
+                <li><strong>Users :</strong> <code>/api/users/*</code></li>
+                <li><strong>Products :</strong> <code>/api/products/*</code></li>
             </ul>
-        </div>
+        </section>
 
-        <div class="footer">
-            <p>RIVORA Framework - Clean Architecture avec Multi-Tenancy, JWT & Validation</p>
-            <p style="margin-top: 10px;">
-                <a href="https://github.com/khalilbenaz/RVR.Framework" target="_blank">GitHub</a> |
+        <footer class="footer">
+            <p>RIVORA Framework &mdash; Clean Architecture avec Multi-Tenancy, JWT &amp; Validation</p>
+            <p>
+                <a href="https://github.com/khalilbenaz/RIVORA" target="_blank" rel="noopener noreferrer">GitHub</a> |
                 <a href="/api-docs" target="_blank">Documentation</a> |
-                <a href="/swagger" target="_blank">API Explorer</a>
+                <a href="/swagger" target="_blank">API</a>
             </p>
-        </div>
+        </footer>
     </div>
 
     <script>
-        // Vérifier automatiquement le statut du système au chargement
-        fetch('/api/init/status')
-            .then(response => response.json())
-            .then(data => {
-                console.log('System Status:', data);
-                if (data.needsInitialization) {
-                    console.warn('⚠️ Le système nécessite une initialisation!');
-                    // Optionnel: Afficher une notification
-                } else {
-                    console.log('✓ Le système est initialisé et prêt.');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur lors de la vérification du statut:', error);
-            });
+        (function() {
+            var dot = document.getElementById('statusDot');
+            var healthText = document.getElementById('healthStatus');
+            var banner = document.getElementById('initBanner');
+
+            // Check system health
+            fetch('/health')
+                .then(function(r) {
+                    if (r.ok) {
+                        dot.className = 'status-dot ok';
+                        healthText.textContent = 'Tous les services sont op\u00e9rationnels';
+                    } else {
+                        dot.className = 'status-dot warn';
+                        healthText.textContent = 'Certains services sont d\u00e9grad\u00e9s';
+                    }
+                })
+                .catch(function() {
+                    dot.className = 'status-dot error';
+                    healthText.textContent = 'Impossible de joindre les health checks';
+                });
+
+            // Check init status
+            fetch('/api/init/status')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.needsInitialization) {
+                        banner.classList.add('visible');
+                    }
+                })
+                .catch(function() { /* silently ignore */ });
+        })();
     </script>
 </body>
 </html>
