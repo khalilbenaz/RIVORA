@@ -6,6 +6,9 @@ dist
 # Auto-generated OpenAPI types (regenerate with: npm run api:generate)
 # src/api/generated.d.ts
 
+# Coverage reports
+/coverage/
+
 # Playwright
 /test-results/
 /playwright-report/
