@@ -11,6 +11,17 @@ namespace RVR.CLI.Commands;
 public static class NewCommand
 {
     /// <summary>
+    /// Writes a file, creating the parent directory if it doesn't exist.
+    /// </summary>
+    private static void WriteFile(string path, string content)
+    {
+        var dir = Path.GetDirectoryName(path);
+        if (!string.IsNullOrEmpty(dir))
+            Directory.CreateDirectory(dir);
+        WriteFile(path, content);
+    }
+
+    /// <summary>
     /// Executes the new command in non-interactive mode.
     /// </summary>
     public static async Task ExecuteAsync(string name, string template, string tenancy)
@@ -414,7 +425,7 @@ public static class NewCommand
         sb.AppendLine("Global");
         sb.AppendLine("EndGlobal");
 
-        File.WriteAllText(slnPath, sb.ToString());
+        WriteFile(slnPath, sb.ToString());
         return slnPath;
     }
 
@@ -424,7 +435,7 @@ public static class NewCommand
 
         // Directory.Build.props
         var buildPropsPath = Path.Combine(root, "Directory.Build.props");
-        File.WriteAllText(buildPropsPath, $@"<Project>
+        WriteFile(buildPropsPath, $@"<Project>
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>13.0</LangVersion>
@@ -470,7 +481,7 @@ public static class NewCommand
   </ItemGroup>
 </Project>");
 
-        File.WriteAllText(packagesPropsPath, packages.ToString());
+        WriteFile(packagesPropsPath, packages.ToString());
         files.Add(packagesPropsPath);
 
         return files;
@@ -483,7 +494,7 @@ public static class NewCommand
 
         // .csproj
         var csproj = Path.Combine(dir, $"{profile.Name}.Domain.csproj");
-        File.WriteAllText(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk"">
+        WriteFile(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <RootNamespace>{profile.Namespace}.Domain</RootNamespace>
   </PropertyGroup>
@@ -491,7 +502,7 @@ public static class NewCommand
         files.Add(csproj);
 
         // Sample entity
-        File.WriteAllText(Path.Combine(dir, "Entities/SampleEntity.cs"), $@"namespace {profile.Namespace}.Domain.Entities;
+        WriteFile(Path.Combine(dir, "Entities/SampleEntity.cs"), $@"namespace {profile.Namespace}.Domain.Entities;
 
 /// <summary>
 /// Sample entity — replace with your domain entities.
@@ -537,7 +548,7 @@ public class SampleEntity
         var dir = Path.Combine(root, $"src/{profile.Name}.Application");
 
         var csproj = Path.Combine(dir, $"{profile.Name}.Application.csproj");
-        File.WriteAllText(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk"">
+        WriteFile(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <RootNamespace>{profile.Namespace}.Application</RootNamespace>
   </PropertyGroup>
@@ -552,7 +563,7 @@ public class SampleEntity
         files.Add(csproj);
 
         // DependencyInjection
-        File.WriteAllText(Path.Combine(dir, "DependencyInjection.cs"), $@"using Microsoft.Extensions.DependencyInjection;
+        WriteFile(Path.Combine(dir, "DependencyInjection.cs"), $@"using Microsoft.Extensions.DependencyInjection;
 
 namespace {profile.Namespace}.Application;
 
@@ -584,7 +595,7 @@ public static class DependencyInjection
         };
 
         var csproj = Path.Combine(dir, $"{profile.Name}.Infrastructure.csproj");
-        File.WriteAllText(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk"">
+        WriteFile(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <RootNamespace>{profile.Namespace}.Infrastructure</RootNamespace>
   </PropertyGroup>
@@ -601,7 +612,7 @@ public static class DependencyInjection
         files.Add(csproj);
 
         // AppDbContext
-        File.WriteAllText(Path.Combine(dir, "AppDbContext.cs"), $@"using {profile.Namespace}.Domain.Entities;
+        WriteFile(Path.Combine(dir, "AppDbContext.cs"), $@"using {profile.Namespace}.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace {profile.Namespace}.Infrastructure;
@@ -621,7 +632,7 @@ public class AppDbContext : DbContext
         files.Add(Path.Combine(dir, "AppDbContext.cs"));
 
         // DependencyInjection
-        File.WriteAllText(Path.Combine(dir, "DependencyInjection.cs"), $@"using Microsoft.EntityFrameworkCore;
+        WriteFile(Path.Combine(dir, "DependencyInjection.cs"), $@"using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -656,7 +667,7 @@ public static class DependencyInjection
             apiPackages.AppendLine(@"    <PackageReference Include=""Microsoft.AspNetCore.Authentication.JwtBearer"" />");
 
         var csproj = Path.Combine(dir, $"{profile.Name}.Api.csproj");
-        File.WriteAllText(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk.Web"">
+        WriteFile(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk.Web"">
   <PropertyGroup>
     <RootNamespace>{profile.Namespace}.Api</RootNamespace>
   </PropertyGroup>
@@ -670,7 +681,7 @@ public static class DependencyInjection
         files.Add(csproj);
 
         // Sample endpoint
-        File.WriteAllText(Path.Combine(dir, "Endpoints/SampleEndpoints.cs"), $@"namespace {profile.Namespace}.Api.Endpoints;
+        WriteFile(Path.Combine(dir, "Endpoints/SampleEndpoints.cs"), $@"namespace {profile.Namespace}.Api.Endpoints;
 
 public static class SampleEndpoints
 {{
@@ -756,7 +767,7 @@ public static class SampleEndpoints
         sb.AppendLine();
         sb.AppendLine("app.Run();");
 
-        File.WriteAllText(path, sb.ToString());
+        WriteFile(path, sb.ToString());
         return path;
     }
 
@@ -787,10 +798,10 @@ public static class SampleEndpoints
   }}
 }}";
 
-        File.WriteAllText(Path.Combine(apiDir, "appsettings.json"), appSettings);
+        WriteFile(Path.Combine(apiDir, "appsettings.json"), appSettings);
         files.Add(Path.Combine(apiDir, "appsettings.json"));
 
-        File.WriteAllText(Path.Combine(apiDir, "appsettings.Development.json"), @"{
+        WriteFile(Path.Combine(apiDir, "appsettings.Development.json"), @"{
   ""Logging"": {
     ""LogLevel"": {
       ""Default"": ""Debug"",
@@ -810,7 +821,7 @@ public static class SampleEndpoints
         if (profile.DevOps.Contains("gitignore"))
         {
             var path = Path.Combine(root, ".gitignore");
-            File.WriteAllText(path, @"## .NET
+            WriteFile(path, @"## .NET
 bin/
 obj/
 *.user
@@ -838,7 +849,7 @@ appsettings.*.local.json
         if (profile.DevOps.Contains("editorconfig"))
         {
             var path = Path.Combine(root, ".editorconfig");
-            File.WriteAllText(path, @"root = true
+            WriteFile(path, @"root = true
 
 [*]
 indent_style = space
@@ -865,7 +876,7 @@ trim_trailing_whitespace = false
             var ciDir = Path.Combine(root, ".github/workflows");
             Directory.CreateDirectory(ciDir);
             var path = Path.Combine(ciDir, "ci.yml");
-            File.WriteAllText(path, $@"name: CI
+            WriteFile(path, $@"name: CI
 
 on:
   push:
@@ -894,7 +905,7 @@ jobs:
         if (profile.DevOps.Contains("dockerfile"))
         {
             var path = Path.Combine(root, "Dockerfile");
-            File.WriteAllText(path, $@"FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+            WriteFile(path, $@"FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
@@ -951,7 +962,7 @@ ENTRYPOINT [""dotnet"", ""{profile.Name}.Api.dll""]
       - ""6379:6379""");
             }
 
-            File.WriteAllText(path, $@"services:{dbService}{additionalServices}
+            WriteFile(path, $@"services:{dbService}{additionalServices}
 
 volumes:
   db-data:
@@ -969,7 +980,7 @@ volumes:
         Directory.CreateDirectory(dir);
 
         var csproj = Path.Combine(dir, $"{profile.Name}.Tests.csproj");
-        File.WriteAllText(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk"">
+        WriteFile(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <RootNamespace>{profile.Namespace}.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
@@ -989,7 +1000,7 @@ volumes:
         files.Add(csproj);
 
         // Sample test
-        File.WriteAllText(Path.Combine(dir, "SampleEntityTests.cs"), $@"using {profile.Namespace}.Domain.Entities;
+        WriteFile(Path.Combine(dir, "SampleEntityTests.cs"), $@"using {profile.Namespace}.Domain.Entities;
 using FluentAssertions;
 
 namespace {profile.Namespace}.Tests;

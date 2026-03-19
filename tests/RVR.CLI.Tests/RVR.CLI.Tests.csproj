@@ -23,4 +23,8 @@
     <ProjectReference Include="..\..\tools\RVR.CLI\RVR.CLI.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
