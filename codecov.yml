@@ -1,0 +1,40 @@
+codecov:
+  require_ci_to_pass: false
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+    patch:
+      default:
+        target: auto
+
+ignore:
+  # Auto-generated code
+  - "**/*.Designer.cs"
+  - "**/Migrations/**"
+  - "**/obj/**"
+  # UI/Desktop (Blazor, MAUI — not testable in unit tests)
+  - "src/ui/**"
+  - "tools/RVR.Studio/**"
+  - "tools/RVR.Studio.Desktop/**"
+  - "tools/rivora-vscode/**"
+  # CLI commands (Spectre.Console interactive — hard to unit test)
+  - "tools/RVR.CLI/Commands/**"
+  # Samples
+  - "samples/**"
+  # Frontend (covered separately by Vitest)
+  - "frontend/**"
+
+flags:
+  backend:
+    paths:
+      - src/
+      - tests/
+    carryforward: true
+  frontend:
+    paths:
+      - frontend/src/
+    carryforward: true
