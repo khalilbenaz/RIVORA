@@ -15,6 +15,8 @@ export default defineConfig({
           { text: 'Guide', link: '/guide/getting-started' },
           { text: 'Modules', link: '/modules/' },
           { text: 'CLI', link: '/cli/' },
+          { text: 'Frontend', link: '/frontend/' },
+          { text: 'Samples', link: '/samples/' },
           { text: 'API Reference', link: '/api/' },
           { text: 'Telecharger', link: '/download' }
         ],
@@ -46,6 +48,12 @@ export default defineConfig({
               { text: 'Conformite RGPD', link: '/guide/gdpr' },
               { text: 'Facturation SaaS', link: '/guide/billing' },
               { text: 'Docker', link: '/guide/docker' }
+            ]},
+            { text: 'DevOps', items: [
+              { text: 'Docker', link: '/guide/docker' },
+              { text: 'CI/CD', link: '/guide/ci-cd' },
+              { text: 'Native AOT', link: '/guide/native-aot' },
+              { text: 'Monitoring (Grafana)', link: '/guide/monitoring' }
             ]}
           ],
           '/modules/': [
@@ -79,6 +87,88 @@ export default defineConfig({
               { text: 'AI Guardrails', link: '/modules/guardrails' },
               { text: 'AI Agents', link: '/modules/agents' },
               { text: 'RivoraApiClient', link: '/modules/client' }
+            ]}
+          ],
+          '/cli/': [
+            { text: 'CLI', items: [
+              { text: 'Vue d\'ensemble', link: '/cli/' },
+            ]},
+            { text: 'Scaffolding', items: [
+              { text: 'rvr new', link: '/cli/new' },
+              { text: 'rvr generate', link: '/cli/generate' },
+              { text: 'rvr add-module', link: '/cli/add-module' },
+              { text: 'rvr remove-module', link: '/cli/remove-module' },
+            ]},
+            { text: 'AI', items: [
+              { text: 'rvr ai', link: '/cli/ai' },
+            ]},
+            { text: 'Base de donnees', items: [
+              { text: 'rvr migrate', link: '/cli/migrate' },
+            ]},
+            { text: 'Environnements', items: [
+              { text: 'rvr env', link: '/cli/env' },
+            ]},
+            { text: 'Publication & DevOps', items: [
+              { text: 'rvr publish', link: '/cli/publish' },
+              { text: 'rvr upgrade', link: '/cli/upgrade' },
+              { text: 'rvr doctor', link: '/cli/doctor' },
+              { text: 'rvr benchmark', link: '/cli/benchmark' },
+            ]},
+          ],
+          '/api/': [
+            { text: 'API Reference', items: [
+              { text: 'Vue d\'ensemble', link: '/api/' },
+              { text: 'Authentication', link: '/api/auth' },
+              { text: 'Users', link: '/api/users' },
+              { text: 'Products', link: '/api/products' },
+              { text: 'Tenants', link: '/api/tenants' },
+              { text: 'Webhooks', link: '/api/webhooks' },
+              { text: 'Health Checks', link: '/api/health' },
+              { text: 'Initialization', link: '/api/init' },
+            ]},
+          ],
+          '/frontend/': [
+            { text: 'React Frontend', items: [
+              { text: 'Introduction', link: '/frontend/' },
+              { text: 'Installation', link: '/frontend/installation' },
+              { text: 'Architecture', link: '/frontend/architecture' },
+              { text: 'Routing', link: '/frontend/routing' },
+              { text: 'Authentification', link: '/frontend/authentication' },
+              { text: 'Etat global (Zustand)', link: '/frontend/state-management' },
+              { text: 'i18n (FR/EN)', link: '/frontend/i18n' },
+              { text: 'Dark Mode', link: '/frontend/dark-mode' },
+            ]},
+            { text: 'Pages', items: [
+              { text: 'Landing Page', link: '/frontend/pages/landing' },
+              { text: 'Dashboard', link: '/frontend/pages/dashboard' },
+              { text: 'Chat', link: '/frontend/pages/chat' },
+              { text: 'Flow Builder', link: '/frontend/pages/flow-builder' },
+              { text: 'Project Wizard', link: '/frontend/pages/project-wizard' },
+              { text: 'Entity Generator', link: '/frontend/pages/entity-generator' },
+              { text: 'Kanban', link: '/frontend/pages/kanban' },
+              { text: 'Analytics', link: '/frontend/pages/analytics' },
+              { text: 'Webhooks', link: '/frontend/pages/webhooks' },
+            ]},
+            { text: 'Composants', items: [
+              { text: 'Badge', link: '/frontend/components/badge' },
+              { text: 'StatCard', link: '/frontend/components/stat-card' },
+              { text: 'Pagination', link: '/frontend/components/pagination' },
+              { text: 'TableSkeleton', link: '/frontend/components/table-skeleton' },
+              { text: 'NotificationBell', link: '/frontend/components/notification-bell' },
+              { text: 'Charts (SVG)', link: '/frontend/components/charts' },
+            ]},
+            { text: 'Tests', items: [
+              { text: 'Unit Tests (Vitest)', link: '/frontend/testing/unit' },
+              { text: 'E2E Tests (Playwright)', link: '/frontend/testing/e2e' },
+            ]}
+          ],
+          '/samples/': [
+            { text: 'Exemples', items: [
+              { text: 'Vue d\'ensemble', link: '/samples/' },
+              { text: 'SaaS Starter', link: '/samples/saas-starter' },
+              { text: 'E-commerce', link: '/samples/ecommerce' },
+              { text: 'AI RAG App', link: '/samples/ai-rag' },
+              { text: 'Fintech Payment', link: '/samples/fintech' },
             ]}
           ]
         }

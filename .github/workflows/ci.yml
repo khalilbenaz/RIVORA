@@ -140,7 +140,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
-        if: always()
+        if: always() && secrets.CODECOV_TOKEN != ''
         with:
           files: '**/TestResults/**/coverage.cobertura.xml'
           flags: backend
@@ -345,7 +345,7 @@ jobs:
 
       - name: Upload frontend coverage to Codecov
         uses: codecov/codecov-action@v4
-        if: always()
+        if: always() && secrets.CODECOV_TOKEN != ''
         with:
           files: frontend/coverage/lcov.info
           flags: frontend

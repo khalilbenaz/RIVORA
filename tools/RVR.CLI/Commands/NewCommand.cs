@@ -966,6 +966,7 @@ volumes:
     {
         var files = new List<string>();
         var dir = Path.Combine(root, $"tests/{profile.Name}.Tests");
+        Directory.CreateDirectory(dir);
 
         var csproj = Path.Combine(dir, $"{profile.Name}.Tests.csproj");
         File.WriteAllText(csproj, $@"<Project Sdk=""Microsoft.NET.Sdk"">

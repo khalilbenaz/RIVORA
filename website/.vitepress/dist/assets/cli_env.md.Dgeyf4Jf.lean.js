@@ -1,0 +1,1 @@
+import{_ as i,o as a,c as t,ag as n}from"./chunks/framework.CT-gmSiP.js";const F=JSON.parse('{"title":"rvr env","description":"","frontmatter":{},"headers":[],"relativePath":"cli/env.md","filePath":"cli/env.md"}'),e={name:"cli/env.md"};function h(p,s,l,k,r,d){return a(),t("div",null,[...s[0]||(s[0]=[n("",43)])])}const g=i(e,[["render",h]]);export{F as __pageData,g as default};

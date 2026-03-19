@@ -1,112 +1,50 @@
 # RVR CLI
 
+The RIVORA CLI (`rvr`) is the primary tool for creating, managing, and maintaining RIVORA projects.
+
 ## Installation
 
 ```bash
 dotnet tool install --global RVR.CLI
 ```
 
-## Commandes
-
-### Scaffolding
+Verify the installation:
 
 ```bash
-# Creer un nouveau projet
-rvr new MySaaS --template saas-starter
-
-# Generer un CRUD complet (Entity + Command + Query + Controller + Tests)
-rvr generate crud Invoice --props "Reference:string,Amount:decimal,DueDate:DateTime"
-
-# Ajouter un module
-rvr add-module Inventory
-
-# Retirer un module proprement
-rvr remove-module Caching
-rvr remove-module Caching --dry-run    # Previsualiser sans modifier
+rvr --version
 ```
 
-### AI Review
+## Commands
 
-```bash
-# Tous les analyzers
-rvr ai review --all
+| Command | Description |
+|---------|-------------|
+| [`rvr new`](/cli/new) | Create a new RIVORA project from a template |
+| [`rvr generate`](/cli/generate) | Generate code (aggregates, CRUD, commands, queries, tests) |
+| [`rvr ai`](/cli/ai) | AI-powered review, chat, generation, and design |
+| [`rvr migrate`](/cli/migrate) | Database migration management |
+| [`rvr env`](/cli/env) | Environment and secrets management |
+| [`rvr publish`](/cli/publish) | Build and publish to Docker, NuGet, or Azure |
+| [`rvr doctor`](/cli/doctor) | Run project diagnostics and health checks |
+| [`rvr benchmark`](/cli/benchmark) | Performance and load testing |
+| [`rvr add-module`](/cli/add-module) | Add a RIVORA module to your project |
+| [`rvr remove-module`](/cli/remove-module) | Remove a module from your project |
+| [`rvr upgrade`](/cli/upgrade) | Upgrade RIVORA to a newer version |
 
-# Analyzers individuels
-rvr ai review --architecture    # Clean Architecture conformance
-rvr ai review --ddd             # DDD anti-patterns
-rvr ai review --performance     # N+1, missing async, EF anti-patterns
-rvr ai review --security        # Vulnerabilites OWASP
+## Global Flags
 
-# Options
-rvr ai review --provider ollama                         # Mode offline
-rvr ai review --output sarif --output-file report.sarif # CI/CD integration
-```
+| Flag | Description |
+|------|-------------|
+| `--help`, `-h` | Show help for any command |
+| `--version` | Display CLI version |
+| `--verbose`, `-v` | Enable verbose output |
+| `--no-color` | Disable colored output |
+| `--working-dir <path>` | Set the working directory |
 
-### AI Chat & Generation
-
-```bash
-rvr ai chat --provider claude
-rvr ai generate "Create a payment service with Stripe integration"
-rvr ai design --provider openai
-```
-
-### Base de donnees
-
-```bash
-# Migrations
-rvr migrate generate AddOrderTable
-rvr migrate apply
-rvr migrate list
-rvr migrate rollback
-
-# Seeding
-rvr seed --profile demo               # Seeder avec le profil demo
-rvr seed --reset --profile test        # Truncate + reseed
-rvr seed --dry-run                     # Previsualiser
-rvr generate seed Product              # Scaffolder un seeder
-```
-
-### Environnements & Secrets
-
-```bash
-rvr env list                          # Lister les environnements
-rvr env set DB:Host "localhost"       # Definir une variable
-rvr env diff Development Production   # Comparer deux envs
-rvr env secrets init                  # Initialiser User Secrets
-rvr env export --format dotenv        # Exporter en .env
-rvr env import --file .env            # Importer depuis .env
-```
-
-### Publication
-
-```bash
-rvr publish --target docker           # Image Docker
-rvr publish --target nuget            # Packages NuGet
-rvr publish --target self-contained   # Binaires autonomes
-rvr publish --dry-run                 # Previsualiser
-```
-
-### Upgrade
-
-```bash
-rvr upgrade --list                    # Migrations disponibles
-rvr upgrade --to 4.0 --dry-run       # Previsualiser
-rvr upgrade --to 4.0                  # Migrer
-```
-
-### DevOps
-
-```bash
-rvr doctor       # Verifie SDK, DB, Redis, etc.
-rvr benchmark    # Benchmark des performances
-rvr dev          # Serveur de developpement
-```
-
-### Templates disponibles
+## Templates
 
 | Template | Description |
 |----------|-------------|
-| `saas-starter` | Application SaaS multi-tenant complete |
-| `api-minimal` | API REST minimale |
-| `microservices` | Architecture microservices avec gateway |
-| `ai-rag` | Application RAG avec vector store |
+| `saas-starter` | Full multi-tenant SaaS application |
+| `api-minimal` | Minimal REST API |
+| `microservices` | Microservices architecture with gateway |
+| `ai-rag` | RAG application with vector store |
