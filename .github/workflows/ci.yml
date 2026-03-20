@@ -263,15 +263,21 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Run NuGet audit
-        run: dotnet nuget audit RVR.Framework.sln --include-transitive
+      - name: Restore dependencies
+        run: dotnet restore RVR.Framework.sln
 
-      - name: List vulnerable packages
+      - name: Check for vulnerable packages
         run: |
           echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Vulnerable Packages" >> $GITHUB_STEP_SUMMARY
-          dotnet list RVR.Framework.sln package --vulnerable --include-transitive >> $GITHUB_STEP_SUMMARY || echo "No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          OUTPUT=$(dotnet list RVR.Framework.sln package --vulnerable --include-transitive 2>&1)
+          echo "$OUTPUT" >> $GITHUB_STEP_SUMMARY
+          if echo "$OUTPUT" | grep -q "has the following vulnerable packages"; then
+            echo "::error::Vulnerable NuGet packages detected"
+            exit 1
+          fi
+          echo "No vulnerable packages found." >> $GITHUB_STEP_SUMMARY
 
   # Job: Secrets Scan
   secrets-scan:
@@ -283,10 +289,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz | tar xz -C /usr/local/bin gitleaks
+
       - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@cb7149a9b57195b609c63e8518d2c6056677d2d0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gitleaks detect --source . --redact -v --exit-code 1
 
   # Job: AI Code Review with SARIF output
   ai-review:
@@ -395,13 +403,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947e795f2d6a2fda712
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '1'
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget apt-transport-https gnupg
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update && sudo apt-get install -y trivy
+
+      - name: Run Trivy filesystem scan
+        run: trivy fs --severity CRITICAL,HIGH --exit-code 1 --scanners vuln .
 
   # Summary Job
   summary:
