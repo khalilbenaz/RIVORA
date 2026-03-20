@@ -23,6 +23,9 @@ public static class IncomingWebhookEndpoints
             InMemoryIncomingWebhookStore store,
             ILogger<InMemoryIncomingWebhookStore> logger) =>
         {
+            // Sanitize route parameter to prevent log forging (CodeQL cs/log-forging)
+            var sanitizedSource = SanitizeLogInput(source);
+
             // Read raw body
             httpContext.Request.EnableBuffering();
             using var reader = new StreamReader(httpContext.Request.Body);
@@ -96,13 +99,13 @@ public static class IncomingWebhookEndpoints
                 var webhookTime = DateTimeOffset.FromUnixTimeSeconds(timestamp);
                 if (DateTimeOffset.UtcNow - webhookTime > TimeSpan.FromMinutes(5))
                 {
-                    logger.LogWarning("Rejected stale webhook from {Source} — timestamp {Timestamp} is older than 5 minutes", source, timestampHeader);
+                    logger.LogWarning("Rejected stale webhook from {Source} — timestamp {Timestamp} is older than 5 minutes", sanitizedSource, SanitizeLogInput(timestampHeader));
                     return Results.Ok(new { status = "rejected", reason = "stale_timestamp" });
                 }
             }
             else if (string.IsNullOrEmpty(timestampHeader))
             {
-                logger.LogWarning("Incoming webhook from {Source} did not include a timestamp header", source);
+                logger.LogWarning("Incoming webhook from {Source} did not include a timestamp header", sanitizedSource);
             }
 
             log.Status = "processed";
@@ -210,6 +213,18 @@ public static class IncomingWebhookEndpoints
             dict[header.Key] = header.Value.ToString();
         }
         return JsonSerializer.Serialize(dict);
+    }
+
+    /// <summary>
+    /// Sanitizes user input before logging to prevent log forging attacks (CRLF injection).
+    /// </summary>
+    private static string SanitizeLogInput(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return string.Empty;
+        return input
+            .Replace("\r", string.Empty)
+            .Replace("\n", string.Empty)
+            .Replace("\t", string.Empty);
     }
 
     private static string? TryGetEventType(IHeaderDictionary headers)
