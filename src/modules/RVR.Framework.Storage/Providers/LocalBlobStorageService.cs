@@ -18,12 +18,14 @@ public class LocalBlobStorageService : IBlobStorageService
     public async Task<string> UploadAsync(string containerName, string fileName, Stream content)
     {
         var containerPath = Path.Combine(_basePath, containerName);
+        ValidatePathTraversal(containerPath);
         if (!Directory.Exists(containerPath))
         {
             Directory.CreateDirectory(containerPath);
         }
 
         var filePath = Path.Combine(containerPath, fileName);
+        ValidatePathTraversal(filePath);
         using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
         await content.CopyToAsync(fileStream);
 
@@ -33,6 +35,7 @@ public class LocalBlobStorageService : IBlobStorageService
     public async Task<Stream> DownloadAsync(string containerName, string fileName)
     {
         var filePath = Path.Combine(_basePath, containerName, fileName);
+        ValidatePathTraversal(filePath);
         if (!File.Exists(filePath))
         {
             throw new FileNotFoundException($"File {fileName} not found in {containerName}");
@@ -45,11 +48,19 @@ public class LocalBlobStorageService : IBlobStorageService
     public Task DeleteAsync(string containerName, string fileName)
     {
         var filePath = Path.Combine(_basePath, containerName, fileName);
+        ValidatePathTraversal(filePath);
         if (File.Exists(filePath))
         {
             File.Delete(filePath);
         }
 
         return Task.CompletedTask;
+    }
+
+    private void ValidatePathTraversal(string filePath)
+    {
+        var fullPath = Path.GetFullPath(filePath);
+        if (!fullPath.StartsWith(Path.GetFullPath(_basePath), StringComparison.OrdinalIgnoreCase))
+            throw new UnauthorizedAccessException("Access denied: path traversal detected.");
     }
 }

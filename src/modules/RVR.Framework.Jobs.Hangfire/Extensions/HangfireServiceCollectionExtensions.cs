@@ -99,7 +99,10 @@ public static class HangfireServiceCollectionExtensions
         var options = app.ApplicationServices.GetService<IOptions<JobSchedulerOptions>>()?.Value;
         var dashboardPath = options?.DashboardPath ?? "/hangfire";
 
-        app.UseHangfireDashboard(dashboardPath);
+        app.UseHangfireDashboard(dashboardPath, new global::Hangfire.DashboardOptions
+        {
+            Authorization = new[] { new RoleBasedDashboardFilter("Admin") }
+        });
 
         return app;
     }

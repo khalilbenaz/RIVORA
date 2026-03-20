@@ -59,6 +59,23 @@ public sealed class HttpTool : ITool
         var body = parameters.TryGetValue("body", out var bodyObj) ? bodyObj.ToString() : null;
         var contentType = parameters.TryGetValue("contentType", out var ctObj) ? ctObj.ToString() : "application/json";
 
+        // SSRF protection: block private/loopback/link-local IPs
+        var uri = new Uri(url);
+        if (uri.IsLoopback)
+            return new ToolResult(false, Error: "Access to loopback addresses is not allowed.");
+        if (uri.Scheme.Equals("file", StringComparison.OrdinalIgnoreCase))
+            return new ToolResult(false, Error: "File scheme is not allowed.");
+        if (System.Net.IPAddress.TryParse(uri.Host, out var ip))
+        {
+            var bytes = ip.GetAddressBytes();
+            bool isPrivate = bytes[0] == 10
+                || (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31)
+                || (bytes[0] == 192 && bytes[1] == 168)
+                || (bytes[0] == 169 && bytes[1] == 254);
+            if (isPrivate)
+                return new ToolResult(false, Error: "Access to private IP ranges is not allowed.");
+        }
+
         _logger.LogInformation("HttpTool executing {Method} {Url}", method, url);
 
         try
