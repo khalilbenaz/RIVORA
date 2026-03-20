@@ -215,8 +215,9 @@ public class RVRDbContext : DbContext
 
     private static byte[] DeriveKey(string encryptionKey)
     {
-        // Use PBKDF2 for proper key derivation instead of naive string padding
-        var salt = "RVR.Framework.AES256"u8.ToArray();
+        // Derive a unique salt from the encryption key to avoid shared static salt across instances
+        var saltInput = $"RVR.Salt.{encryptionKey}";
+        var salt = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(saltInput));
         return System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2(
             encryptionKey,
             salt,

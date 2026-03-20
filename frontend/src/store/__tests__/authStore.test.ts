@@ -17,60 +17,85 @@ const mockUser: User = {
 describe('authStore', () => {
   beforeEach(() => {
     localStorage.clear();
-    useAuthStore.setState({ token: null, user: null, isAuthenticated: false });
+    useAuthStore.setState({ token: null, refreshToken: null, user: null, isAuthenticated: false });
   });
 
   it('starts with no authentication', () => {
     const state = useAuthStore.getState();
     expect(state.token).toBeNull();
+    expect(state.refreshToken).toBeNull();
     expect(state.user).toBeNull();
     expect(state.isAuthenticated).toBe(false);
   });
 
-  it('login sets token, user, and isAuthenticated', () => {
-    useAuthStore.getState().login('test-token', mockUser);
+  it('login sets token, refreshToken, user, and isAuthenticated', () => {
+    useAuthStore.getState().login('test-token', 'test-refresh', mockUser);
 
     const state = useAuthStore.getState();
     expect(state.token).toBe('test-token');
+    expect(state.refreshToken).toBe('test-refresh');
     expect(state.user).toEqual(mockUser);
     expect(state.isAuthenticated).toBe(true);
   });
 
-  it('login persists to localStorage', () => {
-    useAuthStore.getState().login('test-token', mockUser);
+  it('login persists only user to localStorage (not tokens)', () => {
+    useAuthStore.getState().login('test-token', 'test-refresh', mockUser);
 
-    expect(localStorage.getItem('rvr_token')).toBe('test-token');
+    // Tokens must NOT be in localStorage (XSS protection)
+    expect(localStorage.getItem('rvr_token')).toBeNull();
+    // User display data is OK in localStorage
     expect(JSON.parse(localStorage.getItem('rvr_user')!)).toEqual(mockUser);
   });
 
-  it('logout clears token, user, and isAuthenticated', () => {
-    useAuthStore.getState().login('test-token', mockUser);
+  it('logout clears token, refreshToken, user, and isAuthenticated', () => {
+    useAuthStore.getState().login('test-token', 'test-refresh', mockUser);
     useAuthStore.getState().logout();
 
     const state = useAuthStore.getState();
     expect(state.token).toBeNull();
+    expect(state.refreshToken).toBeNull();
     expect(state.user).toBeNull();
     expect(state.isAuthenticated).toBe(false);
   });
 
-  it('logout removes from localStorage', () => {
-    useAuthStore.getState().login('test-token', mockUser);
+  it('logout removes user from localStorage', () => {
+    useAuthStore.getState().login('test-token', 'test-refresh', mockUser);
     useAuthStore.getState().logout();
 
-    expect(localStorage.getItem('rvr_token')).toBeNull();
     expect(localStorage.getItem('rvr_user')).toBeNull();
   });
 
-  it('loadFromStorage restores auth state', () => {
-    localStorage.setItem('rvr_token', 'stored-token');
+  it('setToken updates the in-memory token', () => {
+    useAuthStore.getState().setToken('new-token');
+
+    const state = useAuthStore.getState();
+    expect(state.token).toBe('new-token');
+    // Should NOT persist to localStorage
+    expect(localStorage.getItem('rvr_token')).toBeNull();
+  });
+
+  it('clearAuth clears state and localStorage', () => {
+    useAuthStore.getState().login('test-token', 'test-refresh', mockUser);
+    useAuthStore.getState().clearAuth();
+
+    const state = useAuthStore.getState();
+    expect(state.token).toBeNull();
+    expect(state.refreshToken).toBeNull();
+    expect(state.user).toBeNull();
+    expect(state.isAuthenticated).toBe(false);
+    expect(localStorage.getItem('rvr_user')).toBeNull();
+  });
+
+  it('loadFromStorage restores user but not auth state', () => {
     localStorage.setItem('rvr_user', JSON.stringify(mockUser));
 
     useAuthStore.getState().loadFromStorage();
 
     const state = useAuthStore.getState();
-    expect(state.token).toBe('stored-token');
     expect(state.user).toEqual(mockUser);
-    expect(state.isAuthenticated).toBe(true);
+    // isAuthenticated should be false — a token refresh is needed
+    expect(state.isAuthenticated).toBe(false);
+    expect(state.token).toBeNull();
   });
 
   it('loadFromStorage does nothing when storage is empty', () => {
@@ -82,15 +107,14 @@ describe('authStore', () => {
   });
 
   it('loadFromStorage handles invalid JSON gracefully', () => {
-    localStorage.setItem('rvr_token', 'some-token');
     localStorage.setItem('rvr_user', 'not-valid-json');
 
     useAuthStore.getState().loadFromStorage();
 
     const state = useAuthStore.getState();
-    expect(state.token).toBeNull();
+    expect(state.user).toBeNull();
     expect(state.isAuthenticated).toBe(false);
-    // Should also clean up bad data
-    expect(localStorage.getItem('rvr_token')).toBeNull();
+    // Should clean up bad data
+    expect(localStorage.getItem('rvr_user')).toBeNull();
   });
 });

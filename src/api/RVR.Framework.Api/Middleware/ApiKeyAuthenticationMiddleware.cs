@@ -31,24 +31,15 @@ public class ApiKeyAuthenticationMiddleware
         var keyValue = extractedApiKey.ToString();
         var keyHash = ComputeHash(keyValue);
 
-        // Look up by hash for security; fall back to plaintext comparison
-        // for backward compatibility during migration period.
+        // Look up by hash only — no plaintext fallback
         var apiKey = await dbContext.ApiKeys
-            .FirstOrDefaultAsync(k => k.IsActive &&
-                (k.KeyHash == keyHash || (k.KeyHash == null && k.Key == keyValue)));
+            .FirstOrDefaultAsync(k => k.IsActive && k.KeyHash == keyHash);
 
         if (apiKey == null || (apiKey.ExpiresAtUtc.HasValue && apiKey.ExpiresAtUtc < DateTime.UtcNow))
         {
             context.Response.StatusCode = 401;
             await context.Response.WriteAsync("Clé API invalide ou expirée.");
             return;
-        }
-
-        // If key was matched by plaintext (legacy), migrate to hash
-        if (apiKey.KeyHash == null)
-        {
-            apiKey.KeyHash = keyHash;
-            apiKey.Key = $"***{keyValue[^4..]}"; // Keep only last 4 chars as prefix for identification
         }
 
         // Mettre à jour la date de dernière utilisation

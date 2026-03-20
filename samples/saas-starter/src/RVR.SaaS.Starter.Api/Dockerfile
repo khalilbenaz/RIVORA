@@ -29,5 +29,7 @@ EXPOSE 80
 RUN apt-get update && apt-get install -y fontconfig
 
 COPY --from=build /app/publish .
-
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:80/health || exit 1
+USER app
 ENTRYPOINT ["dotnet", "RVR.SaaS.Starter.Api.dll"]

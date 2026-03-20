@@ -1,5 +1,54 @@
 # Changelog
 
+## [v4.1.0] - 2026-03-20
+
+### Security Hardening — Full Audit (22 fixes)
+
+#### Authentication & Authorization
+- **sec: global AuthorizeFilter** — all endpoints require authentication by default, `[AllowAnonymous]` to opt-out
+- **sec: authorization policies** — `RequireAdmin`, `RequireManager`, `RequireUser` policies with `FallbackPolicy`
+- **sec: password policy validator** — configurable (min 12 chars, uppercase, lowercase, digit, special, common password rejection)
+- **sec: fix race condition** on `/api/init/first-admin` with `SemaphoreSlim` lock
+- **sec: token storage** — access token in memory only (Zustand state), removed localStorage persistence to prevent XSS theft
+- **sec: tenant header isolation** — `X-Tenant-Id` header ignored for unauthenticated requests
+
+#### Cryptography & Secrets
+- **sec: dynamic PBKDF2 salt** — salt derived from encryption key via SHA-256, no longer static across instances
+- **sec: remove API key plaintext fallback** — hash-only lookup in `ApiKeyAuthenticationMiddleware`
+- **sec: remove hardcoded secrets** from all docker-compose files (5 files), replaced with `${ENV_VAR}` syntax
+- **sec: .env.example files** — added for root, infra, and all 3 samples with documented placeholders
+
+#### HTTP Security
+- **sec: HSTS preload** — added `preload` directive to Strict-Transport-Security header
+- **sec: CSP upgrade-insecure-requests** — added to Content-Security-Policy header
+- **sec: X-Permitted-Cross-Domain-Policies** — added `none` header
+- **sec: CORS rename** — policy renamed from `AllowAll` to `DefaultCorsPolicy` to avoid misleading name
+- **sec: disable HTTPS compression** — `EnableForHttps = false` to prevent BREACH attacks
+- **sec: AllowedHosts** — production config set to specific domain instead of wildcard `*`
+
+#### GraphQL & API
+- **sec: GraphQL depth limit** — `AddMaxExecutionDepthRule(15)` + 10s execution timeout to prevent DoS
+
+#### Docker
+- **sec: non-root containers** — `USER app` added to all .NET Dockerfiles (7 files)
+- **sec: HEALTHCHECK** — added to all Dockerfiles (10 files, .NET + nginx)
+
+#### CI/CD & Supply Chain
+- **sec: NuGet audit blocking** — removed `continue-on-error` on security scan job
+- **sec: SHA-pinned actions** — all GitHub Actions pinned by commit SHA (7 actions)
+- **sec: minimal permissions** — `packages: write` restricted to `publish-nuget` job only
+- **sec: environment gate** — `publish-nuget` requires `production` environment approval
+- **sec: npm audit** — added to frontend CI job
+- **sec: gitleaks** — added secrets scanning job to CI pipeline
+- **sec: Trivy** — added filesystem security scan job to CI pipeline
+
+### Improved
+- **build: 0 warnings** — suppressed Grpc.Net.ClientFactory transitive compatibility warning via `Directory.Build.props`
+- **test: 74 frontend tests** — updated authStore tests for new 3-arg login API, added XSS protection verification
+- **test: 445 backend tests** — all passing (0 failures)
+
+---
+
 ## [v4.0.0] - 2026-03-19
 
 ### Added - Business Features (6 new pages)
