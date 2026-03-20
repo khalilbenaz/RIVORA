@@ -109,6 +109,16 @@ PublishScripts/
 .env.test
 .env.production
 
+# External/unrelated files
+*.pkl
+matchups_train.csv
+dataset_football.csv
+poisson_predictor.py
+predict_match.py
+prepare_data.py
+scraper_stats.py
+train_model.py
+
 # Mac
 .DS_Store
 
