@@ -18,6 +18,11 @@ public static class GraphQLServiceCollectionExtensions
     {
         services
             .AddGraphQLServer()
+            .AddMaxExecutionDepthRule(15)
+            .ModifyRequestOptions(o =>
+            {
+                o.ExecutionTimeout = TimeSpan.FromSeconds(10);
+            })
             .AddQueryType<Query>()
             .AddMutationType<Mutation>()
             .AddType<UserType>()

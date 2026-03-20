@@ -20,7 +20,7 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await authApi.login({ userName, password });
-      login(res.data.token, res.data.user);
+      login(res.data.token, res.data.refreshToken, res.data.user);
     } catch {
       setError(t('login.error'));
     } finally {

@@ -12,4 +12,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 EXPOSE 80
 COPY --from=build /app/publish .
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:80/health || exit 1
+USER app
 ENTRYPOINT ["dotnet", "RVR.Microservices.NotificationService.dll"]

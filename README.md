@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 [![CI](https://github.com/khalilbenaz/RIVORA/actions/workflows/ci.yml/badge.svg)](https://github.com/khalilbenaz/RIVORA/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/khalilbenaz/RIVORA/graph/badge.svg)](https://codecov.io/gh/khalilbenaz/RIVORA)
-![Version](https://img.shields.io/badge/version-4.0.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-4.1.0-blue?style=flat-square)
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in-Codespaces-blue?logo=github&style=flat-square)](https://codespaces.new/khalilbenaz/RIVORA)
 
 **Framework d'entreprise Cloud-Native pour .NET 9 - Clean Architecture, DDD et Multi-tenancy pour applications SaaS professionnelles.**
@@ -96,6 +96,7 @@ dotnet restore
 dotnet run --project src/api/RVR.Framework.Api
 
 # 3. (Optionnel) Lancer l'environnement dev complet
+cp .env.example .env          # Configurer les secrets (DB, JWT, etc.)
 docker compose -f docker-compose.dev.yml up -d
 ```
 
@@ -148,18 +149,26 @@ Infrastructure (Data)       EF Core 9, Repositories, Services externes
 ### Securite
 | Feature | Description |
 |---------|-------------|
-| JWT + Refresh Tokens | Tokens persistants avec rotation et revocation |
+| JWT + Refresh Tokens | Tokens persistants avec rotation, reuse detection et family revocation |
 | BCrypt Password Hashing | Work factor 12, OWASP compliant |
+| Password Policy Validator | Min 12 chars, complexite configurable, rejet mots de passe communs |
 | Account Lockout | Anti brute-force (5 tentatives, 15 min lockout) |
 | 2FA/TOTP | QR Code + backup codes |
-| AES-256 Encryption | Chiffrement at-rest via `[EncryptedAtRest]` |
-| Rate Limiting | Trusted proxy, IP-based et user-based |
-| CORS | Restrictif en production, configurable |
+| AES-256 Encryption | Chiffrement at-rest via `[EncryptedAtRest]`, sel derive par instance |
+| Rate Limiting | Trusted proxy, IP-based, user-based et per-tenant |
+| Global Authorization | `[Authorize]` global par defaut, policies RequireAdmin/RequireManager |
+| CORS | Policy nommee restrictive, origins configurables par environnement |
 | Audit Trail | Intercepteur EF Core automatique |
-| OWASP Headers | CSP, HSTS, X-Frame-Options |
+| OWASP Headers | CSP (upgrade-insecure-requests), HSTS (preload), X-Frame-Options, X-Permitted-Cross-Domain-Policies |
+| API Key Security | SHA-256 hash-only lookup, pas de stockage plaintext |
 | OAuth2 / OIDC | Azure AD, Keycloak, Auth0 avec claims transformer |
 | GDPR Privacy Toolkit | `[PersonalData]`, DSAR, consent management, data anonymizer |
 | Session Management | Identity.Pro session tracking, admin impersonation with JWT |
+| Token Storage | Access token en memoire uniquement (pas de localStorage), resilient au XSS |
+| Tenant Isolation | Verification claim JWT / header, query filters EF Core, rejet header non-authentifie |
+| GraphQL Security | Max execution depth (15), timeout (10s), anti-DoS |
+| Init Endpoint | Race-condition protected avec SemaphoreSlim |
+| CI/CD Security | Actions SHA-pinned, gitleaks, Trivy, npm audit, NuGet audit bloquant |
 
 ### Performance
 | Feature | Description |

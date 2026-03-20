@@ -19,8 +19,8 @@ services:
     container_name: ai-rag-db
     environment:
       POSTGRES_DB: ai_rag
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     ports:
       - "5432:5432"
     volumes:
@@ -50,7 +50,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=ai_rag;Username=postgres;Password=postgres
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=ai_rag;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - VectorStore__Qdrant__Endpoint=http://qdrant:6333
       - AIProviders__OpenAI__ApiKey=${OPENAI_API_KEY:-}
       - AIProviders__Anthropic__ApiKey=${ANTHROPIC_API_KEY:-}

@@ -3,39 +3,54 @@ import type { User } from '../types';
 
 interface AuthState {
   token: string | null;
+  refreshToken: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  login: (token: string, user: User) => void;
+  login: (token: string, refreshToken: string, user: User) => void;
   logout: () => void;
+  setToken: (token: string) => void;
+  clearAuth: () => void;
   loadFromStorage: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   token: null,
+  refreshToken: null,
   user: null,
   isAuthenticated: false,
 
-  login: (token, user) => {
-    localStorage.setItem('rvr_token', token);
+  login: (token, refreshToken, user) => {
+    // Security: access token stored in memory only — not persisted to prevent XSS token theft
     localStorage.setItem('rvr_user', JSON.stringify(user));
-    set({ token, user, isAuthenticated: true });
+    set({ token, refreshToken, user, isAuthenticated: true });
   },
 
   logout: () => {
-    localStorage.removeItem('rvr_token');
+    // TODO: call server endpoint to clear the HttpOnly refresh token cookie
     localStorage.removeItem('rvr_user');
-    set({ token: null, user: null, isAuthenticated: false });
+    set({ token: null, refreshToken: null, user: null, isAuthenticated: false });
+  },
+
+  setToken: (token) => {
+    set({ token });
+  },
+
+  clearAuth: () => {
+    localStorage.removeItem('rvr_user');
+    set({ token: null, refreshToken: null, user: null, isAuthenticated: false });
   },
 
   loadFromStorage: () => {
-    const token = localStorage.getItem('rvr_token');
+    // Only user display data is persisted — tokens are memory-only.
+    // If a user record exists the app should trigger a token refresh flow
+    // via the refresh token cookie to rehydrate the access token.
     const userJson = localStorage.getItem('rvr_user');
-    if (token && userJson) {
+    if (userJson) {
       try {
         const user = JSON.parse(userJson) as User;
-        set({ token, user, isAuthenticated: true });
+        // isAuthenticated stays false until a new access token is obtained
+        set({ user, isAuthenticated: false });
       } catch {
-        localStorage.removeItem('rvr_token');
         localStorage.removeItem('rvr_user');
       }
     }

@@ -84,8 +84,14 @@ public class TenantMiddleware
 
     private string? ResolveTenantId(HttpContext context)
     {
-        var tenantId = context.Request.Headers[_tenantHeaderName].FirstOrDefault();
-        if (string.IsNullOrEmpty(tenantId)) tenantId = context.Request.Query[_tenantQueryStringName].FirstOrDefault();
+        // Security: only accept X-Tenant-Id header and query string when the user is authenticated
+        // to prevent unauthenticated callers from impersonating tenants.
+        string? tenantId = null;
+        if (context.User.Identity?.IsAuthenticated == true)
+        {
+            tenantId = context.Request.Headers[_tenantHeaderName].FirstOrDefault();
+            if (string.IsNullOrEmpty(tenantId)) tenantId = context.Request.Query[_tenantQueryStringName].FirstOrDefault();
+        }
         if (string.IsNullOrEmpty(tenantId))
         {
             var host = context.Request.Host.Host;

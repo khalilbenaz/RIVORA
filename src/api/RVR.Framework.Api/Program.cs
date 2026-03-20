@@ -118,7 +118,8 @@ try
     // Compression de réponse
     builder.Services.AddResponseCompression(options =>
     {
-        options.EnableForHttps = true;
+        // Security: disable compression over HTTPS to prevent BREACH attacks
+        options.EnableForHttps = false;
     });
 
     // Output Caching (.NET 8+)
@@ -237,7 +238,11 @@ try
     builder.Services.AddGrpc();
 
     // Controllers avec FluentValidation et découverte API
-    builder.Services.AddControllers();
+    builder.Services.AddControllers(options =>
+    {
+        // Security: require authentication by default — use [AllowAnonymous] to opt-out
+        options.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter());
+    });
 
     // FluentValidation
     builder.Services.AddFluentValidationAutoValidation();
@@ -287,7 +292,21 @@ try
         .ValidateDataAnnotations()
         .ValidateOnStart();
 
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        // Default policy: require authenticated user
+        options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .Build();
+
+        // Named policies for role-based access
+        options.AddPolicy("RequireAdmin", policy =>
+            policy.RequireRole("Admin", "SuperAdmin"));
+        options.AddPolicy("RequireManager", policy =>
+            policy.RequireRole("Admin", "SuperAdmin", "Manager"));
+        options.AddPolicy("RequireUser", policy =>
+            policy.RequireAuthenticatedUser());
+    });
 
     // Swagger/OpenAPI avec support JWT
     builder.Services.AddEndpointsApiExplorer();
@@ -359,7 +378,7 @@ try
     // CORS
     builder.Services.AddCors(options =>
     {
-        options.AddPolicy("AllowAll", policy =>
+        options.AddPolicy("DefaultCorsPolicy", policy =>
         {
             if (builder.Environment.IsDevelopment())
             {
@@ -456,7 +475,7 @@ try
     app.UseResponseCompression();
     app.UseMiddleware<ETagMiddleware>();
     app.UseHttpsRedirection();
-    app.UseCors("AllowAll");
+    app.UseCors("DefaultCorsPolicy");
     app.UseRateLimiter();
 
     // Configuration de la localisation

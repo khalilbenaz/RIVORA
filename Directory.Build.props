@@ -3,6 +3,8 @@
     <!-- Suppress NU1507: Multiple package sources warning when using central package management -->
     <!-- This is expected as the dev environment has both nuget.org and a private feed -->
     <NoWarn>$(NoWarn);NU1507</NoWarn>
+    <!-- Suppress Grpc.Net.ClientFactory version compatibility warning (transitive dependency) -->
+    <SuppressCheckGrpcNetClientFactoryVersion>true</SuppressCheckGrpcNetClientFactoryVersion>
 
     <!-- Shared NuGet package metadata -->
     <Authors>Khalil BENAZZOUZZ</Authors>

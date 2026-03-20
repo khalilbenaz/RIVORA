@@ -7,6 +7,7 @@ using RVR.Framework.Security.Interfaces;
 using RVR.Framework.Security.Jobs;
 using RVR.Framework.Security.Middleware;
 using RVR.Framework.Security.Services;
+using RVR.Framework.Security.Validation;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -59,6 +60,10 @@ public static class SecurityServiceCollectionExtensions
         // Password Hashing Services
         services.AddOptions<PasswordHasherOptions>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
+        // Password Policy Validation
+        services.AddOptions<PasswordPolicyOptions>();
+        services.AddScoped<IPasswordPolicyValidator, PasswordPolicyValidator>();
 
         // Permission Services
         services.AddSingleton<IPermissionStore, InMemoryPermissionStore>();
@@ -122,6 +127,10 @@ public static class SecurityServiceCollectionExtensions
         // Password Hashing Services
         services.AddOptions<PasswordHasherOptions>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
+        // Password Policy Validation
+        services.AddOptions<PasswordPolicyOptions>();
+        services.AddScoped<IPasswordPolicyValidator, PasswordPolicyValidator>();
 
         // Permission Services
         services.AddSingleton<IPermissionStore, InMemoryPermissionStore>();

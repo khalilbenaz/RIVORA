@@ -18,7 +18,7 @@ export default function ClientLogin() {
     setLoading(true);
     try {
       const res = await authApi.login({ userName, password });
-      login(res.data.token, res.data.user);
+      login(res.data.token, res.data.refreshToken, res.data.user);
     } catch {
       setError('Identifiants incorrects. Vérifiez votre nom d\'utilisateur et mot de passe.');
     } finally {

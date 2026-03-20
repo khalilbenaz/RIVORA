@@ -15,6 +15,8 @@ namespace RVR.Framework.Api.Controllers;
 [Tags("Initialization")]
 public class InitController : ControllerBase
 {
+    private static readonly SemaphoreSlim _initLock = new(1, 1);
+
     private readonly IUserService _userService;
     private readonly ILogger<InitController> _logger;
 
@@ -54,6 +56,8 @@ public class InitController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserDto>> InitializeFirstAdmin([FromBody] CreateUserDto dto, CancellationToken cancellationToken)
     {
+        if (!await _initLock.WaitAsync(TimeSpan.FromSeconds(5)))
+            return StatusCode(StatusCodes.Status429TooManyRequests, new { message = "Initialization already in progress." });
         try
         {
             if (!ModelState.IsValid)
@@ -92,6 +96,10 @@ public class InitController : ControllerBase
         {
             _logger.LogError(ex, "Erreur lors de l'initialisation du premier administrateur");
             return StatusCode(500, new { message = "Une erreur s'est produite lors de l'initialisation." });
+        }
+        finally
+        {
+            _initLock.Release();
         }
     }
 

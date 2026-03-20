@@ -7,8 +7,8 @@ services:
     container_name: saas-starter-db
     environment:
       POSTGRES_DB: saas_starter
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     ports:
       - "5432:5432"
     volumes:
@@ -41,8 +41,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=saas_starter;Username=postgres;Password=postgres
-      - IdentitySettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=saas_starter;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - IdentitySettings__SecretKey=${IDENTITY_SECRET_KEY}
       - IdentitySettings__Issuer=RVR.SaaS.Starter
       - IdentitySettings__Audience=RVR.SaaS.Starter.Users
     ports:
