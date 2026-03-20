@@ -25,10 +25,13 @@ public class ImpersonationService : IImpersonationService
 
     public ImpersonationService(
         ILogger<ImpersonationService> logger,
-        string signingKey = "RVR-Framework-Default-Signing-Key-Replace-In-Production-Min32Chars",
+        string signingKey,
         string issuer = "RVR.Framework.Identity.Pro",
         string audience = "RVR.Framework")
     {
+        if (string.IsNullOrWhiteSpace(signingKey))
+            throw new InvalidOperationException("Impersonation signing key must be configured. Set it via 'JwtSettings__SecretKey' environment variable.");
+
         _logger = logger;
         _signingKey = signingKey;
         _issuer = issuer;

@@ -45,6 +45,7 @@ public sealed class SmtpEmailSender : IEmailSender, IDisposable
 
         foreach (var to in message.To)
         {
+            ValidateEmailAddress(to);
             mailMessage.To.Add(to);
         }
 
@@ -87,6 +88,14 @@ public sealed class SmtpEmailSender : IEmailSender, IDisposable
                 await stream.DisposeAsync();
             }
         }
+    }
+
+    private static void ValidateEmailAddress(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("Email address cannot be empty.");
+        if (email.Contains('\r') || email.Contains('\n'))
+            throw new ArgumentException($"Invalid email address: contains control characters.");
     }
 
     /// <inheritdoc />

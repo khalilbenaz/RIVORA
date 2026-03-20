@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 
 namespace RVR.Framework.Webhooks.Incoming;
 
@@ -19,7 +20,8 @@ public static class IncomingWebhookEndpoints
         app.MapPost("/api/webhooks/incoming/{source}", async (
             string source,
             HttpContext httpContext,
-            InMemoryIncomingWebhookStore store) =>
+            InMemoryIncomingWebhookStore store,
+            ILogger<InMemoryIncomingWebhookStore> logger) =>
         {
             // Read raw body
             httpContext.Request.EnableBuffering();
@@ -84,6 +86,23 @@ public static class IncomingWebhookEndpoints
             {
                 // No signature validation configured — mark as valid
                 log.SignatureValid = true;
+            }
+
+            // Replay attack protection: validate webhook timestamp
+            var timestampHeader = httpContext.Request.Headers["X-Webhook-Timestamp"].FirstOrDefault()
+                ?? httpContext.Request.Headers["X-Signature-Timestamp"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(timestampHeader) && long.TryParse(timestampHeader, out var timestamp))
+            {
+                var webhookTime = DateTimeOffset.FromUnixTimeSeconds(timestamp);
+                if (DateTimeOffset.UtcNow - webhookTime > TimeSpan.FromMinutes(5))
+                {
+                    logger.LogWarning("Rejected stale webhook from {Source} — timestamp {Timestamp} is older than 5 minutes", source, timestampHeader);
+                    return Results.Ok(new { status = "rejected", reason = "stale_timestamp" });
+                }
+            }
+            else if (string.IsNullOrEmpty(timestampHeader))
+            {
+                logger.LogWarning("Incoming webhook from {Source} did not include a timestamp header", source);
             }
 
             log.Status = "processed";
