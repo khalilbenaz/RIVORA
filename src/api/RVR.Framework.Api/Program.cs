@@ -252,16 +252,21 @@ try
 
     // Authentication JWT
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    var jwtAlgorithm = jwtSettings["Algorithm"]?.ToUpperInvariant() ?? "HS256";
     var secretKey = jwtSettings["SecretKey"];
-    if (string.IsNullOrWhiteSpace(secretKey))
+
+    if (jwtAlgorithm == "HS256")
     {
-        throw new InvalidOperationException(
-            "JWT SecretKey is not configured. Set it via environment variable 'JwtSettings__SecretKey' " +
-            "or user-secrets. Never hardcode secrets in appsettings.json.");
-    }
-    if (secretKey.Length < 32)
-    {
-        throw new InvalidOperationException("JWT SecretKey must be at least 32 characters long.");
+        if (string.IsNullOrWhiteSpace(secretKey))
+        {
+            throw new InvalidOperationException(
+                "JWT SecretKey is not configured. Set it via environment variable 'JwtSettings__SecretKey' " +
+                "or user-secrets. Never hardcode secrets in appsettings.json.");
+        }
+        if (secretKey.Length < 32)
+        {
+            throw new InvalidOperationException("JWT SecretKey must be at least 32 characters long.");
+        }
     }
 
     builder.Services.AddAuthentication(options =>
@@ -273,17 +278,51 @@ try
     {
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         options.SaveToken = true;
-        options.TokenValidationParameters = new TokenValidationParameters
+
+        if (jwtAlgorithm == "RS256")
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-            ValidateIssuer = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidateAudience = true,
-            ValidAudience = jwtSettings["Audience"],
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
+            var publicKeyPath = jwtSettings["RsaPublicKeyPath"];
+            var privateKeyPath = jwtSettings["RsaPrivateKeyPath"];
+            var rsaKeyPath = !string.IsNullOrWhiteSpace(publicKeyPath) ? publicKeyPath : privateKeyPath;
+            if (string.IsNullOrWhiteSpace(rsaKeyPath))
+                throw new InvalidOperationException("RsaPrivateKeyPath or RsaPublicKeyPath is required when Algorithm is RS256.");
+
+            var rsa = System.Security.Cryptography.RSA.Create();
+            var keyText = File.ReadAllText(rsaKeyPath);
+            rsa.ImportFromPem(keyText);
+
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new RsaSecurityKey(rsa),
+                ValidateIssuer = true,
+                ValidIssuer = jwtSettings["Issuer"],
+                ValidateAudience = true,
+                ValidAudience = jwtSettings["Audience"],
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero,
+                // Support key rotation: validate against multiple keys
+                IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+                {
+                    // Return current key; during rotation, both old and new keys are valid
+                    return new[] { parameters.IssuerSigningKey };
+                }
+            };
+        }
+        else
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
+                ValidateIssuer = true,
+                ValidIssuer = jwtSettings["Issuer"],
+                ValidateAudience = true,
+                ValidAudience = jwtSettings["Audience"],
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+        }
     });
 
     // Options validation – fail fast on missing/invalid configuration

@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 [![CI](https://github.com/khalilbenaz/RIVORA/actions/workflows/ci.yml/badge.svg)](https://github.com/khalilbenaz/RIVORA/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/khalilbenaz/RIVORA/graph/badge.svg)](https://codecov.io/gh/khalilbenaz/RIVORA)
-![Version](https://img.shields.io/badge/version-4.1.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-4.2.0-blue?style=flat-square)
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in-Codespaces-blue?logo=github&style=flat-square)](https://codespaces.new/khalilbenaz/RIVORA)
 
 **Framework d'entreprise Cloud-Native pour .NET 9 - Clean Architecture, DDD et Multi-tenancy pour applications SaaS professionnelles.**
@@ -149,6 +149,7 @@ Infrastructure (Data)       EF Core 9, Repositories, Services externes
 ### Securite
 | Feature | Description |
 |---------|-------------|
+| JWT RS256/HS256 | Algorithme configurable (HS256 symmetric, RS256 asymmetric), rotation de cles supportee |
 | JWT + Refresh Tokens | Tokens persistants avec rotation, reuse detection et family revocation |
 | BCrypt Password Hashing | Work factor 12, OWASP compliant |
 | Password Policy Validator | Min 12 chars, complexite configurable, rejet mots de passe communs |
@@ -165,10 +166,10 @@ Infrastructure (Data)       EF Core 9, Repositories, Services externes
 | GDPR Privacy Toolkit | `[PersonalData]`, DSAR, consent management, data anonymizer |
 | Session Management | Identity.Pro session tracking, admin impersonation with JWT |
 | Token Storage | Access token en memoire uniquement (pas de localStorage), resilient au XSS |
-| Tenant Isolation | Verification claim JWT / header, query filters EF Core, rejet header non-authentifie |
+| Tenant Isolation | Verification claim JWT / header, query filters EF Core, rejet header non-authentifie, RLS helper SQL Server/PostgreSQL |
 | GraphQL Security | Max execution depth (15), timeout (10s), anti-DoS |
 | Init Endpoint | Race-condition protected avec SemaphoreSlim |
-| CI/CD Security | Actions SHA-pinned, gitleaks, Trivy, npm audit, NuGet audit bloquant |
+| CI/CD Security | Actions SHA-pinned, gitleaks, Trivy, npm audit, NuGet audit bloquant, SBOM, license compliance, NuGet signing |
 
 ### Performance
 | Feature | Description |

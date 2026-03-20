@@ -1,0 +1,19 @@
+title = "RIVORA gitleaks config"
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''\.env\.example$''',
+    '''appsettings\.json$''',
+    '''appsettings\.Production\.json$''',
+    '''docs/''',
+    '''samples/.*\.md$''',
+]
+
+# Allow placeholder/empty secrets in config files
+regexes = [
+    '''SecretKey.*""''',
+    '''ClientSecret.*""''',
+    '''CHANGE_ME''',
+    '''your-production-domain''',
+]

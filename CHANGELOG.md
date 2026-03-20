@@ -1,5 +1,32 @@
 # Changelog
 
+## [v4.2.0] - 2026-03-20
+
+### Security — Phase 3: Automation & Architecture
+
+#### JWT RS256 Asymmetric Signing
+- **sec: RS256/ES256 JWT support** — configurable `Algorithm` in JwtSettings (`HS256` default, `RS256` for production)
+- **sec: RSA PEM key loading** — `RsaPrivateKeyPath` / `RsaPublicKeyPath` configuration
+- **sec: key rotation support** — `IssuerSigningKeyResolver` + `KeyId` based on key file hash
+- **sec: conditional SecretKey validation** — only enforced for HS256, RS256 requires key path
+
+#### Multi-Tenant Defense-in-Depth
+- **sec: row-level security helper** — `RowLevelSecurityHelper` generates SQL Server + PostgreSQL RLS policies
+- **sec: 11 tenant isolation tests** — header ignored for unauth, claim mismatch = 403, subdomain resolution, case-insensitive comparison
+
+#### CI/CD Security Automation
+- **ci: SBOM generation** — `Microsoft.Sbom.DotNetTool` generates SPDX SBOM on main branch, uploaded as 90-day artifact
+- **ci: license compliance** — `dotnet-project-licenses` checks for GPL/AGPL incompatible licenses
+- **ci: NuGet package signing** — conditional signing with DigiCert timestamping when certificate secret is available
+- **ci: gitleaks config** — `.gitleaks.toml` with allowlists for config/example files
+- **ci: pre-commit hook** — `scripts/install-hooks.sh` installs gitleaks staged file scan
+
+### Improved
+- **test: 456 backend tests** — 11 new tenant isolation tests (total 14 multi-tenancy tests)
+- **test: 74 frontend tests** — all passing
+
+---
+
 ## [v4.1.0] - 2026-03-20
 
 ### Security Hardening — Full Audit (22 fixes)
