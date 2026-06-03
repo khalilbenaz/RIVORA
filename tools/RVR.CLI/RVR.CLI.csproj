@@ -26,7 +26,6 @@
   <ItemGroup>
     <PackageReference Include="Anthropic.SDK" />
     <PackageReference Include="OpenAI" />
-    <PackageReference Include="Scriban" />
     <PackageReference Include="Spectre.Console" />
     <PackageReference Include="System.CommandLine" />
     <PackageReference Include="System.CommandLine.NamingConventionBinder" />

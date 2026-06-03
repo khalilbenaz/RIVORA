@@ -56,12 +56,12 @@
     <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.0.0" />
     <PackageVersion Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />
-    <!-- OpenTelemetry -->
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
+    <!-- OpenTelemetry (1.9.0 -> 1.15.x: GHSA-4625-4j76-fww9 sur l'exporter OTLP) -->
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
     <!-- Polly -->
     <PackageVersion Include="Polly" Version="8.2.0" />
     <PackageVersion Include="Polly.Extensions.Http" Version="3.0.0" />
@@ -263,7 +263,6 @@
     <!-- Memory Streams -->
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
     <!-- CLI Tools -->
-    <PackageVersion Include="Scriban" Version="5.9.0" />
     <PackageVersion Include="Spectre.Console" Version="0.48.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageVersion Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
