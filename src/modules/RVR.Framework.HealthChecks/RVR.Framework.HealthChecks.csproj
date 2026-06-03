@@ -56,4 +56,14 @@
     <PackageReference Include="AspNetCore.HealthChecks.SignalR" />
   </ItemGroup>
 
+  <!-- Security: references directes pour forcer les versions saines de transitives vulnerables -->
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="KubernetesClient" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    <PackageReference Include="Microsoft.Identity.Client" />
+    <PackageReference Include="SharpCompress" />
+    <PackageReference Include="Snappier" />
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
 </Project>

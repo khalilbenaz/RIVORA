@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -27,4 +27,9 @@
     <ProjectReference Include="..\..\src\api\RVR.Framework.Api\RVR.Framework.Api.csproj" />
   </ItemGroup>
 
+  <!-- Security: references directes pour forcer les versions saines de transitives vulnerables -->
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="Microsoft.Identity.Client" />
+  </ItemGroup>
 </Project>

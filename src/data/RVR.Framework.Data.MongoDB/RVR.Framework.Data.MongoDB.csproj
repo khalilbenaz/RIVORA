@@ -14,4 +14,9 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
+  <!-- Security: references directes pour forcer les versions saines de transitives vulnerables -->
+  <ItemGroup>
+    <PackageReference Include="SharpCompress" />
+    <PackageReference Include="Snappier" />
+  </ItemGroup>
 </Project>

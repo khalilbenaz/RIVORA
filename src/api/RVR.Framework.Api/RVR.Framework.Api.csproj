@@ -44,4 +44,9 @@
     <ProjectReference Include="..\..\modules\RVR.Framework.Notifications\RVR.Framework.Notifications.csproj" />
   </ItemGroup>
 
+  <!-- Security: references directes pour forcer les versions saines de transitives vulnerables -->
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="Microsoft.Identity.Client" />
+  </ItemGroup>
 </Project>

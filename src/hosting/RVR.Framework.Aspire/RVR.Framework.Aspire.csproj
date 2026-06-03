@@ -22,4 +22,8 @@
     <ProjectReference Include="..\..\core\RVR.Framework.Core\RVR.Framework.Core.csproj" />
   </ItemGroup>
 
+  <!-- Security: references directes pour forcer les versions saines de transitives vulnerables -->
+  <ItemGroup>
+    <PackageReference Include="KubernetesClient" />
+  </ItemGroup>
 </Project>
