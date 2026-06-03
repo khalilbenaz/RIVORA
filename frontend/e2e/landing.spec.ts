@@ -37,7 +37,8 @@ test.describe('Landing Page', () => {
   test('displays footer with RIVORA branding', async ({ page }) => {
     const footer = page.locator('footer');
     await expect(footer).toBeVisible();
-    await expect(footer.getByText('RIVORA')).toBeVisible();
+    // exact: true — sans ça le locator matche aussi la ligne "© ... RIVORA Framework ..."
+    await expect(footer.getByText('RIVORA', { exact: true })).toBeVisible();
   });
 
   test('footer contains API Explorer link', async ({ page }) => {

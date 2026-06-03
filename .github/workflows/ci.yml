@@ -168,9 +168,9 @@ jobs:
         run: |
           echo "## Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          for trx in $(find ./TestResults -name "*.trx" -type f 2>/dev/null); do
+          while IFS= read -r trx; do
             echo "- Found test result: $trx" >> $GITHUB_STEP_SUMMARY
-          done
+          done < <(find ./TestResults -name "*.trx" -type f 2>/dev/null)
           echo "" >> $GITHUB_STEP_SUMMARY
           # Count coverage files
           COVERAGE_FILES=$(find ./TestResults -name "coverage.cobertura.xml" -type f 2>/dev/null | wc -l)
@@ -191,7 +191,7 @@ jobs:
           echo "## Coverage Summary (threshold: ${COVERAGE_THRESHOLD}% — informational)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           BELOW=false
-          for coverage_file in $(find ./TestResults -name "coverage.cobertura.xml" -type f 2>/dev/null); do
+          while IFS= read -r coverage_file; do
             LINE_RATE=$(grep -oP 'line-rate="\K[^"]+' "$coverage_file" | head -1 || echo "0")
             PCT=$(awk -v r="$LINE_RATE" 'BEGIN{printf "%.2f", r*100}')
             echo "- Coverage: ${PCT}% (threshold: ${COVERAGE_THRESHOLD}%)" >> $GITHUB_STEP_SUMMARY
@@ -199,7 +199,7 @@ jobs:
               echo "  - **BELOW THRESHOLD**" >> $GITHUB_STEP_SUMMARY
               BELOW=true
             fi
-          done
+          done < <(find ./TestResults -name "coverage.cobertura.xml" -type f 2>/dev/null)
           if [ "$BELOW" = "true" ]; then
             echo "::warning::Some coverage reports are below the ${COVERAGE_THRESHOLD}% threshold (informational, non-blocking — Codecov enforces the actual gate)"
           fi

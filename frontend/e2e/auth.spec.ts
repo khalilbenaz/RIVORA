@@ -62,10 +62,11 @@ test.describe('Client Registration', () => {
 
     await expect(page.getByText('Créer un compte')).toBeVisible();
 
-    // Check all form fields exist
+    // Check all form fields exist — FormField renders "{label}*" (required asterisk
+    // inside the same <label>), so exact-text matching never matches
     const labels = ['Prénom', 'Nom', "Nom d'utilisateur", 'Email', 'Mot de passe'];
     for (const label of labels) {
-      await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
+      await expect(page.locator('label', { hasText: label }).first()).toBeVisible();
     }
 
     await expect(page.locator('button[type="submit"]')).toBeVisible();

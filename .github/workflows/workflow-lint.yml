@@ -27,8 +27,12 @@ jobs:
         with:
           persist-credentials: false
 
+      # severity=warning: ignore le bruit style/info de shellcheck (SC2086/SC2129)
+      # sur les scripts inline, ne bloque que warnings et erreurs réels
       - name: Run actionlint
-        run: docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:latest -color
+        env:
+          SHELLCHECK_OPTS: --severity=warning
+        run: docker run --rm -v "$PWD:/repo" --workdir /repo -e SHELLCHECK_OPTS rhysd/actionlint:latest -color
 
   zizmor:
     name: zizmor (security audit)

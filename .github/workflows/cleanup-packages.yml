@@ -51,7 +51,7 @@ jobs:
               -H "Accept: application/vnd.github+json" \
               "https://api.github.com/user/packages/nuget/$pkg/versions")
 
-            echo "$VERSIONS" | jq -r '.[].id' | while read vid; do
+            echo "$VERSIONS" | jq -r '.[].id' | while read -r vid; do
               if [ "$DRY_RUN" = "false" ]; then
                 curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
                   -H "Accept: application/vnd.github+json" \
