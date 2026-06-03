@@ -18,6 +18,9 @@ concurrency:
   group: benchmark-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
 jobs:
   benchmark:
     name: Run Benchmarks
@@ -25,19 +28,31 @@ jobs:
     timeout-minutes: 30
 
     steps:
+      # Ce job exécute le code de la PR — pas de credentials persistés
       - name: Checkout PR branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Checkout base branch for baseline
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: baseline
+          persist-credentials: false
 
       - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: '9.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
         run: dotnet restore tests/RVR.Framework.Benchmarks/RVR.Framework.Benchmarks.csproj
@@ -124,6 +139,12 @@ jobs:
                   return f"{b / 1024:.1f} KB"
               return f"{b:.0f} B"
 
+          def md_escape(s):
+              # Benchmark names come from PR-author code: neutralize markdown/table/mention chars
+              s = s.replace("|", "\\|").replace("`", "\\`")
+              s = s.replace("@", "@​").replace("<", "&lt;").replace(">", "&gt;")
+              return s
+
           lines = []
           lines.append("## Performance Benchmark Results")
           lines.append("")
@@ -148,7 +169,7 @@ jobs:
                           alloc_pct = ((pr["allocated_bytes"] - base["allocated_bytes"]) / base["allocated_bytes"]) * 100
                           alloc_change = f"{alloc_pct:+.1f}%"
 
-                      short_name = name.split(".")[-1] if "." in name else name
+                      short_name = md_escape(name.split(".")[-1] if "." in name else name)
                       if change_pct > 10:
                           status = "regression"
                           regressions.append((short_name, change_pct))
@@ -164,7 +185,7 @@ jobs:
                           f"{alloc_change} | {status} |"
                       )
                   elif pr and not base:
-                      short_name = name.split(".")[-1] if "." in name else name
+                      short_name = md_escape(name.split(".")[-1] if "." in name else name)
                       lines.append(f"| {short_name} | - | {format_ns(pr['mean_ns'])} | NEW | - | new |")
           else:
               lines.append("### PR Branch Results (no baseline available)")
@@ -173,7 +194,7 @@ jobs:
               lines.append("|-----------|------|--------|--------|-----------|")
               for name in sorted(pr_results.keys()):
                   pr = pr_results[name]
-                  short_name = name.split(".")[-1] if "." in name else name
+                  short_name = md_escape(name.split(".")[-1] if "." in name else name)
                   lines.append(
                       f"| {short_name} | {format_ns(pr['mean_ns'])} | "
                       f"{format_ns(pr['median_ns'])} | {format_ns(pr['stddev_ns'])} | "
@@ -216,7 +237,7 @@ jobs:
 
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const fs = require('fs');
@@ -250,14 +271,14 @@ jobs:
             }
 
       - name: Upload benchmark artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: benchmark-results-${{ github.sha }}
           path: |
             BenchmarkResults/
             benchmark-report.md
-          retention-days: 90
+          retention-days: 7
 
       - name: Warn on regressions
         if: steps.compare.outputs.has_regressions == 'true'

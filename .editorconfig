@@ -1,0 +1,35 @@
+# EditorConfig — règles de base pour que `dotnet format --verify-no-changes`
+# en CI soit déterministe (sans ce fichier, le job code-quality était décoratif)
+root = true
+
+[*]
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+[*.{cs,csx}]
+indent_size = 4
+end_of_line = crlf
+
+# Conventions C# de base (defaults .NET — non bloquantes tant que le job
+# code-quality garde continue-on-error)
+dotnet_sort_system_directives_first = true
+csharp_new_line_before_open_brace = all
+csharp_prefer_braces = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[*.{js,jsx,ts,tsx,css,scss,html,vue}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{csproj,props,targets,sln}]
+indent_size = 2

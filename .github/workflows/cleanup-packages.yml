@@ -1,7 +1,24 @@
 name: Cleanup GitHub Packages
 
+# Opération destructive et irréversible — garde-fous:
+#   1. confirm=DELETE obligatoire (sinon échec immédiat)
+#   2. dry_run=true par défaut (liste sans supprimer)
+#   3. allowlist explicite des packages à supprimer (plus de filtre inversé
+#      qui supprimait TOUT le compte sauf RVR.CLI)
 on:
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Taper DELETE pour confirmer la suppression"
+        required: true
+        default: ""
+      dry_run:
+        description: "true = lister sans supprimer (défaut)"
+        required: true
+        default: "true"
+      packages:
+        description: "Noms exacts des packages NuGet à supprimer (séparés par des espaces)"
+        required: true
 
 permissions:
   packages: write
@@ -9,35 +26,48 @@ permissions:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Delete all RVR.Framework packages (keep only RVR.CLI)
+      - name: Guard — require explicit confirmation
+        if: ${{ inputs.confirm != 'DELETE' }}
+        run: |
+          echo "::error::Confirmation manquante. Relancer avec confirm=DELETE."
+          exit 1
+
+      - name: Delete listed packages (dry-run by default)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          PACKAGES: ${{ inputs.packages }}
         run: |
-          # List all NuGet packages for this user
-          PACKAGES=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/user/packages?package_type=nuget&per_page=100")
+          for pkg in $PACKAGES; do
+            if [ "$pkg" = "RVR.CLI" ]; then
+              echo "Refus de supprimer RVR.CLI (package protégé)"
+              continue
+            fi
+            echo "Target package: $pkg (dry_run=$DRY_RUN)"
 
-          echo "$PACKAGES" | jq -r '.[] | select(.name != "RVR.CLI") | .name' | while read pkg; do
-            echo "Deleting package: $pkg"
-            # Get all versions
             VERSIONS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               "https://api.github.com/user/packages/nuget/$pkg/versions")
 
             echo "$VERSIONS" | jq -r '.[].id' | while read vid; do
-              curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/user/packages/nuget/$pkg/versions/$vid"
-              echo "  Deleted version $vid"
+              if [ "$DRY_RUN" = "false" ]; then
+                curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
+                  -H "Accept: application/vnd.github+json" \
+                  "https://api.github.com/user/packages/nuget/$pkg/versions/$vid"
+                echo "  Deleted version $vid"
+              else
+                echo "  [dry-run] would delete version $vid"
+              fi
             done
 
-            # Delete the package itself
-            curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/user/packages/nuget/$pkg"
-            echo "  Package $pkg deleted"
+            if [ "$DRY_RUN" = "false" ]; then
+              curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/user/packages/nuget/$pkg"
+              echo "  Package $pkg deleted"
+            else
+              echo "  [dry-run] would delete package $pkg"
+            fi
           done
-
-          echo "Done. Only RVR.CLI should remain."

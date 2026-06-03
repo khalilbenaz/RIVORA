@@ -1,0 +1,55 @@
+name: Workflow Lint
+
+# Lint les workflows eux-mêmes: actionlint (erreurs d'expressions, shellcheck des
+# scripts inline, needs invalides) + zizmor (audit sécurité: injection, tokens)
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/**']
+  pull_request:
+    paths: ['.github/workflows/**']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workflow-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Run actionlint
+        run: docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:latest -color
+
+  zizmor:
+    name: zizmor (security audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor
+        run: pipx run zizmor --format sarif . > zizmor.sarif || true
+
+      - name: Upload SARIF to Code Scanning
+        if: hashFiles('zizmor.sarif') != ''
+        uses: github/codeql-action/upload-sarif@ff0a06e83cb2de871e5a09832bc6a81e7276941f # v3.28.18
+        with:
+          sarif_file: zizmor.sarif
+          category: zizmor
