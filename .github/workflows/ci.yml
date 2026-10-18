@@ -303,7 +303,7 @@ jobs:
       - name: Generate SBOM
         run: |
           dotnet tool install --global Microsoft.Sbom.DotNetTool 2>/dev/null || true
-          sbom-tool generate -b . -bc src/ -pn RIVORA -pv ${{ github.sha }} -ps khalilbenaz -nsb https://github.com/khalilbenaz/RIVORA -m .
+          sbom-tool generate -b . -bc src/ -pn RIVORA -pv ${{ github.sha }} -ps khalilbenaz -nsb https://github.com/vantaflow/RIVORA -m .
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -693,7 +693,7 @@ jobs:
       - name: Push to GitHub Packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet nuget push "./artifacts/*.nupkg" --api-key "$GITHUB_TOKEN" --source "https://nuget.pkg.github.com/khalilbenaz/index.json" --skip-duplicate
+        run: dotnet nuget push "./artifacts/*.nupkg" --api-key "$GITHUB_TOKEN" --source "https://nuget.pkg.github.com/vantaflow/index.json" --skip-duplicate
 
       - name: Upload NuGet artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

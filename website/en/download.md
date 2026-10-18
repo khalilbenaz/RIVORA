@@ -6,11 +6,11 @@ RVR Studio Desktop is the official application to create and manage RIVORA proje
 
 | Platform | File | Format |
 |----------|------|--------|
-| **Windows** (x64) | [RVR-Studio-Setup-win-x64.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.zip) | ZIP |
-| **macOS** (x64) | [RVR-Studio-Setup-macos.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.tar.gz) | tar.gz |
-| **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | tar.gz |
+| **Windows** (x64) | [RVR-Studio-Setup-win-x64.zip](https://github.com/vantaflow/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.zip) | ZIP |
+| **macOS** (x64) | [RVR-Studio-Setup-macos.tar.gz](https://github.com/vantaflow/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.tar.gz) | tar.gz |
+| **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/vantaflow/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | tar.gz |
 
-> Installers are automatically attached to each [GitHub Release](https://github.com/khalilbenaz/RIVORA/releases).
+> Installers are automatically attached to each [GitHub Release](https://github.com/vantaflow/RIVORA/releases).
 >
 > Prerequisite: [.NET 9 Runtime](https://dotnet.microsoft.com/download/dotnet/9.0) installed on your machine.
 
@@ -53,7 +53,7 @@ rvr new
 
 No installation required — develop directly in the browser:
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/khalilbenaz/RIVORA)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/vantaflow/RIVORA)
 
 ## Features
 

@@ -232,11 +232,11 @@ RIVORA est un framework .NET 9 enterprise avec :
 
 ## Liens
 
-- [Documentation](https://khalilbenaz.github.io/RIVORA/)
-- [GitHub](https://github.com/khalilbenaz/RIVORA)
-- [Release Notes](https://github.com/khalilbenaz/RIVORA/releases)
-- [Guide : Creer son projet](https://khalilbenaz.github.io/RIVORA/guide/create-project)
+- [Documentation](https://vantaflow.github.io/RIVORA/)
+- [GitHub](https://github.com/vantaflow/RIVORA)
+- [Release Notes](https://github.com/vantaflow/RIVORA/releases)
+- [Guide : Creer son projet](https://vantaflow.github.io/RIVORA/guide/create-project)
 
 ## License
 
-MIT - [Khalil Benazzouz](https://github.com/khalilbenaz)
+MIT - [vantaflow](https://github.com/vantaflow)

@@ -69,7 +69,7 @@ Le hero affiche un badge de version, un titre avec gradient et deux CTA. Pour mo
 
 - `Connexion` pointe vers `/app/login`
 - `Essai gratuit` et les CTA pointent vers `/app/register`
-- Le lien GitHub ouvre `https://github.com/khalilbenaz/RIVORA`
+- Le lien GitHub ouvre `https://github.com/vantaflow/RIVORA`
 
 ## Stack technique
 

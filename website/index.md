@@ -10,7 +10,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: Voir sur GitHub
-      link: https://github.com/khalilbenaz/RIVORA
+      link: https://github.com/vantaflow/RIVORA
 features:
   - title: Clean Architecture + Event Sourcing
     details: Separation stricte des responsabilites avec Domain, Application, Infrastructure, Presentation. Event Sourcing et Saga/Process Manager.

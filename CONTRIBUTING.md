@@ -60,7 +60,7 @@ cd RVR.Framework
 #### 3. Configurez le remote upstream
 
 ```bash
-git remote add upstream https://github.com/khalilbenaz/RIVORA.git
+git remote add upstream https://github.com/vantaflow/RIVORA.git
 git fetch upstream
 ```
 
@@ -538,15 +538,15 @@ Pour les nouvelles features, mettez à jour :
 
 ## 👥 Contributeurs Principaux
 
-- **Khalil Benazzouz** ([@khalilbenaz](https://github.com/khalilbenaz)) - Créateur et Maintainer.
+- **vantaflow** ([@vantaflow](https://github.com/vantaflow)) - Créateur et Maintainer.
 - **Gemini CLI** (Google AI) - Co-développeur et Assistant IA.
 
 ---
 
 ## 📞 Questions ?
 
-- 💬 Discussions: [GitHub Discussions](https://github.com/khalilbenaz/RIVORA/discussions)
-- 🐛 Issues: [GitHub Issues](https://github.com/khalilbenaz/RIVORA/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/vantaflow/RIVORA/discussions)
+- 🐛 Issues: [GitHub Issues](https://github.com/vantaflow/RIVORA/issues)
 
 ---
 

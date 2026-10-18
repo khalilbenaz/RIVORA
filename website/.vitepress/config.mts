@@ -252,11 +252,11 @@ export default defineConfig({
   themeConfig: {
     search: { provider: 'local' },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/khalilbenaz/RIVORA' }
+      { icon: 'github', link: 'https://github.com/vantaflow/RIVORA' }
     ],
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright 2024-2026 Khalil Benazzouz'
+      copyright: 'Copyright 2024-2026 vantaflow'
     }
   }
 })

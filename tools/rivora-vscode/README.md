@@ -1,6 +1,6 @@
 # RIVORA Framework - VS Code Extension
 
-Official VS Code extension for the [RIVORA Framework](https://github.com/khalilbenaz/RVR.Framework). Provides snippets, commands, and productivity tools for building modular .NET applications with RIVORA.
+Official VS Code extension for the [RIVORA Framework](https://github.com/vantaflow/RVR.Framework). Provides snippets, commands, and productivity tools for building modular .NET applications with RIVORA.
 
 ## Installation
 

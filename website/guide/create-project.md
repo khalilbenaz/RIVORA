@@ -24,7 +24,7 @@ dotnet tool install --global dotnet-ef
 ## Etape 1 : Cloner le framework
 
 ```bash
-git clone https://github.com/khalilbenaz/RIVORA.git MonProjet
+git clone https://github.com/vantaflow/RIVORA.git MonProjet
 cd MonProjet
 ```
 

@@ -309,8 +309,8 @@ public static class UpgradeCommand
                 },
                 ManualSteps = new List<ManualStep>
                 {
-                    new() { Description = "Remove IAuditable implementation from entities — audit fields are now in Entity base class", Documentation = "https://github.com/khalilbenaz/RIVORA/wiki/v4-migration" },
-                    new() { Description = "Review and update any custom middleware that references the old pipeline", Documentation = "https://github.com/khalilbenaz/RIVORA/wiki/v4-middleware" },
+                    new() { Description = "Remove IAuditable implementation from entities — audit fields are now in Entity base class", Documentation = "https://github.com/vantaflow/RIVORA/wiki/v4-migration" },
+                    new() { Description = "Review and update any custom middleware that references the old pipeline", Documentation = "https://github.com/vantaflow/RIVORA/wiki/v4-middleware" },
                 }
             }
         };

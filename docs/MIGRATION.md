@@ -199,7 +199,7 @@ docs/
 
 ```bash
 # Sauvegarder votre code actuel
-git clone https://github.com/khalilbenaz/RIVORA.git kba-backup
+git clone https://github.com/vantaflow/RIVORA.git kba-backup
 cd kba-backup
 git checkout <votre-version>
 ```

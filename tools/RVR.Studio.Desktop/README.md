@@ -42,4 +42,4 @@ The React Front End (`frontend/`) provides additional pages (Flow Builder, Kanba
 
 - [React Front End](../../frontend/) — 28 pages SPA
 - [RVR CLI](../RVR.CLI/) — Command-line scaffolding and AI tools
-- [Documentation](https://khalilbenaz.github.io/RIVORA/) — Full online docs
+- [Documentation](https://vantaflow.github.io/RIVORA/) — Full online docs

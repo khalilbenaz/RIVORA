@@ -4,7 +4,7 @@ import { Code2, Book, Settings, Key, BarChart3, Shield } from 'lucide-react';
 
 const quickActions = [
   { icon: Code2, title: 'API Explorer', desc: 'Testez les endpoints de votre API', href: '/swagger', external: true },
-  { icon: Book, title: 'Documentation', desc: 'Guides et référence API complète', href: 'https://khalilbenaz.github.io/RIVORA/', external: true },
+  { icon: Book, title: 'Documentation', desc: 'Guides et référence API complète', href: 'https://vantaflow.github.io/RIVORA/', external: true },
   { icon: Key, title: 'Clés API', desc: 'Gérez vos clés d\'accès API', href: '/app/settings' },
   { icon: BarChart3, title: 'Métriques', desc: 'Consultez vos statistiques d\'usage', href: '/app/settings' },
   { icon: Shield, title: 'Sécurité', desc: 'Activez le 2FA et gérez vos sessions', href: '/app/settings' },

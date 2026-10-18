@@ -1205,4 +1205,4 @@ Le développement suit un modèle de "Waves" :
 
 ---
 
-**RIVORA Framework Team** - [khalilbenaz/RIVORA](https://github.com/khalilbenaz/RIVORA)
+**RIVORA Framework Team** - [vantaflow/RIVORA](https://github.com/vantaflow/RIVORA)

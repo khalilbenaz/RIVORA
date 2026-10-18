@@ -275,7 +275,7 @@ public class MonPlugin : IRvrPlugin
 
 Publiez le package avec le prefixe `RVR.Plugin.` sur NuGet pour qu'il soit decouvert automatiquement.
 
-Voir l'exemple complet dans [samples/custom-plugin](https://github.com/khalilbenaz/RIVORA/tree/main/samples/custom-plugin).
+Voir l'exemple complet dans [samples/custom-plugin](https://github.com/vantaflow/RIVORA/tree/main/samples/custom-plugin).
 
 ## Fonctionnalites cles
 

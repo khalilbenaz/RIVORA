@@ -11,14 +11,14 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <Version>4.0.0-preview.1</Version>
     <PackageId>RVR.CLI</PackageId>
-    <Authors>Khalil Benazzouz</Authors>
+    <Authors>vantaflow</Authors>
     <Description>Rivora Framework CLI - Enterprise .NET 9 scaffolding, AI code review, domain design, migrations, environment management, publishing, and upgrade assistant</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://github.com/khalilbenaz/RIVORA</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/khalilbenaz/RIVORA</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/vantaflow/RIVORA</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vantaflow/RIVORA</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/khalilbenaz/RIVORA/releases</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/vantaflow/RIVORA/releases</PackageReleaseNotes>
     <PackageTags>rivora rvr framework dotnet cli tool generator scaffolding ai review design publish env upgrade seed</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

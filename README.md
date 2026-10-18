@@ -2,10 +2,10 @@
 
 ![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
-[![CI](https://github.com/khalilbenaz/RIVORA/actions/workflows/ci.yml/badge.svg)](https://github.com/khalilbenaz/RIVORA/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/khalilbenaz/RIVORA/graph/badge.svg)](https://codecov.io/gh/khalilbenaz/RIVORA)
+[![CI](https://github.com/vantaflow/RIVORA/actions/workflows/ci.yml/badge.svg)](https://github.com/vantaflow/RIVORA/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/vantaflow/RIVORA/graph/badge.svg)](https://codecov.io/gh/vantaflow/RIVORA)
 ![Version](https://img.shields.io/badge/version-4.2.0-blue?style=flat-square)
-[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in-Codespaces-blue?logo=github&style=flat-square)](https://codespaces.new/khalilbenaz/RIVORA)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in-Codespaces-blue?logo=github&style=flat-square)](https://codespaces.new/vantaflow/RIVORA)
 
 **Framework d'entreprise Cloud-Native pour .NET 9 - Clean Architecture, DDD et Multi-tenancy pour applications SaaS professionnelles.**
 
@@ -88,7 +88,7 @@ npm run dev    # http://localhost:3000 (proxy vers API .NET)
 ### Installation
 ```bash
 # 1. Cloner
-git clone https://github.com/khalilbenaz/RIVORA.git
+git clone https://github.com/vantaflow/RIVORA.git
 cd RVR.Framework
 
 # 2. Restaurer et Lancer
@@ -228,7 +228,7 @@ Infrastructure (Data)       EF Core 9, Repositories, Services externes
 
 ## Quick Start with Codespaces
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/khalilbenaz/RIVORA)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/vantaflow/RIVORA)
 
 Click the button above to get a pre-configured development environment with .NET 9 SDK and RVR CLI installed.
 
@@ -302,13 +302,13 @@ rvr benchmark
 
 | Plateforme | Fichier | Format |
 |------------|---------|--------|
-| **Windows** (x64) | [RVR-Studio-Setup-win-x64.zip](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.zip) | ZIP |
-| **macOS** (x64) | [RVR-Studio-Setup-macos.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.tar.gz) | tar.gz |
-| **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/khalilbenaz/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | tar.gz |
+| **Windows** (x64) | [RVR-Studio-Setup-win-x64.zip](https://github.com/vantaflow/RIVORA/releases/latest/download/RVR-Studio-Setup-win-x64.zip) | ZIP |
+| **macOS** (x64) | [RVR-Studio-Setup-macos.tar.gz](https://github.com/vantaflow/RIVORA/releases/latest/download/RVR-Studio-Setup-macos.tar.gz) | tar.gz |
+| **Linux** (x64) | [RVR-Studio-linux-x64.tar.gz](https://github.com/vantaflow/RIVORA/releases/latest/download/RVR-Studio-linux-x64.tar.gz) | tar.gz |
 
 > Prerequis : [.NET 9 Runtime](https://dotnet.microsoft.com/download/dotnet/9.0) installe sur la machine.
 
-> Tous les installeurs sont disponibles sur la page [Releases](https://github.com/khalilbenaz/RIVORA/releases).
+> Tous les installeurs sont disponibles sur la page [Releases](https://github.com/vantaflow/RIVORA/releases).
 
 ---
 
@@ -324,7 +324,7 @@ rvr benchmark
 | [Project Context](docs/project-context.md) | Vue d'ensemble technique complete |
 | [Modules](docs/modules/) | Documentation par module |
 | [CLI](docs/cli/) | Reference commandes CLI |
-| [Site web](https://khalilbenaz.github.io/RIVORA/) | Documentation complete en ligne |
+| [Site web](https://vantaflow.github.io/RIVORA/) | Documentation complete en ligne |
 
 ---
 

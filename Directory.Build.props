@@ -7,14 +7,14 @@
     <SuppressCheckGrpcNetClientFactoryVersion>true</SuppressCheckGrpcNetClientFactoryVersion>
 
     <!-- Shared NuGet package metadata -->
-    <Authors>Khalil BENAZZOUZZ</Authors>
+    <Authors>vantaflowZ</Authors>
     <Company>RIVORA</Company>
     <Product>RIVORA Framework</Product>
     <Copyright>Copyright © RIVORA $(CurrentYear). All rights reserved.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/khalilbenaz/RIVORA</RepositoryUrl>
+    <RepositoryUrl>https://github.com/vantaflow/RIVORA</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageProjectUrl>https://github.com/khalilbenaz/RIVORA</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/vantaflow/RIVORA</PackageProjectUrl>
     <PackageTags>rivora;framework;dotnet;enterprise;modular;clean-architecture</PackageTags>
     <Description>RIVORA Framework - Enterprise .NET 9 Modular Framework</Description>
 

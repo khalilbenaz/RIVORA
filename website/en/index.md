@@ -10,7 +10,7 @@ hero:
       link: /en/guide/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/khalilbenaz/RIVORA
+      link: https://github.com/vantaflow/RIVORA
 features:
   - title: Clean Architecture
     details: Strict separation of concerns with Domain, Application, Infrastructure, Presentation layers.

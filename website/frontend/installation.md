@@ -15,7 +15,7 @@ Ce guide couvre l'installation et la configuration du frontend React de RIVORA.
 ### 1. Cloner le projet
 
 ```bash
-git clone https://github.com/khalilbenaz/RIVORA.git
+git clone https://github.com/vantaflow/RIVORA.git
 cd RIVORA/src/frontend
 ```
 

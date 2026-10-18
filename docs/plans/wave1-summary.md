@@ -102,7 +102,7 @@ La **Wave 1** a pour objectif d'établir les fondations documentaires du framewo
 **Code Snippets:**
 ```bash
 # Installation
-git clone https://github.com/khalilbenaz/RIVORA.git
+git clone https://github.com/vantaflow/RIVORA.git
 cd RVR.Framework
 dotnet restore
 dotnet ef database update --project src/RVR.Framework.Infrastructure --startup-project src/RVR.Framework.Api

@@ -208,7 +208,7 @@ public class SarifFormatter : IOutputFormatter
                     {
                         ["name"] = result.AnalyzerName,
                         ["version"] = "2.1.0",
-                        ["informationUri"] = "https://github.com/khalilbenaz/RIVORA",
+                        ["informationUri"] = "https://github.com/vantaflow/RIVORA",
                         ["rules"] = rules
                     }
                 },

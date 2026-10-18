@@ -77,7 +77,7 @@ export default function LandingPage() {
               Démarrer gratuitement <ArrowRight size={16} />
             </Link>
             <a
-              href="https://github.com/khalilbenaz/RIVORA"
+              href="https://github.com/vantaflow/RIVORA"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
@@ -250,7 +250,7 @@ $ cd MonSaaS && dotnet run
               Créer mon compte gratuitement
             </Link>
             <a
-              href="https://github.com/khalilbenaz/RIVORA"
+              href="https://github.com/vantaflow/RIVORA"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
@@ -277,13 +277,13 @@ $ cd MonSaaS && dotnet run
               <ul className="space-y-2 text-sm text-slate-500">
                 <li><a href="#features" className="hover:text-slate-900">Features</a></li>
                 <li><a href="#pricing" className="hover:text-slate-900">Pricing</a></li>
-                <li><a href="https://khalilbenaz.github.io/RIVORA/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900">Documentation</a></li>
+                <li><a href="https://vantaflow.github.io/RIVORA/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900">Documentation</a></li>
               </ul>
             </div>
             <div>
               <h4 className="mb-3 text-sm font-semibold text-slate-900">Développeurs</h4>
               <ul className="space-y-2 text-sm text-slate-500">
-                <li><a href="https://github.com/khalilbenaz/RIVORA" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900">GitHub</a></li>
+                <li><a href="https://github.com/vantaflow/RIVORA" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900">GitHub</a></li>
                 <li><Link to="/app/login" className="hover:text-slate-900">API Explorer</Link></li>
                 <li><a href="https://www.nuget.org/packages?q=RVR.Framework" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900">NuGet</a></li>
               </ul>

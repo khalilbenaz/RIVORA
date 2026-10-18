@@ -10,7 +10,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/khalilbenaz/RIVORA.git
+git clone https://github.com/vantaflow/RIVORA.git
 cd RVR.Framework
 
 # Restore packages

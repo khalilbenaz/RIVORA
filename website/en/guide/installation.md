@@ -3,7 +3,7 @@
 ## From Source
 
 ```bash
-git clone https://github.com/khalilbenaz/RIVORA.git
+git clone https://github.com/vantaflow/RIVORA.git
 cd RVR.Framework
 dotnet restore
 dotnet build

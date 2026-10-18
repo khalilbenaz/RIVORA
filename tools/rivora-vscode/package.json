@@ -8,7 +8,7 @@
   "icon": "images/rivora-icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/khalilbenaz/RVR.Framework"
+    "url": "https://github.com/vantaflow/RVR.Framework"
   },
   "engines": {
     "vscode": "^1.85.0"
